@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  HomelabStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "niovial-homelab"
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: project
+          Value: homelab
+    
