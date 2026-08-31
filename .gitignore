@@ -2,3 +2,6 @@ node_modules
 .turbo
 dist/
 *.tsbuildinfo
+.terraform
+*.auto.tfvars
+*.tfvars
