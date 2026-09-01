@@ -28,7 +28,7 @@ locals {
 }
 
 resource "hcloud_network" "homelab_network" {
-  name = "homelab_network"
+  name = "${var.cluster_name}-network"
   ip_range = local.network_cidr
 }
 
