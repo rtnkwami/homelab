@@ -16,22 +16,3 @@ resource "imager_image" "x86_image" {
     arch = "x86"
   }
 }
-
-resource "imager_image" "arm64_image" {
-  image_url = "https://factory.talos.dev/image/${var.talos_schematic_id}/v${var.talos_version}/hcloud-arm64.raw.xz"
-  architecture = "arm"
-  # if you use a bigger server, and the k8s cluster tries to spin up a smaller server during
-  # autoscaling, an error will be thrown, causing failures.
-  server_type = "cax11"
-  location = "hel1"
-  description = "homelab_node_arm64_image"
-
-  timeouts {
-    create = "10m"
-  }
-
-  labels = {
-    os = "talos"
-    arch = "arm64"
-  }
-}
