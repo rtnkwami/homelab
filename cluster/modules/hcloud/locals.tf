@@ -5,6 +5,12 @@ data "hcloud_image" "x86_image" {
 
 locals {
   hcloud_zones = ["nbg1", "fsn1", "hel1"]
+
+  versions = {
+    k8s = "v1.36.1"
+    talos = "v1.13.9"
+    talos_ccm = "v1.13.0"
+  }
 }
 
 resource "tls_private_key" "this" {
