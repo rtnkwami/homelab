@@ -1,7 +1,10 @@
 node_modules
 .turbo
+.mise
 dist/
 *.tsbuildinfo
 .terraform
 *.auto.tfvars
 *.tfvars
+mise.local.toml
+*.tfplan
