@@ -10,6 +10,11 @@ terraform {
       version = "~>1.0"
     }
 
+    talos = {
+      source = "siderolabs/talos"
+      version = "0.11.0"
+    }
+
     tls = {
       source  = "hashicorp/tls"
       version = "~>4.0"
