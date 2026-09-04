@@ -24,6 +24,21 @@ resource "hcloud_load_balancer_service" "this" {
   }
 }
 
+resource "hcloud_load_balancer_service" "talos_api" {
+  load_balancer_id = hcloud_load_balancer.this.id
+  protocol = "tcp"
+  listen_port = 50000
+  destination_port = 50000
+
+  health_check {
+    protocol = "tcp"
+    port = 50000
+    retries = 3
+    interval = 10
+    timeout = 5
+  }
+}
+
 resource "hcloud_load_balancer_target" "this" {
   type = "label_selector"
   load_balancer_id = hcloud_load_balancer.this.id
