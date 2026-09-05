@@ -15,10 +15,17 @@ locals {
         # Replace default network config with actual configured networking and subnets, as
         # network segregation needs to be implemented
         clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
+        extraArgs = {
+          cloud-provider = "external"
+        }
       }
     }
     cluster = {
       network = {
+        # NOTE:
+        # enabling this causes kube-controller-manager settings:
+        # --allocate-node-cidrs = true
+        # --cluster-cidr = podSubnets
         podSubnets = [local.network_config.cidrs.k8s_pods]
         serviceSubnets = [local.network_config.cidrs.k8s_services]
       }
@@ -39,6 +46,13 @@ locals {
           # is not infinite, pod count per node has been reduced.
           node-cidr-mask-size-ipv4 = "26"
         }
+      }
+      inlineManifests = concat(
+        [local.hcloud_secret_manifest],
+        [local.ccm_manifest],
+      )
+      externalCloudProvider = {
+        enabled = true
       }
     }
   }

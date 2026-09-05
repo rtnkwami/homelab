@@ -16,6 +16,9 @@ locals {
         # try to reach kube-dns on the hardcoded original config which would
         # cause them to timeout with an old ip.
         clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
+        extraArgs = {
+          cloud-provider = "external"
+        }
       }
       nodeLabels = {
         "node.niovial.io/pool" = "system"
@@ -38,7 +41,7 @@ resource "talos_machine_configuration_apply" "worker" {
   for_each = hcloud_server.worker
 
   client_configuration = talos_machine_secrets.this.client_configuration
-  machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
+  machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
   # public ip needed, otherwise tofu can't reach nodes
   node = each.value.ipv4_address
 }
