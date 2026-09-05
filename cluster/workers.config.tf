@@ -36,12 +36,3 @@ data "talos_machine_configuration" "worker" {
   kubernetes_version = local.versions.k8s
   config_patches = [yamlencode(local.worker_config)]
 }
-
-resource "talos_machine_configuration_apply" "worker" {
-  for_each = hcloud_server.worker
-
-  client_configuration = talos_machine_secrets.this.client_configuration
-  machine_configuration_input = data.talos_machine_configuration.worker.machine_configuration
-  # public ip needed, otherwise tofu can't reach nodes
-  node = each.value.ipv4_address
-}

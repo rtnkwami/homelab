@@ -34,7 +34,7 @@ resource "hcloud_server" "controlplane" {
   for_each = toset(local.hcloud_zones)
 
   name = "controlplane-${each.value}"
-  server_type = "cx33"
+  server_type = "cpx22"
   image = data.hcloud_image.talos_x86.id
   ssh_keys = [hcloud_ssh_key.this.id]
   placement_group_id = hcloud_placement_group.controlplane.id
@@ -53,38 +53,5 @@ resource "hcloud_server_network" "controlplane" {
 
   server_id = hcloud_server.controlplane[each.key].id
   subnet_id = hcloud_network_subnet.controlplane.id
-}
-# -----------
-
-# -----------
-# SECTION: Workers
-resource "hcloud_placement_group" "worker" {
-  name = "worker"
-  type = "spread"
-}
-
-resource "hcloud_server" "worker" {
-  for_each = toset(local.hcloud_zones)
-
-  name = "system-${each.value}"
-  server_type = "cx33"
-  image = data.hcloud_image.talos_x86.id
-  ssh_keys = [hcloud_ssh_key.this.id]
-  placement_group_id = hcloud_placement_group.worker.id
-
-  public_net {
-    ipv4_enabled = true
-  }
-
-  labels = {
-    "node.niovial.io/pool" = "system"
-  }
-}
-
-resource "hcloud_server_network" "worker" {
-  for_each = hcloud_server.worker
-
-  server_id = hcloud_server.worker[each.key].id
-  subnet_id = hcloud_network_subnet.app.id
 }
 # -----------
