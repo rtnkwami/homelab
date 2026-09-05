@@ -67,6 +67,16 @@ locals {
       enabled = true
       type = "wireguard"
     }
+    gatewayAPI = {
+      enabled = true
+      # NOTE:
+      # This is a cluster-wide config, and individual gateways cannot opt out of this. They must
+      # all use proxy protocol.
+      enableProxyProtocol = true
+      gatewayClass = {
+        create = true
+      }
+    }
     operator = {
       nodeSelector = {
         "node-role.kubernetes.io/control-plane" = ""
