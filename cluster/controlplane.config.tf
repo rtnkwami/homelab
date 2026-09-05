@@ -45,6 +45,7 @@ locals {
           # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
           # is not infinite, pod count per node has been reduced.
           node-cidr-mask-size-ipv4 = "26"
+          cloud-provider = "external"
         }
       }
       inlineManifests = concat(
