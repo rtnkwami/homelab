@@ -22,6 +22,13 @@ locals {
     nodeSelector = {
       "node-role.kubernetes.io/control-plane" = ""
     }
+    # NOTE: 
+    # Used in conjunction with cilium cni. Activate cilium native routing mode causes
+    # the cni to forward packets directly to the Linux kernel on the node for routing.
+    # it requires the underlying network to be capable of routing traffic using pod IPs.
+    # Enabling hcloud ccm networking allows for native routing with cilium.
+    # REF:
+    # - https://docs.cilium.io/en/stable/network/concepts/routing/#id4
     networking = {
       enabled = true
       clusterCIDR = local.network_config.cidrs.k8s_pods

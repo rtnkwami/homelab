@@ -15,6 +15,12 @@ locals {
         # Replace default network config with actual configured networking and subnets, as
         # network segregation needs to be implemented
         clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
+        # NOTE:
+        # If this config is not set, node IPs may be set from outside the configured CIDR range
+        # for the cluster
+        nodeIP = {
+          validSubnets = [local.network_config.cidrs.controlplane]
+        }
         extraArgs = {
           cloud-provider = "external"
         }
@@ -28,6 +34,14 @@ locals {
         # --cluster-cidr = podSubnets
         podSubnets = [local.network_config.cidrs.k8s_pods]
         serviceSubnets = [local.network_config.cidrs.k8s_services]
+        # use cilium instead of default cni
+        cni = {
+          name = "none"
+        }
+      }
+      # disable kube-proxy in favor of cilium
+      proxy = {
+        disabled = true
       }
       apiServer = {
         # NOTE:
@@ -51,6 +65,7 @@ locals {
       inlineManifests = concat(
         [local.hcloud_secret_manifest],
         [local.ccm_manifest],
+        [local.cni_manifest],
       )
       externalCloudProvider = {
         enabled = true
@@ -74,6 +89,7 @@ data "talos_machine_configuration" "controlplane" {
 }
 
 resource "talos_machine_configuration_apply" "controlplane" {
+  depends_on = [hcloud_server_network.controlplane]
   for_each = hcloud_server.controlplane
 
   client_configuration = talos_machine_secrets.this.client_configuration
