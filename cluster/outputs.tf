@@ -1,4 +1,4 @@
-data "talos_cluster_kubeconfig" "this" {
+resource "talos_cluster_kubeconfig" "this" {
   depends_on = [talos_machine_bootstrap.controlplane]
 
   client_configuration = talos_machine_secrets.this.client_configuration
@@ -7,7 +7,7 @@ data "talos_cluster_kubeconfig" "this" {
 
 locals {
   kubeconfig_patch = replace(
-    data.talos_cluster_kubeconfig.this.kubeconfig_raw,
+    talos_cluster_kubeconfig.this.kubeconfig_raw,
     "server: https://${local.controlplane.ip.private}:6443",
     "server: https://${local.controlplane.ip.public}:6443"
   )
