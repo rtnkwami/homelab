@@ -3,6 +3,16 @@ locals {
     # Generate a machine config for each autoscaling group configured for cluster autoscaler
     for pool in local._autoscaler_nodepools : pool.name => [{
       machine = {
+        files = [
+          {
+            path = "/etc/cri/conf.d/20-customization.part"
+            op = "create"
+            content = <<-EOF
+              [plugins."io.containerd.cri.v1.images"]
+              discard_unpacked_layers = false
+            EOF
+          }
+        ]
         kubelet = {
           extraConfig = {
             registerWithTaints = pool.taints

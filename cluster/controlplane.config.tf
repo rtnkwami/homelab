@@ -9,6 +9,16 @@ locals {
 
   controlplane_config = {
     machine = {
+      files = [
+        {
+          path = "/etc/cri/conf.d/20-customization.part"
+          op = "create"
+          content = <<-EOF
+            [plugins."io.containerd.cri.v1.images"]
+            discard_unpacked_layers = false
+          EOF
+        }
+      ]
       certSANs = [local.controlplane.ip.public]
       kubelet = {
         # NOTE: 
@@ -67,7 +77,8 @@ locals {
         [local.hcloud_secret_manifest],
         [local.ccm_manifest],
         [local.csi_manifest],
-        [local.autoscaler_manifest]
+        [local.autoscaler_manifest],
+        [local.spegel_manifest]
       )
       externalCloudProvider = {
         enabled = true

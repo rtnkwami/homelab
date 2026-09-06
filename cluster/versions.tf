@@ -7,5 +7,6 @@ locals {
     cilium = "1.20.1"
     gwAPI = "v1.6.1"
     cluster_autoscaler = "9.59.0"
+    spegel = "0.7.4"
   }
 }
