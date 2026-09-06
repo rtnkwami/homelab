@@ -78,7 +78,6 @@ locals {
         [local.ccm_manifest],
         [local.csi_manifest],
         [local.autoscaler_manifest],
-        [local.spegel_manifest]
       )
       externalCloudProvider = {
         enabled = true
