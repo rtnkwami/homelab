@@ -49,5 +49,14 @@ locals {
       max = 5
       subnet = local.network_config.cidrs.app
     }
+    general = {
+      labels = {
+        "node.niovial.io/pool" = "general"
+      }
+      taints = []
+      min = 0
+      max = 20
+      subnet = local.network_config.cidrs.app
+    }
   }
 }
