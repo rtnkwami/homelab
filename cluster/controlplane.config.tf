@@ -66,6 +66,7 @@ locals {
         [local.hcloud_secret_manifest],
         [local.ccm_manifest],
         [local.cni_manifest],
+        [local.csi_manifest]
       )
       externalCloudProvider = {
         enabled = true
