@@ -63,10 +63,11 @@ locals {
         }
       }
       inlineManifests = concat(
+        [local.cni_manifest],
         [local.hcloud_secret_manifest],
         [local.ccm_manifest],
-        [local.cni_manifest],
-        [local.csi_manifest]
+        [local.csi_manifest],
+        [local.autoscaler_manifest]
       )
       externalCloudProvider = {
         enabled = true
