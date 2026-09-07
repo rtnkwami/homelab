@@ -1,12 +1,8 @@
 [tasks.init]
 dir = "{{ config_root }}/infra"
 run = "tofu init -upgrade"
-cache.enabled = true
-sources = [".terraform.lock.hcl"]
-outputs = []
 
 [tasks.plan]
-depends = "init"
 dir = "{{ config_root }}/infra"
 run = "tofu plan -out=out/cluster.tfplan"
 
@@ -14,6 +10,22 @@ run = "tofu plan -out=out/cluster.tfplan"
 depends = "plan"
 dir = "{{ config_root }}/infra"
 run = "tofu apply --auto-approve out/cluster.tfplan"
+
+[tasks.bootstrap]
+depends = "create"
+dir = "{{ config_root }}"
+run = """
+  export KUBECONFIG=infra/out/kubeconfig
+  
+  helm repo add argo https://argoproj.github.io/argo-helm
+ 
+  helm upgrade --install argocd argo/argo-cd \
+   --version 10.8.0 \
+   --namespace argocd \
+   --create-namespace \
+   --rollback-on-failure \
+   -f argocd.init.yaml
+"""
 
 [tasks.destroy]
 depends = "init"

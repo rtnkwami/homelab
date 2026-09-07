@@ -1,0 +1,35 @@
+global:
+  nodeSelector:
+    node.niovial.io/pool: system
+  tolerations:
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
+redisSecretInit:
+  nodeSelector:
+    node.niovial.io/pool: system
+  tolerations:
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
+configs:
+  params:
+    server.insecure: true
+    controller.diff.server.side: true
+  cm:
+    # NOTE:
+    # Although ArgoCD manages itself, it needs to know how to evaluate its health
+    # before it can self-manage
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = ""
+      if obj.status ~= nil then
+        if obj.status.health ~= nil then
+          hs.status = obj.status.health.status
+          if obj.status.health.message ~= nil then
+            hs.message = obj.status.health.message
+          end
+        end
+      end
+      return hs
