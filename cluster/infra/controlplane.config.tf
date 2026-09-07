@@ -119,3 +119,10 @@ resource "talos_machine_bootstrap" "controlplane" {
   node = local.controlplane.bootstrap_node.ipv4_address
   client_configuration = talos_machine_secrets.this.client_configuration
 }
+
+# Give the cluster time to initialize
+resource "time_sleep" "this" {
+  depends_on = [talos_machine_bootstrap.controlplane]
+  create_duration = "2m"
+  
+}
