@@ -1,0 +1,21 @@
+[tasks.init]
+dir = "{{ config_root }}/infra"
+run = "tofu init -upgrade"
+cache.enabled = true
+sources = [".terraform.lock.hcl"]
+outputs = []
+
+[tasks.plan]
+depends = "init"
+dir = "{{ config_root }}/infra"
+run = "tofu plan -out=out/cluster.tfplan"
+
+[tasks.create]
+depends = "plan"
+dir = "{{ config_root }}/infra"
+run = "tofu apply --auto-approve out/cluster.tfplan"
+
+[tasks.destroy]
+depends = "init"
+dir = "{{ config_root }}/infra"
+run = "tofu destroy --auto-approve"

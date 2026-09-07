@@ -1,7 +1,11 @@
-[tools]
-node = "26"
-opentofu = "1.12"
-"npm:pnpm" = "11.24.0"
+monorepo_root = true
+
+[monorepo]
+config_roots = [
+  "cluster",
+  "apps/*",
+  "packages/*"
+]
 
 [settings]
 task.source_freshness_hash_contents = true
@@ -9,32 +13,8 @@ task.run_auto_install = true
 task.cache_dir = ".mise/cache"
 experimental = true
 
-[tasks."cluster:init"]
-dir = "cluster"
-cache.enabled = true
-sources = [
-  "terraform.tf",
-  "provider.tf",
-  "backend.tf"
-]
-outputs = [".terraform.lock.hcl"]
-run = "tofu init"
-
-[tasks."cluster:plan"]
-depends = ["cluster:init"]
-cache.enabled = true
-dir = "cluster"
-sources = ["*.tf"]
-outputs = ["out/cluster.tfplan"]
-run = "tofu plan -out out/cluster.tfplan"
-
-[tasks."cluster:deploy"]
-depends = ["cluster:plan"]
-cache.enabled = true
-dir = "cluster"
-run = "tofu apply --auto-approve out/cluster.tfplan"
-
-[tasks."cluster:destroy"]
-depends = ["cluster:init"]
-dir = "cluster"
-run = "tofu destroy --auto-approve"
+[tools]
+node = "26"
+opentofu = "1.12"
+"npm:pnpm" = "11.24.0"
+helm = "4.2.4"
