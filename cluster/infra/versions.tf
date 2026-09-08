@@ -1,0 +1,12 @@
+locals {
+  versions = {
+    talos = "v1.13.9"
+    k8s = "v1.36.1"
+    hcloud_ccm = "1.36.0"
+    hcloud_csi = "2.23.0"
+    cilium = "1.20.1"
+    gwAPI = "v1.6.1"
+    cluster_autoscaler = "9.59.0"
+    spegel = "0.7.4"
+  }
+}

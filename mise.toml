@@ -1,0 +1,21 @@
+monorepo_root = true
+
+[monorepo]
+config_roots = [
+  "cluster",
+  "apps/*",
+  "packages/*"
+]
+
+[settings]
+task.source_freshness_hash_contents = true
+task.run_auto_install = true
+task.cache_dir = ".mise/cache"
+experimental = true
+
+[tools]
+node = "26"
+"npm:pnpm" = "11.24.0"
+kubectl = "1.37.0"
+opentofu = "1.12"
+helm = "4.2.4"

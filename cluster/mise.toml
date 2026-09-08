@@ -1,0 +1,38 @@
+[env]
+KUBECONFIG = "infra/out/kubeconfig"
+
+[tasks.init]
+dir = "{{ config_root }}/infra"
+run = "tofu init -upgrade"
+
+[tasks.plan]
+dir = "{{ config_root }}/infra"
+run = "tofu plan -out=out/cluster.tfplan"
+
+[tasks.create]
+depends = "plan"
+dir = "{{ config_root }}/infra"
+run = "tofu apply --auto-approve out/cluster.tfplan"
+
+[tasks.bootstrap]
+depends = "create"
+dir = "{{ config_root }}"
+run = """
+  helm repo add argo https://argoproj.github.io/argo-helm
+ 
+  helm upgrade --install argocd argo/argo-cd \
+   --version 10.8.0 \
+   --namespace argocd \
+   --create-namespace \
+   --rollback-on-failure \
+   -f argocd.init.yaml
+"""
+
+[tasks.cleanup]
+dir = "{{ config_root }}"
+run = "helm uninstall argocd -n argocd"
+
+[tasks.destroy]
+depends = ["init", "cleanup"]
+dir = "{{ config_root }}/infra"
+run = "tofu destroy --auto-approve"
