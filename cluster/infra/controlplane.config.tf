@@ -1,4 +1,15 @@
 locals {
+  tailscale_config = {
+    apiVersion = "v1alpha1"
+    kind       = "ExtensionServiceConfig"
+    name       = "tailscale"
+    environment = [
+      "TS_AUTHKEY=${var.tailscale_authkey}",
+      "TS_ROUTES=${local.network_config.cidrs.infra}",
+      "TS_TAILSCALED_EXTRA_ARGS=--state=mem:"
+    ]
+  }
+
   controlplane = {
     ip = {
       public = hcloud_load_balancer.this.ipv4
@@ -100,7 +111,10 @@ data "talos_machine_configuration" "controlplane" {
   cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = [yamlencode(local.controlplane_config)]
+  config_patches = [
+    yamlencode(local.tailscale_config),
+    yamlencode(local.controlplane_config)
+  ]
 }
 
 resource "talos_machine_configuration_apply" "controlplane" {

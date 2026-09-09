@@ -5,16 +5,8 @@ resource "talos_cluster_kubeconfig" "this" {
   node = local.controlplane.bootstrap_node.ipv4_address
 }
 
-locals {
-  kubeconfig_patch = replace(
-    talos_cluster_kubeconfig.this.kubeconfig_raw,
-    "server: https://${local.controlplane.ip.private}:6443",
-    "server: https://${local.controlplane.ip.public}:6443"
-  )
-}
-
 resource "local_sensitive_file" "kubeconfig" {
-  content = local.kubeconfig_patch
+  content = talos_cluster_kubeconfig.this.kubeconfig_raw
   filename = "out/kubeconfig"
   file_permission = "0600"
 }
