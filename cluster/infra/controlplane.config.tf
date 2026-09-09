@@ -12,6 +12,8 @@ locals {
 
   controlplane = {
     ip = {
+      # keep public ip just in case, for the future. However, tailscale will be used
+      # for cluster access
       public = hcloud_load_balancer.this.ipv4
       private = hcloud_load_balancer_network.this.ip
     }
@@ -30,7 +32,9 @@ locals {
           EOF
         }
       ]
-      certSANs = [local.controlplane.ip.public]
+      # Use private ip of control plane load balancer to prevent talosctl access from passing
+      # through the internet
+      certSANs = [local.controlplane.ip.private]
       kubelet = {
         # NOTE: 
         # Replace default network config with actual configured networking and subnets, as
@@ -63,15 +67,6 @@ locals {
       # disable kube-proxy in favor of cilium
       proxy = {
         disabled = true
-      }
-      apiServer = {
-        # NOTE:
-        # For k8s components, such as kubelet, controller manager, etcd, local.private_cluster_endpoint,
-        # is the private ip of the control plane load balancer to be used. This prevents
-        # internal k8s traffic from moving across the internet.
-        # For kubeconfig, such as a cluster admin (myself) accessing the cluster, we add the
-        # load balancer public ip, so that we can actually connect.
-        certSANs = [local.controlplane.ip.public]
       }
       controllerManager = {
         extraArgs = {

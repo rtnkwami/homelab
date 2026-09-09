@@ -15,7 +15,7 @@ data "talos_client_configuration" "this" {
   cluster_name = "homelab"
   client_configuration = talos_machine_secrets.this.client_configuration
   nodes = [for node in hcloud_server.controlplane : node.ipv4_address]
-  endpoints = [local.controlplane.ip.public]
+  endpoints = [local.controlplane.ip.private]
 }
 
 resource "local_sensitive_file" "talos_config" {
