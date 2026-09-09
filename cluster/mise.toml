@@ -40,6 +40,5 @@ run = "tofu destroy --auto-approve"
 [tasks."os:add"]
 dir = "{{ config_root }}/os"
 run = """
-  tofu init -upgrade
-  tofu apply
+  tofu apply --auto-approve
 """
