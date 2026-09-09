@@ -40,5 +40,13 @@ run = "tofu destroy --auto-approve"
 [tasks."os:add"]
 dir = "{{ config_root }}/os"
 run = """
+  tofu init
   tofu apply --auto-approve
+"""
+
+[tasks."os:remove"]
+dir = "{{ config_root }}/os"
+run = """
+  tofu init
+  tofu destroy --auto-approve
 """
