@@ -36,3 +36,10 @@ run = "helm uninstall argocd -n argocd"
 depends = ["init", "cleanup"]
 dir = "{{ config_root }}/infra"
 run = "tofu destroy --auto-approve"
+
+[tasks."os:add"]
+dir = "{{ config_root }}/os"
+run = """
+  tofu init -upgrade
+  tofu apply
+"""
