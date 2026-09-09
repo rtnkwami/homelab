@@ -2,7 +2,7 @@ resource "talos_cluster_kubeconfig" "this" {
   depends_on = [talos_machine_bootstrap.controlplane]
 
   client_configuration = talos_machine_secrets.this.client_configuration
-  node = local.controlplane.bootstrap_node.ipv4_address
+  node = local.controlplane.bootstrap_ip
 }
 
 resource "local_sensitive_file" "kubeconfig" {

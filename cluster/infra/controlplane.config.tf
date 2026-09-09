@@ -5,19 +5,16 @@ locals {
     name       = "tailscale"
     environment = [
       "TS_AUTHKEY=${var.tailscale_authkey}",
-      "TS_ROUTES=${local.network_config.cidrs.infra}",
-      "TS_TAILSCALED_EXTRA_ARGS=--state=mem:"
+      "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
     ]
   }
 
   controlplane = {
     ip = {
-      # keep public ip just in case, for the future. However, tailscale will be used
-      # for cluster access
       public = hcloud_load_balancer.this.ipv4
       private = hcloud_load_balancer_network.this.ip
     }
-    bootstrap_node = hcloud_server.controlplane[local.hcloud_zones[0]]
+    bootstrap_ip = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   }
 
   controlplane_config = {
@@ -119,13 +116,14 @@ resource "talos_machine_configuration_apply" "controlplane" {
   client_configuration = talos_machine_secrets.this.client_configuration
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
   # public ip needed, otherwise tofu can't reach nodes
-  node = each.value.ipv4_address
+  node = hcloud_server_network.controlplane[each.key].ip
+  endpoint = local.controlplane.ip.public
 }
 
 resource "talos_machine_bootstrap" "controlplane" {
   depends_on = [talos_machine_configuration_apply.controlplane]
 
-  node = local.controlplane.bootstrap_node.ipv4_address
+  node = local.controlplane.bootstrap_ip
   client_configuration = talos_machine_secrets.this.client_configuration
 }
 
@@ -133,5 +131,4 @@ resource "talos_machine_bootstrap" "controlplane" {
 resource "time_sleep" "this" {
   depends_on = [talos_machine_bootstrap.controlplane]
   create_duration = "2m"
-  
 }
