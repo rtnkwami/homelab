@@ -40,7 +40,10 @@ resource "hcloud_load_balancer_service" "talos_api" {
 }
 
 resource "hcloud_load_balancer_target" "this" {
+  depends_on = [hcloud_load_balancer_network.this]
+
   type = "label_selector"
   load_balancer_id = hcloud_load_balancer.this.id
   label_selector = "node.niovial.io/pool=controlplane"
+  use_private_ip = true
 }
