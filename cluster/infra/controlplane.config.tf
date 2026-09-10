@@ -117,7 +117,7 @@ resource "talos_machine_configuration_apply" "controlplane" {
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
   # public ip needed, otherwise tofu can't reach nodes
   node = hcloud_server_network.controlplane[each.key].ip
-  endpoint = local.controlplane.ip.public
+  endpoint = var.is_bootstrap ? local.controlplane.ip.public : local.controlplane.ip.private
 }
 
 resource "talos_machine_bootstrap" "controlplane" {

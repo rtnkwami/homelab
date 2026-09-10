@@ -5,3 +5,8 @@ variable "hcloud_token" {
 variable "tailscale_authkey" {
   sensitive = true
 }
+
+variable "is_bootstrap" {
+  type = bool
+  default = false
+}
