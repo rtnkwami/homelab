@@ -35,4 +35,13 @@ resource "hcloud_firewall" "workers" {
       local.network_config.cidrs.db
     ]
   }
+
+  # NOTE:
+  # All nodes created via cluster autoscaler possess this label.
+  # Attempting to config serverLabels within cluster autoscaler nodeConfigs will not
+  # work, due to serverLabels not propagating to Hcloud itself.
+  # As such, the generic label selector must be used.
+  apply_to {
+    label_selector = "hcloud/node-group"
+  }
 }

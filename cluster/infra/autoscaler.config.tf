@@ -98,7 +98,6 @@ locals {
             for pool in local._autoscaler_nodepools : pool.name => {
               cloudInit = data.talos_machine_configuration.worker[pool.name].machine_configuration
               subnetIPRange = pool.subnet
-              firewalls = pool.firewalls
               serverLabels = pool.labels
               labels = pool.labels
               taints = pool.taints
