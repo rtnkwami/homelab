@@ -9,13 +9,12 @@ run = "tofu init -upgrade"
 dir = "{{ config_root }}/infra"
 run = "tofu plan -out=out/cluster.tfplan"
 
-[tasks.create]
+[tasks.apply]
 depends = "plan"
 dir = "{{ config_root }}/infra"
 run = "tofu apply --auto-approve out/cluster.tfplan"
 
 [tasks.bootstrap]
-depends = "create"
 dir = "{{ config_root }}"
 run = """
   helm repo add argo https://argoproj.github.io/argo-helm
@@ -24,15 +23,28 @@ run = """
    --version 10.8.0 \
    --namespace argocd \
    --create-namespace \
-   --rollback-on-failure \
-   -f argocd.init.yaml
+   --rollback-on-failure
 """
 
-[tasks.cleanup]
+[tasks.reset]
 dir = "{{ config_root }}"
 run = "helm uninstall argocd -n argocd"
 
 [tasks.destroy]
-depends = ["init", "cleanup"]
+depends = ["reset"]
 dir = "{{ config_root }}/infra"
 run = "tofu destroy --auto-approve"
+
+[tasks."os:publish"]
+dir = "{{ config_root }}/os"
+run = """
+  tofu init
+  tofu apply --auto-approve
+"""
+
+[tasks."os:unpublish"]
+dir = "{{ config_root }}/os"
+run = """
+  tofu init
+  tofu destroy --auto-approve
+"""

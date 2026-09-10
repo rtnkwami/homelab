@@ -58,5 +58,20 @@ locals {
       max = 20
       subnet = local.network_config.cidrs.app
     }
+    database = {
+      labels = {
+        "node.niovial.io/pool" = "database"
+      }
+      taints = [
+        {
+          key = "node.niovial.io/pool"
+          value = "database"
+          effect = "NoSchedule"
+        }
+      ]
+      min = 0
+      max = 20
+      subnet = local.network_config.cidrs.db
+    }
   }
 }

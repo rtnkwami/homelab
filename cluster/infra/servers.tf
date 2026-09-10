@@ -21,7 +21,7 @@ locals {
 }
 
 data "hcloud_image" "talos_x86" {
-  with_selector = "os=talos"
+  with_selector = "os=talos-tailscale"
   with_architecture = "x86"
 }
 

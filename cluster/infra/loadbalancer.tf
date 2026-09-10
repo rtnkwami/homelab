@@ -7,6 +7,8 @@ resource "hcloud_load_balancer" "this" {
 resource "hcloud_load_balancer_network" "this" {
   load_balancer_id = hcloud_load_balancer.this.id
   subnet_id = hcloud_network_subnet.infra.id
+  
+  enable_public_interface = var.is_bootstrap
 }
 
 resource "hcloud_load_balancer_service" "this" {
@@ -40,7 +42,10 @@ resource "hcloud_load_balancer_service" "talos_api" {
 }
 
 resource "hcloud_load_balancer_target" "this" {
+  depends_on = [hcloud_load_balancer_network.this]
+
   type = "label_selector"
   load_balancer_id = hcloud_load_balancer.this.id
   label_selector = "node.niovial.io/pool=controlplane"
+  use_private_ip = true
 }

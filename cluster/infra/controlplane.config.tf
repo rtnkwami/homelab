@@ -1,10 +1,20 @@
 locals {
+  tailscale_config = {
+    apiVersion = "v1alpha1"
+    kind       = "ExtensionServiceConfig"
+    name       = "tailscale"
+    environment = [
+      "TS_AUTHKEY=${var.tailscale_authkey}",
+      "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
+    ]
+  }
+
   controlplane = {
     ip = {
       public = hcloud_load_balancer.this.ipv4
       private = hcloud_load_balancer_network.this.ip
     }
-    bootstrap_node = hcloud_server.controlplane[local.hcloud_zones[0]]
+    bootstrap_ip = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   }
 
   controlplane_config = {
@@ -19,7 +29,9 @@ locals {
           EOF
         }
       ]
-      certSANs = [local.controlplane.ip.public]
+      # Use private ip of control plane load balancer to prevent talosctl access from passing
+      # through the internet
+      certSANs = [local.controlplane.ip.private]
       kubelet = {
         # NOTE: 
         # Replace default network config with actual configured networking and subnets, as
@@ -52,15 +64,6 @@ locals {
       # disable kube-proxy in favor of cilium
       proxy = {
         disabled = true
-      }
-      apiServer = {
-        # NOTE:
-        # For k8s components, such as kubelet, controller manager, etcd, local.private_cluster_endpoint,
-        # is the private ip of the control plane load balancer to be used. This prevents
-        # internal k8s traffic from moving across the internet.
-        # For kubeconfig, such as a cluster admin (myself) accessing the cluster, we add the
-        # load balancer public ip, so that we can actually connect.
-        certSANs = [local.controlplane.ip.public]
       }
       controllerManager = {
         extraArgs = {
@@ -100,7 +103,10 @@ data "talos_machine_configuration" "controlplane" {
   cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = [yamlencode(local.controlplane_config)]
+  config_patches = [
+    yamlencode(local.tailscale_config),
+    yamlencode(local.controlplane_config)
+  ]
 }
 
 resource "talos_machine_configuration_apply" "controlplane" {
@@ -110,13 +116,19 @@ resource "talos_machine_configuration_apply" "controlplane" {
   client_configuration = talos_machine_secrets.this.client_configuration
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
   # public ip needed, otherwise tofu can't reach nodes
-  node = each.value.ipv4_address
+  node = hcloud_server_network.controlplane[each.key].ip
+  # NOTE:
+  # Control plane nodes act as subnet routers to tailscale. Before tailscaled is active on the control
+  # plane nodes, terraform needs to access the nodes somehow. That is what the public IP is for.
+  # Once the cluster has been bootstrapped, var.is_bootstrap can be set to false to disable all
+  # inbound public access, and only use tailscale for further operations.
+  endpoint = var.is_bootstrap ? local.controlplane.ip.public : local.controlplane.ip.private
 }
 
 resource "talos_machine_bootstrap" "controlplane" {
   depends_on = [talos_machine_configuration_apply.controlplane]
 
-  node = local.controlplane.bootstrap_node.ipv4_address
+  node = local.controlplane.bootstrap_ip
   client_configuration = talos_machine_secrets.this.client_configuration
 }
 
@@ -124,5 +136,4 @@ resource "talos_machine_bootstrap" "controlplane" {
 resource "time_sleep" "this" {
   depends_on = [talos_machine_bootstrap.controlplane]
   create_duration = "2m"
-  
 }

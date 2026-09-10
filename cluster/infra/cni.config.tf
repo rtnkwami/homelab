@@ -60,7 +60,13 @@ locals {
     }
     # REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/#xdp-acceleration
     loadBalancer = {
-      acceleration = "native"
+      # NOTE:
+      # When "native" is used, Cilium agents will attempt to attach XDP programs to the network
+      # interfaces of each node. On the control plane nodes, I've enabled tailscale. This creates
+      # a network interface specifically for tailscale. Since this interface does not support XDP,
+      # cilium agents will error and crashloop.
+      # Setting this to best-effort ensures XDP is only enabled for nodes that support it.
+      acceleration = "best-effort"
     }
     # ----------
     encryption = {

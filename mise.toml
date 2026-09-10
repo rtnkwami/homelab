@@ -16,6 +16,5 @@ experimental = true
 [tools]
 node = "26"
 "npm:pnpm" = "11.24.0"
-kubectl = "1.37.0"
 opentofu = "1.12"
 helm = "4.2.4"
