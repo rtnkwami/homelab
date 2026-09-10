@@ -1,0 +1,4 @@
+apiVersion: v2
+name: genesis
+description: Genesis turns a bare cluster into one ready for application workloads
+version: 1.0.0
