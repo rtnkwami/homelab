@@ -117,6 +117,11 @@ resource "talos_machine_configuration_apply" "controlplane" {
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
   # public ip needed, otherwise tofu can't reach nodes
   node = hcloud_server_network.controlplane[each.key].ip
+  # NOTE:
+  # Control plane nodes act as subnet routers to tailscale. Before tailscaled is active on the control
+  # plane nodes, terraform needs to access the nodes somehow. That is what the public IP is for.
+  # Once the cluster has been bootstrapped, var.is_bootstrap can be set to false to disable all
+  # inbound public access, and only use tailscale for further operations.
   endpoint = var.is_bootstrap ? local.controlplane.ip.public : local.controlplane.ip.private
 }
 

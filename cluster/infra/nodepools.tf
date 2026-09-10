@@ -13,6 +13,7 @@ locals {
           instance_type = type
           location = zone
           subnet = config.subnet
+          firewalls = config.firewalls
           labels = config.labels
           taints = config.taints
           min = config.min
@@ -26,6 +27,7 @@ locals {
   # The schema for each nodepool is:
   # <pool-name> = {
   #   subnet = string (cidr range)
+  #   firewalls = list(string)
   #   min = number
   #   max = number
   #   labels = map
@@ -48,6 +50,7 @@ locals {
       min = 0
       max = 5
       subnet = local.network_config.cidrs.app
+      firewalls = [hcloud_firewall.workers.id]
     }
     general = {
       labels = {
@@ -57,6 +60,23 @@ locals {
       min = 0
       max = 20
       subnet = local.network_config.cidrs.app
+      firewalls = [hcloud_firewall.workers.id]
+    }
+    database = {
+      labels = {
+        "node.niovial.io/pool" = "database"
+      }
+      taints = [
+        {
+          key = "node.niovial.io/pool"
+          value = "database"
+          effect = "NoSchedule"
+        }
+      ]
+      min = 0
+      max = 20
+      subnet = local.network_config.cidrs.db
+      firewalls = [hcloud_firewall.workers.id]
     }
   }
 }
