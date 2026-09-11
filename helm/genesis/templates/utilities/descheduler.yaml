@@ -38,6 +38,7 @@ spec:
         deschedulerPolicy:
           maxNoOfPodsToEvictPerNode: 10
           maxNoOfPodsToEvictPerNamespace: 10
+          # https://github.com/kubernetes-sigs/descheduler/blob/master/README.md
           profiles:
             - name: default
               pluginConfig:
