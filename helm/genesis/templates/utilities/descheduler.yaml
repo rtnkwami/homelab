@@ -19,6 +19,8 @@ spec:
         kind: Deployment
         leaderElection:
           enabled: true
+        podDisruptionBudget:
+          enabled: true
         nodeSelector:
             node.niovial.io/pool: system
         tolerations:
