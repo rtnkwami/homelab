@@ -75,7 +75,6 @@ spec:
                       cpu: 50
                       memory: 50
                       pods: 50
-                    useDeviationThresholds: true
               plugins:
                 balance:
                   enabled:
