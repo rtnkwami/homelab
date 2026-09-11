@@ -13,7 +13,7 @@ spec:
   source:
     chart: victoria-metrics-k8s-stack
     repoURL: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
-    targetRevision: 0.86.0
+    targetRevision: 0.92.0
     helm:
       valuesObject:
         victoria-metrics-operator:

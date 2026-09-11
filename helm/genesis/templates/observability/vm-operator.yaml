@@ -13,7 +13,7 @@ spec:
   source:
     chart: victoria-metrics-operator
     repoURL: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-operator
-    targetRevision: 0.66.2
+    targetRevision: 0.67.2
     helm:
       valuesObject:
         nodeSelector:
