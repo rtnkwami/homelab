@@ -45,6 +45,9 @@ spec:
         vlagent:
           enabled: true
           namespaceOverride: observability-agents
+          spec:
+            tolerations:
+              - operator: Exists
   destination:
     namespace: observability
     server: https://kubernetes.default.svc
