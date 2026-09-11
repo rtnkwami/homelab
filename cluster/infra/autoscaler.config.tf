@@ -1,4 +1,10 @@
 locals {
+  _autoscaler_zones = {
+    # https://docs.hetzner.com/cloud/general/locations/
+    fsn1 = "fsn1-dc14"
+    nbg1 = "nbg1-dc3"
+    hel1 = "hel1-dc2"
+  }
   _autoscaler_config = {
     cloudProvider = "hetzner"
     # ----------
@@ -98,8 +104,18 @@ locals {
             for pool in local._autoscaler_nodepools : pool.name => {
               cloudInit = data.talos_machine_configuration.worker[pool.name].machine_configuration
               subnetIPRange = pool.subnet
-              serverLabels = pool.labels
-              labels = pool.labels
+              labels = merge(
+                # NOTE:
+                # Although this label is added by default via the k8s control plane, cluster autoscaler
+                # sees only the current labels of a node template and not the potential labels. As such,
+                # this is needed to prevent issues where workloads with this default node selector
+                # fail to schedule.
+                {
+                  "kubernetes.io/os" = "linux",
+                  "topology.kubernetes.io/zone" = local._autoscaler_zones[pool.location]
+                },
+                pool.labels
+              )
               taints = pool.taints
             }
           }

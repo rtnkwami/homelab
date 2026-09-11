@@ -52,12 +52,6 @@ locals {
     general = {
       labels = {
         "node.niovial.io/pool" = "general"
-        # NOTE:
-        # Although this label is added by default via the k8s control plane, cluster autoscaler
-        # sees only the current labels of a node template and not the potential labels. As such,
-        # this is needed to prevent issues where workloads with this default node selector
-        # fail to schedule.
-        "kubernetes.io/os" =  "linux"
       }
       taints = []
       min = 0
