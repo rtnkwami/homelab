@@ -65,22 +65,11 @@ spec:
                 - name: RemovePodsViolatingNodeTaints
                 - name: RemovePodsViolatingInterPodAntiAffinity
                 - name: RemovePodsViolatingTopologySpreadConstraint
-                - name: LowNodeUtilization
-                  args:
-                    thresholds:
-                      cpu: 20
-                      memory: 20
-                      pods: 20
-                    targetThresholds:
-                      cpu: 70
-                      memory: 70
-                      pods: 70
               plugins:
                 balance:
                   enabled:
                     - RemoveDuplicates
                     - RemovePodsViolatingTopologySpreadConstraint
-                    - LowNodeUtilization
                 deschedule:
                   enabled:
                     - RemovePodsHavingTooManyRestarts
