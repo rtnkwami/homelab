@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "21"
+    argocd.argoproj.io/ignore-healthcheck: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  source:
+    chart: cloudnative-pg
+    repoURL: oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg
+    targetRevision: 0.29.0
+    helm:
+      valuesObject:
+        nodeSelector:
+            node.niovial.io/pool: system
+        tolerations:
+          - key: node.niovial.io/pool
+            operator: Equal
+            value: system
+        replicaCount: 3
+        topologySpreadConstraints:
+          - topologyKey: "topology.kubernetes.io/zone"
+            maxSkew: 1
+            minDomains: 3
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: cloudnative-pg
+            matchLabelKeys: ["pod-template-hash"]
+  destination:
+    namespace: cnpg-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
