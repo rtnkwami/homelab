@@ -4,7 +4,7 @@ metadata:
   name: cloudnative-pg
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "21"
+    argocd.argoproj.io/sync-wave: "20"
     argocd.argoproj.io/ignore-healthcheck: "true"
   finalizers:
     - resources-finalizer.argocd.argoproj.io/background
