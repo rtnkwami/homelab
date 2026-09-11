@@ -35,7 +35,6 @@ spec:
         vlsingle:
           enabled: true
           spec:
-            removePvcAfterDelete: true
             nodeSelector:
               node.niovial.io/pool: database
             tolerations:
