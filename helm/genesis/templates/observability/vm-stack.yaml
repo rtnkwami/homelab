@@ -47,6 +47,9 @@ spec:
           spec:
             tolerations:
               - operator: Exists
+        grafana:
+          plugins:
+            - victoriametrics-logs-datasource
   destination:
     namespace: observability
     server: https://kubernetes.default.svc
