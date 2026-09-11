@@ -13,7 +13,8 @@ spec:
   source:
     chart: victoria-metrics-k8s-stack
     repoURL: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
-    targetRevision: 0.92.0
+    # Release peer of VM Operator is 0.67.3
+    targetRevision: 0.92.1
     helm:
       valuesObject:
         victoria-metrics-operator:
