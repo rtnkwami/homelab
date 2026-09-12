@@ -31,13 +31,6 @@ spec:
                 value: database
         prometheus-node-exporter:
           namespaceOverride: observability-agents
-        # NOTE:
-        # Enable this metric for node pools metrics
-        kube-state-metrics:
-          metricAllowlist:
-            - kube_node_labels
-          metricLabelsAllowlist:
-            - nodes=[node.niovial.io/pool]
         # NOTE: Logs Configuration
         vlsingle:
           enabled: true
