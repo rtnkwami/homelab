@@ -36,6 +36,8 @@ spec:
         kube-state-metrics:
           metricAllowlist:
             - kube_node_labels
+          metricLabelsAllowlist:
+            - nodes=[node.niovial.io/pool]
         # NOTE: Logs Configuration
         vlsingle:
           enabled: true
