@@ -17,13 +17,16 @@ run = "tofu apply --auto-approve out/cluster.tfplan"
 [tasks.bootstrap]
 dir = "{{ config_root }}"
 run = """
+  export KUBECONFIG=infra/out/kubeconfig
   helm repo add argo https://argoproj.github.io/argo-helm
  
   helm upgrade --install argocd argo/argo-cd \
    --version 10.8.0 \
    --namespace argocd \
    --create-namespace \
-   --rollback-on-failure
+   --rollback-on-failure \
+   --timeout 10m \
+   -f gitops/argocd-install.yaml
 """
 
 [tasks.reset]
