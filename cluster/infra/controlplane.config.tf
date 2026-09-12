@@ -19,6 +19,9 @@ locals {
 
   controlplane_config = {
     machine = {
+      # NOTE:
+      # This is set to prevent talos from discarding unusued container image layers
+      # so that spegel can use them.
       files = [
         {
           path = "/etc/cri/conf.d/20-customization.part"
