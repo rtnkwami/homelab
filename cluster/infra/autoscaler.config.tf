@@ -43,6 +43,7 @@ locals {
       scale-down-unneeded-time = "3m"
       scale-down-delay-after-add = "1m"
       scale-down-delay-after-failure = "1m"
+      scale-down-delay-type-local = "true"
     }
     # Configre node groups based on cost and capacity.
     # Prefer cheaper nodes where possible
