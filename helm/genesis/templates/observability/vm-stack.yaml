@@ -34,7 +34,7 @@ spec:
         # NOTE:
         # Enable this metric for node pools metrics
         kube-state-metrics:
-          metricAllowList:
+          metricAllowlist:
             - kube_node_labels
         # NOTE: Logs Configuration
         vlsingle:
