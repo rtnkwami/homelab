@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: irsa-webhook
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+    argocd.argoproj.io/ignore-healthcheck: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  source:
+    chart: amazon-eks-pod-identity-webhook
+    repoURL: https://jkroepke.github.io/helm-charts/
+    targetRevision: 2.6.5
+    helm:
+      valuesObject:
+        replicaCount: 3
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
+        nodeSelector:
+          node.niovial.io/pool: system
+        tolerations:
+          - key: node.niovial.io/pool
+            operator: Equal
+            value: system
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - topologyKey: topology.kubernetes.io/zone
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: irsa-webhook
+  destination:
+    namespace: kube-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
