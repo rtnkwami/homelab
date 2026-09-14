@@ -68,6 +68,16 @@ locals {
       proxy = {
         disabled = true
       }
+      # NOTE:
+      # See irsa.config.tf
+      apiServer = {
+        extraArgs = {
+          service-account-issuer = local._irsa_oidc_issuer
+        }
+      }
+      serviceAccount = {
+        key = base64encode(tls_private_key.service_account_signing_key.private_key_pem)
+      }
       controllerManager = {
         extraArgs = {
           # NOTE:
