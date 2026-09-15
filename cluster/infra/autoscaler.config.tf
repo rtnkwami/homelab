@@ -35,6 +35,7 @@ locals {
     ]
     # ----------
     # NOTE: Autoscaling config
+    # REF: https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-the-parameters-to-ca
     extraArgs = {
       # priority is used here because cheaper nodes are preferred to expensive
       # nodes where available.
