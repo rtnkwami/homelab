@@ -23,24 +23,11 @@ spec:
         vmsingle:
           spec:
             removePvcAfterDelete: true
-            nodeSelector:
-              node.niovial.io/pool: database
-            tolerations:
-              - key: node.niovial.io/pool
-                operator: Equal
-                value: database
         prometheus-node-exporter:
           namespaceOverride: observability-agents
         # NOTE: Logs Configuration
         vlsingle:
           enabled: true
-          spec:
-            nodeSelector:
-              node.niovial.io/pool: database
-            tolerations:
-              - key: node.niovial.io/pool
-                operator: Equal
-                value: database
         vlagent:
           enabled: true
           namespaceOverride: observability-agents
