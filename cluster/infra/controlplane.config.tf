@@ -72,7 +72,8 @@ locals {
       # See irsa.config.tf
       apiServer = {
         extraArgs = {
-          service-account-issuer = local._irsa_oidc_issuer
+          service-account-issuer = "https://${local._irsa_oidc_issuer}"
+          api-audiences = local._irsa_oidc_audience
         }
       }
       serviceAccount = {
