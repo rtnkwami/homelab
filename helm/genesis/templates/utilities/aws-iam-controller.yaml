@@ -1,0 +1,51 @@
+# REF: https://github.com/aws-controllers-k8s/iam-controller/blob/main/helm/values.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ack-iam-controller
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
+    argocd.argoproj.io/ignore-healthcheck: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  source:
+    chart: iam-chart
+    repoURL: public.ecr.aws/aws-controllers-k8s
+    targetRevision: 1.9.0
+    helm:
+      valuesObject:
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ .Values.aws.accountId }}:role/ack-iam-controller
+        deployment:
+          replicas: 3
+          nodeSelector:
+            node.niovial.io/pool: system
+          tolerations:
+            - key: node.niovial.io/pool
+              operator: Equal
+              value: system
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: topology.kubernetes.io/zone
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: ack-iam-controller
+        leaderElection:
+          enabled: true
+        enableCARM: false
+  destination:
+    namespace: ack-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
