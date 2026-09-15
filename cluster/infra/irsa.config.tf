@@ -109,6 +109,9 @@ resource "aws_s3_object" "oidc_config" {
 # Make OIDC documents publicly available
 resource "aws_s3_bucket_public_access_block" "irsa_oidc" {
   bucket = aws_s3_bucket.irsa_oidc.id
+
+  block_public_acls = true
+  ignore_public_acls = true
 }
 
 data "aws_iam_policy_document" "allow_irsa_oidc_public_access" {
@@ -133,6 +136,11 @@ resource "aws_s3_bucket_policy" "allow_irsa_oidc_public_access" {
 # Step 6:
 # Configure IRSA bucket as OIDC provider
 resource "aws_iam_openid_connect_provider" "irsa_oidc" {
+  depends_on = [
+    aws_s3_object.oidc_config,
+    aws_s3_object.keys_json
+  ]
+
   url = "https://${local._irsa_oidc_issuer}"
   # Which audiences require k8s pods to be registered with the k8s
   # OIDC provider
