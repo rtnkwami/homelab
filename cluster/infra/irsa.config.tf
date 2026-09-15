@@ -13,6 +13,7 @@ data "aws_caller_identity" "current" {}
 locals {
   _irsa_oidc_bucket = "niovial-homelab-oidc"
   _irsa_oidc_issuer = "s3.${data.aws_region.current.region}.amazonaws.com/${local._irsa_oidc_bucket}"
+  _irsa_oidc_audience = "sts.amazonaws.com"
   _irsa_tags = {
     Project = "Homelab"
   }
@@ -146,7 +147,7 @@ resource "aws_iam_openid_connect_provider" "irsa_oidc" {
   url = "https://${local._irsa_oidc_issuer}"
   # Which audiences require k8s pods to be registered with the k8s
   # OIDC provider
-  client_id_list = ["sts.amazonaws.com"]
+  client_id_list = [local._irsa_oidc_audience]
 }
 # =================
 # IRSA Config for ACK IAM Controller
@@ -247,7 +248,7 @@ data "aws_iam_policy_document" "ack_iam_controller_trust_policy" {
     condition {
       test = "StringEquals"
       variable = "${local._irsa_oidc_issuer}:aud"
-      values = ["sts.amazonaws.com"]
+      values = [local._irsa_oidc_audience]
     }
   }
 }
