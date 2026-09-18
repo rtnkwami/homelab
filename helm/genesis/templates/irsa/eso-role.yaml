@@ -13,8 +13,8 @@ spec:
     {{- include "assumeRoleDocument"
       (dict
         "Values" .Values
-        "serviceAccountNamespace" "ack-system"
-        "serviceAccountName" "ack-iam-controller"
+        "serviceAccountNamespace" "external-secrets"
+        "serviceAccountName" "external-secrets"
       )
     | indent 4 }}
   inlinePolicies:
