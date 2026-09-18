@@ -28,7 +28,7 @@ spec:
               "secretsmanager:ListSecrets",
               "secretsmanager:BatchGetSecretValue"
             ],
-            Resource: "*"
+            "Resource": "*"
           },
           {
             "Effect": "Allow",
