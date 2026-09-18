@@ -39,7 +39,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: domain-credentials
-                key: token
+                key: domain-secret
         txtOwnerId: homelab
   destination:
     namespace: external-dns
