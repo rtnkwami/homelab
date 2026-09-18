@@ -129,7 +129,6 @@ resource "talos_machine_configuration_apply" "controlplane" {
 
   client_configuration = talos_machine_secrets.this.client_configuration
   machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
-  # public ip needed, otherwise tofu can't reach nodes
   node = hcloud_server_network.controlplane[each.key].ip
   # NOTE:
   # Control plane nodes act as subnet routers to tailscale. Before tailscaled is active on the control
