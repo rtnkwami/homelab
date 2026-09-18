@@ -18,7 +18,7 @@ spec:
     helm:
       valuesObject:
         aws:
-          region: us-east-1
+          region: {{ .Values.aws.region }}
         serviceAccount:
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::{{ .Values.aws.accountId }}:role/ack-iam-controller
@@ -39,7 +39,6 @@ spec:
                       app.kubernetes.io/instance: ack-iam-controller
         leaderElection:
           enabled: true
-        enableCARM: false
   destination:
     namespace: ack-system
     server: https://kubernetes.default.svc
