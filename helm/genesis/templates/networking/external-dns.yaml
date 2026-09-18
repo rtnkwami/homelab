@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: external-dns
+    repoURL: https://kubernetes-sigs.github.io/external-dns/
+    targetRevision: 1.21.1
+    helm:
+      valuesObject:
+        triggerLoopOnEvent: true
+        nodeSelector:
+            node.niovial.io/pool: system
+        tolerations:
+          - key: node.niovial.io/pool
+            operator: Equal
+            value: system
+        sources:
+          - service
+          - gateway-httproute
+          - gateway-tlsroute
+          - gateway-tcproute
+        rbac:
+          additionalPermissions:
+            - apiGroups: [""]
+              resources: ["namespaces"]
+              verbs: ["get","watch","list"]
+        provider:
+          name: cloudflare
+        env:
+          - name: CF_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: domain-credentials
+                key: token
+        txtOwnerId: homelab
+  destination:
+    namespace: external-dns
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
