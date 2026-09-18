@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-{{ .Values.networking.tls.issuer.environment }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "53"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  acme:
+    email: {{ .Values.letsEncrypt.email }}
+    {{- if eq .Values.letsEncrypt.environment "staging" }}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    {{- else if eq .Values.letsEncrypt.environment "production" }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    {{- end }}
+    privateKeySecretRef:
+      name: letsencrypt-{{ .Values.letsEncrypt.environment }}
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: domain-credentials
+              key: domain-secret
