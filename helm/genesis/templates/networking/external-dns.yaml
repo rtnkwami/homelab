@@ -41,6 +41,8 @@ spec:
                 name: domain-credentials
                 key: domain-secret
         txtOwnerId: homelab
+        extraArgs:
+          cloudflare-proxied: true
   destination:
     namespace: external-dns
     server: https://kubernetes.default.svc
