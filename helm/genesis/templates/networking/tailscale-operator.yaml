@@ -16,6 +16,7 @@ spec:
     targetRevision: v1.102.4
     helm:
       valuesObject:
+        # https://tailscale.com/docs/kubernetes-operator/manage-and-configure/workload-identity-federation
         oauth:
           clientId: TdWRkjSjua11CNTRL-kS1qtWEvNU11CNTRL
           audience: api.tailscale.com/TdWRkjSjua11CNTRL-kS1qtWEvNU11CNTRL

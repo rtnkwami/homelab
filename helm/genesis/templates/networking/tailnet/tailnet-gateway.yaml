@@ -1,0 +1,40 @@
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: internal-gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  {{- if eq .Values.letsEncrypt.environment "staging" }}
+  useLetsEncryptStagingEnvironment: true
+  {{- end }}
+  statefulSet:
+    pod:
+      nodeSelector:
+        node.niovial.io/pool: system
+      tolerations:
+        - key: node.niovial.io/pool
+          operator: Equal
+          value: system
+      topologySpreadConstraints:
+        - topologyKey: "topology.kubernetes.io/zone"
+          maxSkew: 1
+          minDomains: 3
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              tailscale.com/parent-resource: service-proxies
+          matchLabelKeys: ["controller-revision-hash"]
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyGroup
+metadata:
+  name: internal-gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "31"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  type: ingress
+  replicas: 3
+  proxyClass: internal-gateway
