@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ts-argocd
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "32"
+    tailscale.com/hostname: argocd
+    tailscale.com/proxy-group: internal-gateway
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector:
+    app.kubernetes.io/name: argocd-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
