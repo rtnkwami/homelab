@@ -3,8 +3,6 @@ opentofu = "1.12"
 helm = "4.2.4"
 kubectl = "1.36.1"
 
-# --------------------
-# Cluster focused tasks
 [tasks."init"]
 depends = ["//:tofu:cache"]
 dir = "{{ config_root }}/infra"
@@ -18,7 +16,6 @@ run = "tofu plan -out=out/cluster.tfplan"
 depends = "preview"
 dir = "{{ config_root }}/infra"
 run = "tofu apply --auto-approve out/cluster.tfplan"
-# -----------------------
 
 [tasks.bootstrap]
 dir = "{{ config_root }}"
