@@ -18,3 +18,9 @@ node = "26"
 "npm:pnpm" = "11.24.0"
 opentofu = "1.12"
 helm = "4.2.4"
+
+[tasks."tofu:cache"]
+run = "mkdir -p .tofu/cache"
+
+[env]
+TF_PLUGIN_CACHE_DIR = "{{ config_root }}/.tofu/cache"

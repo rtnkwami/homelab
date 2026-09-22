@@ -1,25 +1,30 @@
-[env]
-KUBECONFIG = "infra/out/kubeconfig"
+[tools]
+opentofu = "1.12"
+helm = "4.2.4"
+kubectl = "1.36.1"
 
-[tasks.init]
+# --------------------
+# Cluster focused tasks
+[tasks."init"]
+depends = ["//:tofu:cache"]
 dir = "{{ config_root }}/infra"
 run = "tofu init -upgrade"
 
-[tasks.plan]
+[tasks.preview]
 dir = "{{ config_root }}/infra"
 run = "tofu plan -out=out/cluster.tfplan"
 
-[tasks.apply]
-depends = "plan"
+[tasks.deploy]
+depends = "preview"
 dir = "{{ config_root }}/infra"
 run = "tofu apply --auto-approve out/cluster.tfplan"
+# -----------------------
 
 [tasks.bootstrap]
 dir = "{{ config_root }}"
+env = { KUBECONFIG = "infra/out/kubeconfig" }
 run = """
-  export KUBECONFIG=infra/out/kubeconfig
   helm repo add argo https://argoproj.github.io/argo-helm
- 
   helm upgrade --install argocd argo/argo-cd \
    --version 10.8.0 \
    --namespace argocd \
@@ -27,14 +32,18 @@ run = """
    --rollback-on-failure \
    --timeout 10m \
    -f gitops/argocd-install.yaml
+  
+  kubectl apply -f gitops/app-of-apps.yaml
 """
 
 [tasks.reset]
 dir = "{{ config_root }}"
-run = "helm uninstall argocd -n argocd"
+run = """
+  kubectl delete -f gitops/app-of-apps.yaml
+  helm uninstall argocd -n argocd
+"""
 
 [tasks.destroy]
-depends = ["reset"]
 dir = "{{ config_root }}/infra"
 run = "tofu destroy --auto-approve"
 

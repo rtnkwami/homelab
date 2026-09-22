@@ -9,3 +9,4 @@ out/
 *.tfvars
 mise.local.toml
 *.tfplan
+.tofu/
