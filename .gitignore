@@ -11,3 +11,5 @@ mise.local.toml
 *.tfplan
 .tofu/
 generated/
+.env
+.env.*
