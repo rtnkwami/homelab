@@ -4,7 +4,6 @@
     "typescript/no-floating-promises": "warn",
     "typescript/explicit-member-accessibility": "warn",
     "typescript/explicit-function-return-type": "warn",
-    "typescript/consistent-type-imports": "warn",
     "eqeqeq": "warn"
   },
   "env": {

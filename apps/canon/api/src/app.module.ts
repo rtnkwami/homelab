@@ -10,11 +10,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true }),
 
     DrizzleModule.forRootAsync({
-      inject: [ConfigService],
+      imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         drizzle,
         connection: config.getOrThrow<string>('DATABASE_URL')
-      })
+      }),
+      inject: [ConfigService],
     })
   ],
   controllers: [AppController],
