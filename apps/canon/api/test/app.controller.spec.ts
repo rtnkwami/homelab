@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from '../src/app.controller.js';
 import { AppService } from '../src/app.service.js';
+import { getDrizzleToken } from '@nestjs/drizzle';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -8,7 +9,13 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        AppService,
+        {
+          provide: getDrizzleToken(),
+          useValue: {}
+        }
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);

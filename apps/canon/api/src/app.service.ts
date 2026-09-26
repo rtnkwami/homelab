@@ -4,7 +4,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 @Injectable()
 export class AppService {
-  public constructor(@InjectDrizzle() db: NodePgDatabase) {}
+  public constructor(@InjectDrizzle() private readonly db: NodePgDatabase) {}
 
   public getHello(): string {
     return 'Hello World!';
