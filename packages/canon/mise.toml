@@ -1,0 +1,20 @@
+[tasks.codegen]
+tools = { protoc = "latest" }
+dir = "{{ config_root }}"
+run = """
+  mkdir -p proto/src/generated
+  protoc \
+    --plugin=../../node_modules/.bin/protoc-gen-ts_proto \
+    --ts_proto_opt=nestJs=true \
+    --ts_proto_opt=addGrpcMetadata=true \
+    --ts_proto_opt=outputIndex=true \
+    --ts_proto_opt=importSuffix=.js \
+    --proto_path="./proto" \
+    --ts_proto_out="./proto/src/generated" \
+    $(find "./proto" -name "*.proto")
+"""
+
+[tasks.build]
+depends = "codegen"
+dir = "{{ config_root }}/proto"
+run = "pnpm build"
