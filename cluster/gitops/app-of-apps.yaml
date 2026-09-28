@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/rtnkwami/homelab.git
     path: cluster/gitops/manifests
-    targetRevision: feat/gitops-genesis
+    targetRevision: cluster/service-mesh
   syncPolicy:
     automated:
       prune: true
