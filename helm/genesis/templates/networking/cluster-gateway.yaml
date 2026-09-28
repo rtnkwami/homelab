@@ -1,4 +1,4 @@
-{{- if .Values.components.gateway }}
+{{- if .Values.components.gateway.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:

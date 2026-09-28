@@ -1,4 +1,4 @@
-{{- if .Values.components.tailnet }}
+{{- if .Values.components.tailnet.enabled }}
 apiVersion: v1
 kind: Service
 metadata:

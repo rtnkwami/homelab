@@ -1,4 +1,4 @@
-{{- if .Values.components.tailnet }}
+{{- if .Values.components.tailnet.enabled }}
 apiVersion: tailscale.com/v1alpha1
 kind: ProxyClass
 metadata:
