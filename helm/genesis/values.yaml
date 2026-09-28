@@ -1,7 +1,13 @@
+components:
+  tailnet:
+    enabled: false
+  gateway:
+    enabled: false
+
 aws:
   accountId: "913509421780"
   region: us-east-1
 
 letsEncrypt:
   environment: staging
-  email: cert-alerts@niovial.io 
+  email: cert-alerts@niovial.io

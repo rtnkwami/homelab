@@ -1,3 +1,4 @@
+{{- if .Values.components.gateway }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -31,3 +32,4 @@ spec:
         mode: Terminate
         certificateRefs:
           - name: niovial-io-tls
+{{- end }}
