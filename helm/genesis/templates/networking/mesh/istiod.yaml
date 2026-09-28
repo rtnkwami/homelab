@@ -30,7 +30,7 @@ spec:
             whenUnsatisfiable: DoNotSchedule
             labelSelector:
               matchLabels:
-                app.kubernetes.io/name: istiod
+                app.kubernetes.io/name: instance
             matchLabelKeys: ["pod-template-hash"]
   destination:
     namespace: istio-system
