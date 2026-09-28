@@ -98,9 +98,6 @@ locals {
       )
       externalCloudProvider = {
         enabled = true
-        manifests = [
-          "https://github.com/kubernetes-sigs/gateway-api/releases/download/${local.versions.gwAPI}/experimental-install.yaml"
-        ]
       }
     }
   }

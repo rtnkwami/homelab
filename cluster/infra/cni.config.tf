@@ -54,10 +54,11 @@ locals {
     # REF: network.tf
     ipv4NativeRoutingCIDR = local.network_config.cidrs.k8s_pods
     # Enable eBPF masquerading (instead of default iptables masquerading) on pod IP-> external IP
-    # traffic
-    bpf = {
-      masquerade = true
-    }
+    # traffic. It also doesn't work well with Istio
+    # REF: https://istio.io/latest/docs/ambient/install/platform-prerequisites/#cilium:~:text=Cilium%E2%80%99s,correctly
+    # bpf = {
+    #   masquerade = true
+    # }
     # REF: https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/#xdp-acceleration
     loadBalancer = {
       # NOTE:
@@ -69,19 +70,16 @@ locals {
       acceleration = "best-effort"
     }
     # ----------
-    encryption = {
-      enabled = true
-      type = "wireguard"
+    # needed for istio
+    cni = {
+      exclusive = false
     }
-    gatewayAPI = {
+    socketLB = {
       enabled = true
-      # NOTE:
-      # This is a cluster-wide config, and individual gateways cannot opt out of this. They must
-      # all use proxy protocol.
-      enableProxyProtocol = true
-      gatewayClass = {
-        create = true
-      }
+      hostNamespaceOnly = true
+    }
+    envoy = {
+      enabled = false
     }
     operator = {
       nodeSelector = {
