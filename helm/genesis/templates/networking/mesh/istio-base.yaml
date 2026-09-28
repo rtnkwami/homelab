@@ -11,7 +11,7 @@ metadata:
 spec:
   project: default
   source:
-    chart: istio
+    chart: base
     repoURL: https://blob.istio.io/istio-release/charts
     targetRevision: 1.31.1
     helm:
