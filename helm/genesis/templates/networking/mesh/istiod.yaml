@@ -23,6 +23,7 @@ spec:
           - key: node.niovial.io/pool
             operator: Equal
             value: system
+        replicaCount: 3
         topologySpreadConstraints:
           - topologyKey: "topology.kubernetes.io/zone"
             maxSkew: 1
