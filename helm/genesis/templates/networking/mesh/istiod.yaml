@@ -17,6 +17,21 @@ spec:
     helm:
       valuesObject:
         profile: ambient
+        nodeSelector:
+            node.niovial.io/pool: system
+        tolerations:
+          - key: node.niovial.io/pool
+            operator: Equal
+            value: system
+        topologySpreadConstraints:
+          - topologyKey: "topology.kubernetes.io/zone"
+            maxSkew: 1
+            minDomains: 3
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: istiod
+            matchLabelKeys: ["pod-template-hash"]
   destination:
     namespace: istio-system
     server: https://kubernetes.default.svc
