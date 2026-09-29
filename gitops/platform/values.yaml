@@ -5,3 +5,12 @@ aws:
 letsEncrypt:
   environment: staging
   email: cert-alerts@niovial.io
+
+gateway:
+  infrastructureAnnotations:
+    load-balancer.hetzner.cloud/name: "cluster-gateway"
+    load-balancer.hetzner.cloud/location: "nbg1"
+
+components:
+  tailnet:
+    enabled: false
