@@ -27,6 +27,7 @@ spec:
       {{- . | toYaml | nindent 6 }}
     {{- end }}
     parametersRef:
+      group: ""
       kind: ConfigMap
       name: app-gateway-config
   listeners:

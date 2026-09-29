@@ -33,6 +33,7 @@ spec:
     annotations:
       tailscale.com/hostname: internal-niovial-io
     parametersRef:
+      group: ""
       kind: ConfigMap
       name: tailnet-gateway-config
   listeners:
