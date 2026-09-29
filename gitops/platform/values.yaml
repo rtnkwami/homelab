@@ -1,3 +1,7 @@
 aws:
   accountId: "913509421780"
   region: us-east-1
+
+letsEncrypt:
+  environment: staging
+  email: cert-alerts@niovial.io
