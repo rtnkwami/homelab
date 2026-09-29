@@ -37,6 +37,7 @@ dir = "infra/cluster"
 run = "tofu plan -out=out/cluster.tfplan"
 
 [tasks."homelab:deploy"]
+depends = "homelab:preview"
 dir = "infra/cluster"
 run = "tofu apply out/cluster.tfplan"
 
