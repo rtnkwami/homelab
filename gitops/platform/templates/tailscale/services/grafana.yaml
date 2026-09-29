@@ -4,6 +4,7 @@ metadata:
   name: grafana-tailnet
   namespace: observability
   annotations:
+    argocd.argoproj.io/sync-wave: "51"
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   parentRefs:
