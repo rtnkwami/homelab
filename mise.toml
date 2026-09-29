@@ -2,7 +2,6 @@ monorepo_root = true
 
 [monorepo]
 config_roots = [
-  "cluster",
   "apps/*",
   "packages/*"
 ]
@@ -18,9 +17,71 @@ node = "26"
 "npm:pnpm" = "11.24.0"
 opentofu = "1.12"
 helm = "4.2.4"
+kubectl = "1.36.1"
 
 [tasks."tofu:cache"]
 run = "mkdir -p .tofu/cache"
 
 [env]
 TF_PLUGIN_CACHE_DIR = "{{ config_root }}/.tofu/cache"
+KUBECONFIG = "{{ config_root }}/infra/cluster/out/kubeconfig"
+
+# homelab k8s cluster tasks
+[tasks."homelab:init"]
+depends = "tofu:cache"
+dir = "infra/cluster"
+run = "tofu init -upgrade"
+
+[tasks."homelab:preview"]
+dir = "infra/cluster"
+run = "tofu plan -out=out/cluster.tfplan"
+
+[tasks."homelab:deploy"]
+dir = "infra/cluster"
+run = "tofu apply out/cluster.tfplan"
+
+[tasks."homelab:bootstrap"]
+dir = "infra/cluster"
+run = """
+  helm repo add argo https://argoproj.github.io/argo-helm
+  
+  helm upgrade --install argocd argo/argo-cd \
+   --version 10.8.0 \
+   --namespace argocd \
+   --create-namespace \
+   --rollback-on-failure \
+   --timeout 10m \
+   -f gitops/argocd-install.yaml
+  
+  kubectl apply -f gitops/app-of-apps.yaml
+"""
+
+[tasks."homelab:reset"]
+dir = "infra/cluster"
+run = """
+  kubectl delete \
+    -f gitops/app-of-apps.yaml \
+    --ignore-not-found \
+    --timeout 10m 
+  
+  helm uninstall argocd -n argocd --ignore-not-found
+"""
+
+[tasks."homelab:destroy"]
+depends = "homelab:reset"
+dir = "infra/cluster"
+run = "tofu destroy --auto-approve"
+
+[tasks."homelab:images:create"]
+dir = "infra/images"
+run = """
+  tofu init
+  tofu apply --auto-approve
+"""
+
+[tasks."homelab:images:remove"]
+dir = "infra/images"
+run = """
+  tofu init
+  tofu destroy --auto-approve
+"""
