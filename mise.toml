@@ -57,7 +57,6 @@ run = """
 """
 
 [tasks."homelab:reset"]
-dir = "infra/cluster"
 run = """
   kubectl delete \
     -f gitops/bootstrap/app-of-apps.yaml \
