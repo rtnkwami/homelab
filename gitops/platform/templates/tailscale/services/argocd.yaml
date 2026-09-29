@@ -10,7 +10,8 @@ spec:
   parentRefs:
     - name: tailnet-gateway
       namespace: gateway-system
-  hostnames: "argocd.internal.niovial.io"
+  hostnames: 
+    - "argocd.internal.niovial.io"
   rules:
     - backendRefs:
       - name: argocd-server

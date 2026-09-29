@@ -10,7 +10,8 @@ spec:
   parentRefs:
     - name: tailnet-gateway
       namespace: gateway-system
-  hostnames: "grafana.internal.niovial.io"
+  hostnames:
+    - "grafana.internal.niovial.io"
   rules:
     - backendRefs:
       - name: vm-stack-grafana
