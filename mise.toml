@@ -42,7 +42,6 @@ dir = "infra/cluster"
 run = "tofu apply out/cluster.tfplan"
 
 [tasks."homelab:bootstrap"]
-dir = "infra/cluster"
 run = """
   helm repo add argo https://argoproj.github.io/argo-helm
   
@@ -52,16 +51,16 @@ run = """
    --create-namespace \
    --rollback-on-failure \
    --timeout 10m \
-   -f gitops/argocd-install.yaml
+   -f gitops/bootstrap/argocd-install.yaml
   
-  kubectl apply -f gitops/app-of-apps.yaml
+  kubectl apply -f gitops/bootstrap/app-of-apps.yaml
 """
 
 [tasks."homelab:reset"]
 dir = "infra/cluster"
 run = """
   kubectl delete \
-    -f gitops/app-of-apps.yaml \
+    -f gitops/bootstrap/app-of-apps.yaml \
     --ignore-not-found \
     --timeout 10m 
   
