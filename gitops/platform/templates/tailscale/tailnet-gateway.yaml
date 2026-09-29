@@ -25,6 +25,7 @@ metadata:
   namespace: gateway-system
   annotations:
     argocd.argoproj.io/sync-wave: "51"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     cert-manager.io/cluster-issuer: letsencrypt-{{ .Values.letsEncrypt.environment }}
 spec:
   gatewayClassName: istio
