@@ -17,6 +17,12 @@ spec:
     helm:
       valuesObject:
         profile: ambient
+        autoscaleMin: 3
+        autoscaleMax: 6
+        resources:
+          requests:
+            cpu: 256m
+            memory: 500Mi
         nodeSelector:
             node.niovial.io/pool: system
         tolerations:
