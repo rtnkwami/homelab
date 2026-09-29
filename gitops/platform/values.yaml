@@ -8,7 +8,7 @@ letsEncrypt:
 
 gateway:
   infrastructureAnnotations:
-    load-balancer.hetzner.cloud/name: "cluster-gateway"
+    load-balancer.hetzner.cloud/name: "app-gateway"
     load-balancer.hetzner.cloud/location: "nbg1"
 
 components:
