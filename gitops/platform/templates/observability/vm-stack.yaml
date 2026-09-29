@@ -4,8 +4,6 @@ metadata:
   name: observability-agents
   labels:
     pod-security.kubernetes.io/enforce: privileged
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
