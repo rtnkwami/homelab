@@ -24,6 +24,7 @@ locals {
           clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
           extraArgs = {
             cloud-provider = "external"
+            rotate-server-certificates = true
           }
         }
         nodeLabels = pool.labels

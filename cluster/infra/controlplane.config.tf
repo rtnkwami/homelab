@@ -48,6 +48,15 @@ locals {
         }
         extraArgs = {
           cloud-provider = "external"
+          rotate-server-certificates = true
+        }
+      }
+      features = {
+        # NOTE: needed for talos ccm to access talos from within the cluster
+        kubernetesTalosAPIAccess = {
+          enabled                     = true
+          allowedRoles                = ["os:reader"]
+          allowedKubernetesNamespaces = ["kube-system"]
         }
       }
     }
@@ -76,9 +85,11 @@ locals {
           api-audiences = local._irsa_oidc_audience
         }
       }
+
       serviceAccount = {
         key = base64encode(tls_private_key.service_account_signing_key.private_key_pem)
       }
+
       controllerManager = {
         extraArgs = {
           # NOTE:
@@ -89,13 +100,16 @@ locals {
           cloud-provider = "external"
         }
       }
+
       inlineManifests = concat(
         [local.cni_manifest],
         [local.hcloud_secret_manifest],
         [local.ccm_manifest],
         [local.csi_manifest],
         [local.autoscaler_manifest],
+        [local.talos_ccm_manifest]
       )
+
       externalCloudProvider = {
         enabled = true
       }
