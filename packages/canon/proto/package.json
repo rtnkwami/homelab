@@ -2,6 +2,17 @@
   "name": "@canon/proto",
   "version": "1.0.0",
   "type": "module",
+  "exports": {
+    ".": {
+      "default": "./dist/generated/index.js",
+      "types": "./dist/generated/index.d.ts"
+    },
+    "./core/*": {
+      "default": "./dist/generated/index.core.*.js",
+      "types": "./dist/generated/index.core.*.d.ts"
+    },
+    "./schemas/core/*": "./core/*"
+  },
   "scripts": {
     "build": "tsc"
   },
@@ -13,16 +24,5 @@
     "@nestjs/microservices": "^12.1.0",
     "rxjs": "^7.8.2",
     "typescript": "^7.0.2"
-  },
-  "exports": {
-    ".": {
-      "default": "./dist/generated/index.js",
-      "types": "./dist/generated/index.d.ts"
-    },
-    "./core/*": {
-      "default": "./dist/generated/index.core.*.js",
-      "types": "./dist/generated/index.core.*.d.ts"
-    },
-    "./schemas/core/*": "./core/*"
   }
 }
