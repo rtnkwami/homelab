@@ -90,5 +90,4 @@ spec:
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
-      - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
