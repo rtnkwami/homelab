@@ -77,3 +77,10 @@ metadata:
   name: ack-system
   labels:
     istio.io/dataplane-mode: ambient
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cnpg-system
+  labels:
+    istio.io/dataplane-mode: ambient
