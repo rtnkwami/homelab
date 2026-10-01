@@ -5,6 +5,8 @@ metadata:
   labels:
     pod-security.kubernetes.io/enforce: privileged
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -12,6 +14,8 @@ metadata:
   name: istio-system
   labels:
     pod-security.kubernetes.io/enforce: privileged
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -20,6 +24,8 @@ metadata:
   labels:
     pod-security.kubernetes.io/enforce: privileged
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -28,6 +34,8 @@ metadata:
   labels:
     pod-security.kubernetes.io/enforce: privileged
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -35,6 +43,8 @@ metadata:
   name: cert-manager
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -42,6 +52,8 @@ metadata:
   name: external-dns
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -49,6 +61,8 @@ metadata:
   name: vm-operator
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -56,6 +70,8 @@ metadata:
   name: observability
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -63,6 +79,8 @@ metadata:
   name: external-secrets
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -70,6 +88,8 @@ metadata:
   name: gateway-system
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -77,6 +97,8 @@ metadata:
   name: ack-system
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
 ---
 apiVersion: v1
 kind: Namespace
@@ -84,3 +106,5 @@ metadata:
   name: cnpg-system
   labels:
     istio.io/dataplane-mode: ambient
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=false
