@@ -34,7 +34,10 @@ run = "tofu init -upgrade"
 
 [tasks."homelab:preview"]
 dir = "infra/cluster"
-run = "tofu plan -out=out/cluster.tfplan"
+run = """
+  mkdir -p out
+  tofu plan -out=out/cluster.tfplan
+"""
 
 [tasks."homelab:deploy"]
 depends = "homelab:preview"
