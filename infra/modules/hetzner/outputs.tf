@@ -7,7 +7,7 @@ resource "talos_cluster_kubeconfig" "this" {
 
 resource "local_sensitive_file" "kubeconfig" {
   content = talos_cluster_kubeconfig.this.kubeconfig_raw
-  filename = "out/kubeconfig"
+  filename = var.kubeconfig_path
   file_permission = "0600"
 }
 
@@ -20,6 +20,6 @@ data "talos_client_configuration" "this" {
 
 resource "local_sensitive_file" "talos_config" {
   content = data.talos_client_configuration.this.talos_config
-  filename = "out/talosconfig"
+  filename = var.talosconfig_path
   file_permission = "0600"
 }

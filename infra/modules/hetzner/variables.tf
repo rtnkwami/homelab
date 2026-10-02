@@ -10,3 +10,11 @@ variable "is_bootstrap" {
   type = bool
   default = false
 }
+
+variable "kubeconfig_path" {
+  type = string
+}
+
+variable "talosconfig_path" {
+  type = string
+}
