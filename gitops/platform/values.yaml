@@ -23,6 +23,10 @@ certManager:
     environment: staging
     email: cert-alerts@niovial.io
 
+descheduler:
+  enabled: true
+  
+
 gateway:
   infrastructureAnnotations:
     load-balancer.hetzner.cloud/name: "app-gateway"
