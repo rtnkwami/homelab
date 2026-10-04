@@ -1,4 +1,4 @@
-{{- if and (eq .Values.provider "aws") .Values.aws.ack.enabled }}
+{{- if and (eq .Values.provider "hetzner") .Values.aws.ack.enabled }}
 # REF: https://github.com/aws-controllers-k8s/iam-controller/blob/main/helm/values.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application

@@ -39,12 +39,13 @@ locals {
     extraArgs = {
       # priority is used here because cheaper nodes are preferred to expensive
       # nodes where available.
-      expander = "priority"
+      expander = "priority,least-nodes"
       # increase reactivity of cluster autoscaler
-      scale-down-unneeded-time = "3m"
+      scale-down-unneeded-time = "1m"
       scale-down-delay-after-add = "1m"
       scale-down-delay-after-failure = "1m"
       scale-down-delay-type-local = "true"
+      max-drain-parallelism = 10
     }
     # Configre node groups based on cost and capacity.
     # Prefer cheaper nodes where possible
