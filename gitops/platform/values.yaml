@@ -25,7 +25,10 @@ certManager:
 
 descheduler:
   enabled: true
-  
+
+# Requires provider: "hetzner"
+spegel:
+  enabled: false
 
 gateway:
   infrastructureAnnotations:
