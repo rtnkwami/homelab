@@ -21,12 +21,8 @@ spec:
         podDisruptionBudget:
           enabled: true
           minAvailable: 1
-        nodeSelector:
-          node.niovial.io/pool: system
-        tolerations:
-          - key: node.niovial.io/pool
-            operator: Equal
-            value: system
+        {{- include "operatorNodeSelectors" . | indent 8 }}
+        {{- include "operatorTolerations" . | indent 8 }}
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:

@@ -22,12 +22,8 @@ spec:
           enabled: true
         podDisruptionBudget:
           enabled: true
-        nodeSelector:
-            node.niovial.io/pool: system
-        tolerations:
-          - key: node.niovial.io/pool
-            operator: Equal
-            value: system
+        {{- include "operatorNodeSelectors" . | indent 8 }}
+        {{- include "operatorTolerations" . | indent 8 }}
         replicas: 3
         topologySpreadConstraints:
           - topologyKey: "topology.kubernetes.io/zone"

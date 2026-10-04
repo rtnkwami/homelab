@@ -1,3 +1,14 @@
+global:
+  operatorIsolation: true
+  
+  nodeSelector:
+    node.niovial.io/pool: system
+  
+  tolerations:
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
+
 # Either "aws" or "hetzner"
 provider: hetzner
 # Requires provider: "aws"
@@ -17,7 +28,7 @@ istio:
     enabled: true
 
 certManager:
-  enabled: false
+  enabled: true
   
   letsEncrypt:
     environment: staging

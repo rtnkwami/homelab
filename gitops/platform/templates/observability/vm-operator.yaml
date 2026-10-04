@@ -17,12 +17,8 @@ spec:
     targetRevision: 0.67.3
     helm:
       valuesObject:
-        nodeSelector:
-          node.niovial.io/pool: system
-        tolerations:
-          - key: node.niovial.io/pool
-            operator: Equal
-            value: system
+        {{- include "operatorNodeSelectors" . | indent 8 }}
+        {{- include "operatorTolerations" . | indent 8 }}
         admissionWebhooks:
           certManager:
             enabled: true

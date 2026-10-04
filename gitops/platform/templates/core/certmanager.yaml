@@ -18,12 +18,8 @@ spec:
     helm:
       valuesObject:
         global:
-          nodeSelector:
-            node.niovial.io/pool: system
-        tolerations:
-          - key: node.niovial.io/pool
-            operator: Equal
-            value: system
+          {{- include "operatorNodeSelectors" . | indent 10 }}
+        {{- include "operatorTolerations" . | indent 8 }}
         replicaCount: 3
         podDisruptionBudget:
           enabled: true
@@ -45,10 +41,7 @@ spec:
           replicaCount: 3
           podDisruptionBudget:
             enabled: true
-          tolerations:
-            - key: node.niovial.io/pool
-              operator: Equal
-              value: system
+          {{- include "operatorTolerations" . | indent 10 }}
           topologySpreadConstraints:
             - topologyKey: "topology.kubernetes.io/zone"
               maxSkew: 1
@@ -63,10 +56,7 @@ spec:
           replicaCount: 3
           podDisruptionBudget:
             enabled: true
-          tolerations:
-            - key: node.niovial.io/pool
-              operator: Equal
-              value: system
+          {{- include "operatorTolerations" . | indent 10 }}
           topologySpreadConstraints:
             - topologyKey: "topology.kubernetes.io/zone"
               maxSkew: 1
@@ -78,10 +68,7 @@ spec:
                   app.kubernetes.io/instance: cert-manager
               matchLabelKeys: ["pod-template-hash"]
         startupapicheck:
-          tolerations:
-            - key: node.niovial.io/pool
-              operator: Equal
-              value: system
+          {{- include "operatorTolerations" . | indent 10 }}
   destination:
     namespace: cert-manager
     server: https://kubernetes.default.svc

@@ -16,12 +16,8 @@ spec:
     helm:
       valuesObject:
         triggerLoopOnEvent: true
-        nodeSelector:
-            node.niovial.io/pool: system
-        tolerations:
-          - key: node.niovial.io/pool
-            operator: Equal
-            value: system
+        {{- include "operatorNodeSelectors" . | indent 8 }}
+        {{- include "operatorTolerations" . | indent 8 }}
         sources:
           - service
           - gateway-httproute

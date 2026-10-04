@@ -19,3 +19,21 @@
   ] 
 }
 {{- end -}}
+
+{{- define "operatorNodeSelectors" }}
+{{- if .Values.global.operatorIsolation }}
+{{- with .Values.global.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- define "operatorTolerations" }}
+{{- if .Values.global.operatorIsolation }}
+{{- with .Values.global.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
