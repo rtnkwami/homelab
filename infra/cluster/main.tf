@@ -1,6 +1,5 @@
 module "hetzner" {
   count = var.cloud_provider == "hetzner" ? 1 : 0
-  
   source = "../modules/hetzner"
 
   hcloud_token = var.hcloud_token
@@ -9,4 +8,9 @@ module "hetzner" {
 
   kubeconfig_path = "${path.root}/out/kubeconfig"
   talosconfig_path = "${path.root}/out/kubeconfig"
+}
+
+module "aws" {
+  count = var.cloud_provider == "aws" ? 1 : 0
+  source = "../modules/aws"
 }

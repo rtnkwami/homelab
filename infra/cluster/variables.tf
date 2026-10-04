@@ -12,9 +12,7 @@ variable "cloud_provider" {
   description = "The cloud provider to use to deploy the homelab cluster"
   
   validation {
-    condition = can(
-      regex("^(aws|hetzner)$", var.cloud_provider)
-    )
+    condition = contains(["aws", "hetzner"], var.cloud_provider)
     error_message = "The cloud_provider value must be either \"aws\" or \"hetzner\" "
   }
 }
