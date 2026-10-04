@@ -1,6 +1,11 @@
+# Either "aws" or "hetzner"
+provider: hetzner
+# Requires provider: "aws"
 aws:
   accountId: "913509421780"
   region: us-east-1
+  ack:
+    enabled: false
 
 letsEncrypt:
   environment: staging

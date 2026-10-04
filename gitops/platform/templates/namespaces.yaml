@@ -91,6 +91,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Delete=false
 ---
+{{- if and (eq .Values.provider "aws") .Values.aws.ack.enabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -99,6 +100,7 @@ metadata:
     istio.io/dataplane-mode: ambient
   annotations:
     argocd.argoproj.io/sync-options: Delete=false
+{{- end }}
 ---
 apiVersion: v1
 kind: Namespace
