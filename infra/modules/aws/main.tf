@@ -57,9 +57,21 @@ module "vpc" {
   database_subnet_tags = {
     "node.niovial.io/pool" = "database"
   }
+}
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
+module "fck-nat" {
+  source = "rajiska/fck-nat/aws"
+  version = "~>1.6"
+
+  name = "homelab-fck-nat"
+  vpc_id = module.vpc.vpc_id
+  subnet_id = module.vpc.public_subnets[1]
+  ha_mode = true
+  update_route_tables = true
+  route_tables_ids = {
+    for key, table_id in module.vpc.private_route_table_ids :
+      "private-${key}" => table_id
+  }
 }
 
 module "eks" {
