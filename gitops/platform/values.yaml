@@ -7,6 +7,15 @@ aws:
   ack:
     enabled: false
 
+istio:
+  enabled: true
+  istiod:
+    enabled: true
+  ztunnel:
+    enabled: true
+  cni:
+    enabled: true
+
 letsEncrypt:
   environment: staging
   email: cert-alerts@niovial.io

@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -30,4 +31,5 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
+{{- end }}
   
