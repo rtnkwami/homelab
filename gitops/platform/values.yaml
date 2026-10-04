@@ -44,6 +44,10 @@ spegel:
 victoriaMetrics:
   enabled: true
 
+externalSecrets:
+  enabled: false
+
+
 gateway:
   infrastructureAnnotations:
     load-balancer.hetzner.cloud/name: "app-gateway"
