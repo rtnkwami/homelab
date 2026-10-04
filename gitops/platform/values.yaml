@@ -16,9 +16,12 @@ istio:
   cni:
     enabled: true
 
-letsEncrypt:
-  environment: staging
-  email: cert-alerts@niovial.io
+certManager:
+  enabled: false
+  
+  letsEncrypt:
+    environment: staging
+    email: cert-alerts@niovial.io
 
 gateway:
   infrastructureAnnotations:
