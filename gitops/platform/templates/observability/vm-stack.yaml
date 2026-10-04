@@ -1,3 +1,4 @@
+{{- if .Values.victoriaMetrics.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -64,3 +65,4 @@ spec:
       - ServerSideApply=true
       - RespectIgnoreDifferences=true
       - ApplyOutOfSyncOnly=true
+{{- end}}

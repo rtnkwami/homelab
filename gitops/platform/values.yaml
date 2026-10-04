@@ -30,6 +30,9 @@ descheduler:
 spegel:
   enabled: false
 
+victoriaMetrics:
+  enabled: true
+
 gateway:
   infrastructureAnnotations:
     load-balancer.hetzner.cloud/name: "app-gateway"
