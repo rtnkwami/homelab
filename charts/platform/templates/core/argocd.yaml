@@ -36,6 +36,7 @@ spec:
         # redis-ha subchart doesn't use ArgoCD global chart values
         redis-ha:
           enabled: true
+          {{- include "operatorNodeSelectors" . | indent 10 }}
           {{- include "operatorTolerations" . | indent 10 }}
           topologySpreadConstraints:
             enabled: true
