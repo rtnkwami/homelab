@@ -1,3 +1,4 @@
+{{- if (eq .Values.provider "aws") }}
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
@@ -45,3 +46,4 @@ spec:
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["on-demand"]
+{{- end }}

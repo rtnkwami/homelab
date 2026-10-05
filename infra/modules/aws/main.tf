@@ -47,11 +47,11 @@ module "vpc" {
   intra_subnets = local.node_cidrs.intra
 
   public_subnet_tags = {
-    "kubernetes.io/role/elb" = ""
+    "kubernetes.io/role/elb" = "1"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = ""
+    "kubernetes.io/role/internal-elb" = "1"
   }
 
   database_subnet_tags = {
@@ -93,6 +93,10 @@ module "eks" {
 
   vpc_id = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  # Stable name is needed for node classes
+  node_iam_role_name = "AmazonEKSAutoNodeRole"
+  node_iam_role_use_name_prefix = false
 }
 
 resource "aws_eks_capability" "ack" {
