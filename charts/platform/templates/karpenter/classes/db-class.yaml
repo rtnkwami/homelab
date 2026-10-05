@@ -1,0 +1,14 @@
+{{- if (eq .Values.provider "aws") }}
+apiVersion: eks.amazonaws.com/v1
+kind: NodeClass
+metadata:
+  name: database
+spec:
+  role: AmazonEKSAutoNodeRole
+  securityGroupSelectorTerms:
+    - tags:
+        Name: "homelab-node"
+  subnetSelectorTerms:
+    - tags:
+        node.niovial.io/pool: database
+{{- end }}
