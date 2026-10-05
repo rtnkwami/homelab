@@ -1,0 +1,37 @@
+{{- if (eq .Values.provider "aws") }}
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: critical
+spec:
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 30s
+    budgets:
+      - nodes: 10%
+  template:
+    metadata:
+      labels:
+        node.niovial.io/pool: critical
+    spec:
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: database
+      taints:
+        - key: node.niovial.io/pool
+          value: system
+          effect: NoSchedule
+      requirements:
+        - key: eks.amazonaws.com/instance-category
+          operator: In
+          values: ["c", "m", "r"]
+        
+        - key: eks.amazonaws.com/instance-generation
+          operator: Gt
+          values: ["4"]
+        
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
+{{- end }}
