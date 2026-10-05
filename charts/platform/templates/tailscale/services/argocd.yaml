@@ -1,4 +1,4 @@
-{{- if and .Values.tailscale.enabled .Values.tailscale.services.enabled }}
+{{- if and .Values.tailscale.enabled .Values.tailscale.services.enabled .Values.certManager.clusterIssuer.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

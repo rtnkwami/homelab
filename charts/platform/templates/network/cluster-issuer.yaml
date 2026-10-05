@@ -1,4 +1,4 @@
-{{- if and .Values.certManager.enabled .Values.externalSecrets.enabled }}
+{{- if and .Values.certManager.clusterIssuer.enabled .Values.externalSecrets.enabled }}
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

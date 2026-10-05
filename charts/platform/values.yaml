@@ -27,12 +27,13 @@ istio:
   cni:
     enabled: true
 
-certManager:
-  enabled: true
-  
+certManager:  
   letsEncrypt:
     environment: staging
     email: cert-alerts@niovial.io
+
+  clusterIssuer:
+    enabled: true
 
 descheduler:
   enabled: true
@@ -49,7 +50,7 @@ externalSecrets:
   enabled: false
 
 tailscale:
-  enabled: true
+  enabled: false
  
   operatorOauth:
     clientId: TdWRkjSjua11CNTRL-kS1qtWEvNU11CNTRL
@@ -62,7 +63,3 @@ gateway:
   infrastructureAnnotations:
     load-balancer.hetzner.cloud/name: "app-gateway"
     load-balancer.hetzner.cloud/location: "nbg1"
-
-components:
-  tailnet:
-    enabled: true
