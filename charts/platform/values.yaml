@@ -44,7 +44,7 @@ spegel:
   enabled: false
 
 victoriaMetrics:
-  enabled: false
+  enabled: true
 
 # Requires: aws.ack.enabled to be "true"
 externalSecrets:
