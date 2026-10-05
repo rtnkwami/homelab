@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        node.niovial.io/pool: critical
+        node.niovial.io/pool: system
     spec:
       nodeClassRef:
         group: eks.amazonaws.com
