@@ -1,0 +1,47 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: spot
+spec:
+  weight: 80
+  template:
+    metadata:
+      labels:
+        node.niovial.io/pool: general
+    spec:
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+        - key: eks.amazonaws.com/instance-category
+          operator: In
+          values: ["c", "m", "r"]
+
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot"]
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: on-demand
+spec:
+  weight: 20
+  template:
+    metadata:
+      labels:
+        node.niovial.io/pool: general
+    spec:
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+        - key: eks.amazonaws.com/instance-category
+          operator: In
+          values: ["c", "m", "r"]
+
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]

@@ -3,6 +3,11 @@ kind: NodePool
 metadata:
   name: database
 spec:
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 1m
+    budgets:
+      - nodes: 10%
   template:
     metadata:
       labels:
@@ -17,15 +22,10 @@ spec:
           value: system
           effect: NoSchedule
       requirements:
-        - key: "eks.amazonaws.com/instance-category"
+        - key: eks.amazonaws.com/instance-category
           operator: In
           values: ["c", "m", "r"]
         
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["on-demand"]
-  disruption:
-    consolidationPolicy: WhenEmpty
-    consolidateAfter: 1m
-    budgets:
-      - nodes: 10%
