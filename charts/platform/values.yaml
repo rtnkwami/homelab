@@ -11,7 +11,8 @@ global:
 
 # Either "aws" or "hetzner"
 provider: hetzner
-# Requires provider: "aws"
+
+# AWS specific config for iam, secrets, etc., when using hetzner
 aws:
   accountId: "913509421780"
   region: us-east-1
@@ -33,17 +34,17 @@ certManager:
     email: cert-alerts@niovial.io
 
   clusterIssuer:
-    enabled: true
+    enabled: false
 
 descheduler:
-  enabled: true
+  enabled: false
 
 # Requires provider: "hetzner"
 spegel:
   enabled: false
 
 victoriaMetrics:
-  enabled: true
+  enabled: false
 
 # Requires: aws.ack.enabled to be "true"
 externalSecrets:
@@ -59,7 +60,8 @@ tailscale:
   services:
     enabled: true
 
-gateway:
-  infrastructureAnnotations:
+# Requies certManager.clusterIssuer.enabled to be true
+appGateway:
+  annotations:
     load-balancer.hetzner.cloud/name: "app-gateway"
     load-balancer.hetzner.cloud/location: "nbg1"
