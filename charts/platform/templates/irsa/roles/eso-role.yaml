@@ -1,3 +1,4 @@
+{{- if and .Values.externalSecrets.enabled .Values.aws.ack.enabled }}
 apiVersion: iam.services.k8s.aws/v1alpha1
 kind: Role
 metadata:
@@ -44,4 +45,4 @@ spec:
           }
         ]
       }
-    
+{{- end }}
