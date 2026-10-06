@@ -96,6 +96,30 @@ system:
     wave: "11"
     cascadeOnDelete: true
 
+  vm-stack:
+    enabled: true
+    # chart pathfinder
+    chart: victoria-metrics-k8s-stack
+    repo: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
+    version: 0.92.1
+    namespace: observability
+    # app syncing
+    wave: "12"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
+        - ApplyOutOfSyncOnly=true
+    ignoreDifferences:
+    - kind: Secret
+      jsonPointers:
+        - /data/admin-password
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/metadata/annotations/checksum~1secret
+
 istios:
   enabled: true
   repo: https://blob.istio.io/istio-release/charts
