@@ -1,0 +1,19 @@
+admissionWebhooks:
+  certManager:
+    enabled: true
+crds:
+  cleanup:
+    enabled: true
+replicaCount: 3
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+topologySpreadConstraints:
+  - topologyKey: "topology.kubernetes.io/zone"
+    maxSkew: 1
+    minDomains: 3
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: victoria-metrics-operator
+    matchLabelKeys: ["pod-template-hash"]

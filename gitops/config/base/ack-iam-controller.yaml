@@ -1,0 +1,16 @@
+aws:
+  region: us-east-1
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::913509421780:role/ack-iam-controller
+deployment:
+  replicas: 3
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: ack-iam-controller
+leaderElection:
+  enabled: true

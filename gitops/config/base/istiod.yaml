@@ -1,0 +1,16 @@
+profile: ambient
+autoscaleMin: 3
+autoscaleMax: 6
+resources:
+  requests:
+    cpu: 256m
+    memory: 500Mi
+topologySpreadConstraints:
+  - topologyKey: "topology.kubernetes.io/zone"
+    maxSkew: 1
+    minDomains: 3
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: instance
+    matchLabelKeys: ["pod-template-hash"]
