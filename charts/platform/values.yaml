@@ -12,12 +12,8 @@ system:
     # DO NOT FLIP TO TRUE! Flipping to true can cause ArgoCD to delete itself
     cascadeOnDelete: false
     syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
       automated:
         prune: false
-        selfHeal: true
       retry:
         limit: 20
         backoff:
@@ -122,6 +118,24 @@ system:
     namespace: kube-system
     # app syncing
     wave: "21"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
+  vm-operator:
+    enabled: true
+    # chart pathfinder
+    chart: victoria-metrics-operator
+    repo: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-operator
+    version: 0.67.3
+    namespace: vm-operator
+    # app syncing
+    wave: "11"
     cascadeOnDelete: true
     syncPolicy:
       syncOptions:
