@@ -1,0 +1,38 @@
+{{- if .Values.istios.enabled }}
+{{- range $component, $settings := .Values.istios.components }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $component }}
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ $settings.wave }}
+    argocd.argoproj.io/ignore-healthcheck: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  sources:
+    - chart: {{ $settings.chart }}
+      repoURL: {{ $.Values.istios.repo }}
+      targetRevision: {{ $.Values.istios.version | quote }}
+      helm:
+        valueFiles:
+          - $values/gitops/config/base/{{ $component }}.yaml
+          - $values/gitops/config/{{ $.Values.provider }}/{{ $component }}.yaml
+    - repoURL: {{ $.Values.configRepo }}
+      targetRevision: HEAD
+      ref: values
+  destination:
+    namespace: {{ $.Values.istios.namespace }}
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
+    automated:
+      prune: true
+      selfHeal: true
+---
+{{- end }}
+{{- end }}
