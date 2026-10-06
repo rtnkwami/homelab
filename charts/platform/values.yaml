@@ -95,6 +95,42 @@ system:
         prune: true
         selfHeal: true
 
+  irsa-webhook:
+    enabled: true
+    # chart pathfinder
+    chart: amazon-eks-pod-identity-webhook
+    repo: https://jkroepke.github.io/helm-charts/
+    version: 2.6.5
+    namespace: kube-system
+    # app syncing
+    wave: "20"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
+  ack-iam-controller:
+    enabled: true
+    # chart pathfinder
+    chart: amazon-eks-pod-identity-webhook
+    repo: public.ecr.aws/aws-controllers-k8s
+    version: 1.9.0
+    namespace: kube-system
+    # app syncing
+    wave: "21"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
 istios:
   enabled: true
   repo: https://blob.istio.io/istio-release/charts
