@@ -1,0 +1,41 @@
+{{- range $component, $settings := .Values.system }}
+{{- if $settings.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $component }}
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ $settings.wave }}
+    argocd.argoproj.io/ignore-healthcheck: "true"
+  {{- if $settings.cascadeOnDelete }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+  {{- end }}
+spec:
+  project: default
+  sources:
+    - chart: {{ $settings.chart }}
+      repoURL: {{ $settings.repo }}
+      targetRevision: {{ $settings.version | quote }}
+      helm:
+        valueFiles:
+          - $values/gitops/config/base/{{ $component }}.yaml
+          - $values/gitops/config/{{ $.Values.provider }}/{{ $component }}.yaml
+    - repoURL: {{ $.Values.configRepo }}
+      targetRevision: HEAD
+      ref: values
+  destination:
+    namespace: {{ $settings.namespace }}
+    server: https://kubernetes.default.svc
+  {{- with $settings.ignoreDifferences }}
+  ignoreDifferences:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $settings.syncPolicy }}
+  syncPolicy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
