@@ -1,3 +1,12 @@
+{{- define "defaultSyncPolicy" }}
+syncOptions:
+  - ServerSideApply=true
+  - ApplyOutOfSyncOnly=true
+automated:
+  prune: true
+  selfHeal: true
+{{- end }}
+
 {{- define "assumeRoleDocument" }}
 {{- $oidcProvider := "s3.us-east-1.amazonaws.com/niovial-homelab-oidc" }}
 {
