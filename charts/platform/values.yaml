@@ -131,6 +131,17 @@ system:
     wave: "30"
     cascadeOnDelete: true
 
+  external-dns:
+    enabled: true
+    # chart pathfinder
+    chart: external-dns
+    repo: https://kubernetes-sigs.github.io/external-dns/
+    version: 1.21.1
+    namespace: external-dns
+    # app syncing
+    wave: "41"
+    cascadeOnDelete: true
+
   cloudnative-pg:
     enabled: true
     # chart pathfinder

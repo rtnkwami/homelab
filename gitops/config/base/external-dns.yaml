@@ -1,0 +1,22 @@
+triggerLoopOnEvent: true
+sources:
+  - service
+  - gateway-httproute
+  - gateway-tlsroute
+  - gateway-tcproute
+rbac:
+  additionalPermissions:
+    - apiGroups: [""]
+      resources: ["namespaces"]
+      verbs: ["get","watch","list"]
+provider:
+  name: cloudflare
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: domain-credentials
+        key: domain-secret
+txtOwnerId: homelab
+extraArgs:
+  cloudflare-proxied: true
