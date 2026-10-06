@@ -95,6 +95,25 @@ system:
         prune: true
         selfHeal: true
 
+istios:
+  enabled: true
+  repo: https://blob.istio.io/istio-release/charts
+  version: 1.31.1
+  namespace: istio-system
+  cascadeOnDelete: true
+  components:
+    istio-base:
+      chart: base
+      wave: "10"
+    istiod:
+      chart: istiod
+      wave: "13"
+    istio-cni:
+      chart: cni
+      wave: "14"
+    ztunnel:
+      chart: ztunnel
+      wave: "15"
 
 
 # Repository containing values for all applications in this chart 
