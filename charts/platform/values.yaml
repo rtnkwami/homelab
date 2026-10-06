@@ -1,3 +1,108 @@
+system:
+  # ArgoCD self-management
+  argocd:
+    enabled: false
+    # chart pathfinder
+    chart: argo-cd
+    repo: https://argoproj.github.io/argo-helm
+    version: 10.8.0
+    namespace: argocd
+    # app syncing
+    wave: "-1"
+    # DO NOT FLIP TO TRUE! Flipping to true can cause ArgoCD to delete itself
+    cascadeOnDelete: false
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: false
+        selfHeal: true
+      retry:
+        limit: 20
+        backoff:
+          duration: 10s
+
+  spegel:
+    enabled: true
+    # chart pathfinder
+    chart: spegel
+    repo: oci://ghcr.io/spegel-org/helm-charts/spegel
+    version: 0.7.3
+    namespace: spegel
+    # app syncing
+    wave: "0"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+  
+  kube-metrics-server:
+    enabled: true
+    # chart pathfinder
+    chart: metrics-server
+    repo: https://kubernetes-sigs.github.io/metrics-server/
+    version: 3.14.0
+    namespace: kube-system
+    # app syncing
+    wave: "1"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
+  descheduler:
+    enabled: true
+    # chart pathfinder
+    chart: descheduler
+    repo: https://kubernetes-sigs.github.io/descheduler
+    version: 0.36.0
+    namespace: kube-system
+    # app syncing
+    wave: "1"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
+  cert-manager:
+    enabled: true
+    # chart pathfinder
+    chart: cert-manager
+    repo: oci://quay.io/jetstack/charts/cert-manager
+    version: 1.20.2
+    namespace: cert-manager
+    # app syncing
+    wave: "2"
+    cascadeOnDelete: true
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
+        - ApplyOutOfSyncOnly=true
+      automated:
+        prune: true
+        selfHeal: true
+
+
+
+# Repository containing values for all applications in this chart 
+configRepo: https://github.com/rtnkwami/homelab.git
+
+# Either "aws" or "hetzner"
+provider: hetzner
+
 global:
   operatorIsolation: true
   
@@ -8,9 +113,6 @@ global:
     - key: node.niovial.io/pool
       operator: Equal
       value: system
-
-# Either "aws" or "hetzner"
-provider: aws
 
 # AWS specific config for iam, secrets, etc., when using hetzner
 aws:
