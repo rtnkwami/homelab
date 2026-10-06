@@ -1,4 +1,4 @@
-{{- if and .Values.tailscale.enabled .Values.certManager.clusterIssuer }}
+{{- if and .Values.tailscale.enabled .Values.certManager.clusterIssuer.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

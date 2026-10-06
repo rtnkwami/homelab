@@ -11,7 +11,7 @@ spec:
     email: {{ .Values.certManager.letsEncrypt.email }}
     {{- if eq .Values.certManager.letsEncrypt.environment "staging" }}
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    {{- else if eq .Values.certManagerletsEncrypt.environment "production" }}
+    {{- else if eq .Values.certManager.letsEncrypt.environment "production" }}
     server: https://acme-v02.api.letsencrypt.org/directory
     {{- end }}
     privateKeySecretRef:

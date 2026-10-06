@@ -20,7 +20,7 @@ spec:
         name: database
       taints:
         - key: node.niovial.io/pool
-          value: system
+          value: database
           effect: NoSchedule
       requirements:
         - key: eks.amazonaws.com/instance-category

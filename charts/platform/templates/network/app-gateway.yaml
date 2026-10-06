@@ -24,7 +24,7 @@ metadata:
 spec:
   gatewayClassName: istio
   infrastructure:
-    {{- with .Values.gateway.infrastructureAnnotations }}
+    {{- with .Values.appGateway.annotations }}
     annotations:
       {{- . | toYaml | nindent 6 }}
     {{- end }}

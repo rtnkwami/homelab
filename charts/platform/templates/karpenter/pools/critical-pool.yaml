@@ -17,7 +17,7 @@ spec:
       nodeClassRef:
         group: eks.amazonaws.com
         kind: NodeClass
-        name: database
+        name: default
       taints:
         - key: node.niovial.io/pool
           value: system
