@@ -17,6 +17,7 @@ spec:
       repoURL: {{ $.Values.istios.repo }}
       targetRevision: {{ $.Values.istios.version | quote }}
       helm:
+        ignoreMissingValueFiles: true
         valueFiles:
           - $values/gitops/config/base/{{ $component }}.yaml
           - $values/gitops/config/{{ $.Values.provider }}/{{ $component }}.yaml

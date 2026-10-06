@@ -19,6 +19,7 @@ spec:
       repoURL: {{ $settings.repo }}
       targetRevision: {{ $settings.version | quote }}
       helm:
+        ignoreMissingValueFiles: true
         valueFiles:
           - $values/gitops/config/base/{{ $component }}.yaml
           - $values/gitops/config/{{ $.Values.provider }}/{{ $component }}.yaml
