@@ -1,0 +1,11 @@
+replicaCount: 3
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: topology.kubernetes.io/zone
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: irsa-webhook

@@ -1,0 +1,10 @@
+replicaCount: 3
+topologySpreadConstraints:
+  - topologyKey: "topology.kubernetes.io/zone"
+    maxSkew: 1
+    minDomains: 3
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/instance: cloudnative-pg
+    matchLabelKeys: ["pod-template-hash"]

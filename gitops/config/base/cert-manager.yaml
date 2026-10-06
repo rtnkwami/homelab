@@ -1,0 +1,45 @@
+replicaCount: 3
+podDisruptionBudget:
+  enabled: true
+crds:
+  enabled: true
+config:
+  enableGatewayAPI: true
+topologySpreadConstraints:
+  - topologyKey: "topology.kubernetes.io/zone"
+    maxSkew: 1
+    minDomains: 3
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: cert-manager
+        app.kubernetes.io/instance: cert-manager
+    matchLabelKeys: ["pod-template-hash"]
+webhook:
+  replicaCount: 3
+  podDisruptionBudget:
+    enabled: true
+  topologySpreadConstraints:
+    - topologyKey: "topology.kubernetes.io/zone"
+      maxSkew: 1
+      minDomains: 3
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: webhook
+          app.kubernetes.io/instance: cert-manager
+      matchLabelKeys: ["pod-template-hash"]
+cainjector:
+  replicaCount: 3
+  podDisruptionBudget:
+    enabled: true
+  topologySpreadConstraints:
+    - topologyKey: "topology.kubernetes.io/zone"
+      maxSkew: 1
+      minDomains: 3
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: cainjector
+          app.kubernetes.io/instance: cert-manager
+      matchLabelKeys: ["pod-template-hash"]
