@@ -1,7 +1,7 @@
 system:
   # ArgoCD self-management
   argocd:
-    enabled: false
+    enabled: true
     # chart pathfinder
     chart: argo-cd
     repo: https://argoproj.github.io/argo-helm
@@ -77,10 +77,10 @@ system:
   ack-iam-controller:
     enabled: true
     # chart pathfinder
-    chart: amazon-eks-pod-identity-webhook
+    chart: iam-chart
     repo: public.ecr.aws/aws-controllers-k8s
     version: 1.9.0
-    namespace: kube-system
+    namespace: ack-system
     # app syncing
     wave: "21"
     cascadeOnDelete: true
@@ -119,6 +119,50 @@ system:
       kind: Deployment
       jsonPointers:
         - /spec/template/metadata/annotations/checksum~1secret
+  
+  external-secrets:
+    enabled: true
+    # chart pathfinder
+    chart: external-secrets
+    repo: https://charts.external-secrets.io
+    version: 2.10.0
+    namespace: external-secrets
+    # app syncing
+    wave: "30"
+    cascadeOnDelete: true
+
+  cloudnative-pg:
+    enabled: true
+    # chart pathfinder
+    chart: cloudnative-pg
+    repo: oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg
+    version: 0.29.0
+    namespace: cnpg-system
+    # app syncing
+    wave: "41"
+    cascadeOnDelete: true
+
+  barman-cloud-plugin:
+    enabled: true
+    # chart pathfinder
+    chart: plugin-barman-cloud
+    repo: oci://ghcr.io/cloudnative-pg/charts/plugin-barman-cloud
+    version: 0.7.0
+    namespace: cnpg-system
+    # app syncing
+    wave: "42"
+    cascadeOnDelete: true
+
+  tailscale-operator:
+    enabled: true
+    # chart pathfinder
+    chart: tailscale-operator
+    repo: https://pkgs.tailscale.com/helmcharts
+    version: v1.102.4
+    namespace: tailscale
+    # app syncing
+    wave: "50"
+    cascadeOnDelete: true
 
 istios:
   enabled: true
