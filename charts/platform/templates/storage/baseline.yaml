@@ -1,0 +1,12 @@
+{{- if (eq .Values.provider "aws") }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: baseline
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.eks.amazonaws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+{{- end }}
