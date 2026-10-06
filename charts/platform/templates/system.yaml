@@ -32,10 +32,10 @@ spec:
   ignoreDifferences:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with $settings.syncPolicy }}
+  {{- $defaultPolicy := include "defaultSyncPolicy" . | fromYaml }}
+  {{- $syncPolicy := mustMergeOverwrite $defaultPolicy ($settings.syncPolicy | default dict) }}
   syncPolicy:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- toYaml $syncPolicy | nindent 4 }}
 ---
 {{- end }}
 {{- end }}

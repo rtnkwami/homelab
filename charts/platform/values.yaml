@@ -29,13 +29,6 @@ system:
     # app syncing
     wave: "0"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
   
   kube-metrics-server:
     enabled: true
@@ -47,13 +40,6 @@ system:
     # app syncing
     wave: "1"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
   descheduler:
     enabled: true
@@ -65,13 +51,6 @@ system:
     # app syncing
     wave: "1"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
   cert-manager:
     enabled: true
@@ -83,13 +62,6 @@ system:
     # app syncing
     wave: "2"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
   irsa-webhook:
     enabled: true
@@ -101,13 +73,6 @@ system:
     # app syncing
     wave: "20"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
   ack-iam-controller:
     enabled: true
@@ -119,13 +84,6 @@ system:
     # app syncing
     wave: "21"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
   vm-operator:
     enabled: true
@@ -137,13 +95,6 @@ system:
     # app syncing
     wave: "11"
     cascadeOnDelete: true
-    syncPolicy:
-      syncOptions:
-        - ServerSideApply=true
-        - ApplyOutOfSyncOnly=true
-      automated:
-        prune: true
-        selfHeal: true
 
 istios:
   enabled: true
