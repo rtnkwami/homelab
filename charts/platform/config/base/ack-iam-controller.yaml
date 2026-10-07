@@ -1,8 +1,5 @@
 aws:
   region: us-east-1
-serviceAccount:
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::913509421780:role/ack-iam-controller
 deployment:
   replicas: 3
   affinity:
