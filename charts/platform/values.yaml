@@ -10,6 +10,8 @@ system:
     repo: https://argoproj.github.io/argo-helm
     version: 10.8.0
     namespace: argocd
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "-1"
     # DO NOT FLIP TO TRUE! Flipping to true can cause ArgoCD to delete itself
@@ -29,6 +31,9 @@ system:
     repo: oci://ghcr.io/spegel-org/helm-charts/spegel
     version: 0.7.3
     namespace: spegel
+    namespaceLabels:
+      pod-security.kubernetes.io/enforce: privileged
+    namespaceAnnotations: {}
     # app syncing
     wave: "0"
     cascadeOnDelete: true
@@ -40,6 +45,8 @@ system:
     repo: https://kubernetes-sigs.github.io/metrics-server/
     version: 3.14.0
     namespace: kube-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "1"
     cascadeOnDelete: true
@@ -51,6 +58,8 @@ system:
     repo: https://kubernetes-sigs.github.io/descheduler
     version: 0.36.0
     namespace: kube-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "1"
     cascadeOnDelete: true
@@ -62,6 +71,8 @@ system:
     repo: oci://quay.io/jetstack/charts/cert-manager
     version: 1.20.2
     namespace: cert-manager
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "2"
     cascadeOnDelete: true
@@ -73,6 +84,8 @@ system:
     repo: https://jkroepke.github.io/helm-charts/
     version: 2.6.5
     namespace: kube-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "20"
     cascadeOnDelete: true
@@ -84,6 +97,8 @@ system:
     repo: public.ecr.aws/aws-controllers-k8s
     version: 1.9.0
     namespace: ack-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "21"
     cascadeOnDelete: true
@@ -95,6 +110,8 @@ system:
     repo: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-operator
     version: 0.67.3
     namespace: vm-operator
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "11"
     cascadeOnDelete: true
@@ -106,6 +123,8 @@ system:
     repo: oci://ghcr.io/victoriametrics/helm-charts/victoria-metrics-k8s-stack
     version: 0.92.1
     namespace: observability
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "12"
     cascadeOnDelete: true
@@ -130,6 +149,8 @@ system:
     repo: https://charts.external-secrets.io
     version: 2.10.0
     namespace: external-secrets
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "30"
     cascadeOnDelete: true
@@ -141,6 +162,8 @@ system:
     repo: https://kubernetes-sigs.github.io/external-dns/
     version: 1.21.1
     namespace: external-dns
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "41"
     cascadeOnDelete: true
@@ -152,6 +175,8 @@ system:
     repo: oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg
     version: 0.29.0
     namespace: cnpg-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "41"
     cascadeOnDelete: true
@@ -163,6 +188,8 @@ system:
     repo: oci://ghcr.io/cloudnative-pg/charts/plugin-barman-cloud
     version: 0.7.0
     namespace: cnpg-system
+    namespaceLabels: {}
+    namespaceAnnotations: {}
     # app syncing
     wave: "42"
     cascadeOnDelete: true
@@ -174,6 +201,9 @@ system:
     repo: https://pkgs.tailscale.com/helmcharts
     version: v1.102.4
     namespace: tailscale
+    namespaceLabels:
+      pod-security.kubernetes.io/enforce: privileged
+    namespaceAnnotations: {}
     # app syncing
     wave: "50"
     cascadeOnDelete: true
@@ -183,6 +213,9 @@ istio:
   repo: https://blob.istio.io/istio-release/charts
   version: 1.31.1
   namespace: istio-system
+  namespaceLabels:
+    pod-security.kubernetes.io/enforce: privileged
+  namespaceAnnotations: {}
   cascadeOnDelete: true
   components:
     istio-base:
@@ -197,6 +230,15 @@ istio:
     ztunnel:
       chart: ztunnel
       wave: "15"
+
+extraNamespaces:
+  observability-agents:
+    labels:
+      pod-security.kubernetes.io/enforce: privileged
+  
+  gateway-system:
+    labels:
+      istio.io/dataplane-mode: ambient
 
 # Repository containing values for all applications in this chart 
 config:
