@@ -6,7 +6,7 @@ metadata:
   name: {{ $component }}
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: {{ $settings.wave }}
+    argocd.argoproj.io/sync-wave: {{ $settings.wave | quote }}
     argocd.argoproj.io/ignore-healthcheck: "true"
   {{- if $settings.cascadeOnDelete }}
   finalizers:
