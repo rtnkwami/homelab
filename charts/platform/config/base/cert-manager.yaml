@@ -1,3 +1,10 @@
+global:
+  nodeSelector:
+    node.niovial.io/pool: system
+tolerations:
+  - key: node.niovial.io/pool
+    operator: Equal
+    value: system
 replicaCount: 3
 podDisruptionBudget:
   enabled: true
@@ -19,6 +26,10 @@ webhook:
   replicaCount: 3
   podDisruptionBudget:
     enabled: true
+  tolerations:
+  - key: node.niovial.io/pool
+    operator: Equal
+    value: system
   topologySpreadConstraints:
     - topologyKey: "topology.kubernetes.io/zone"
       maxSkew: 1
@@ -33,6 +44,10 @@ cainjector:
   replicaCount: 3
   podDisruptionBudget:
     enabled: true
+  tolerations:
+  - key: node.niovial.io/pool
+    operator: Equal
+    value: system
   topologySpreadConstraints:
     - topologyKey: "topology.kubernetes.io/zone"
       maxSkew: 1
@@ -43,3 +58,8 @@ cainjector:
           app.kubernetes.io/name: cainjector
           app.kubernetes.io/instance: cert-manager
       matchLabelKeys: ["pod-template-hash"]
+startupapicheck:
+  tolerations:
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system

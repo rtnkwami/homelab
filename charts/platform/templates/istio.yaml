@@ -19,9 +19,9 @@ spec:
       helm:
         ignoreMissingValueFiles: true
         valueFiles:
-          - $values/gitops/config/base/{{ $component }}.yaml
-          - $values/gitops/config/{{ $.Values.provider }}/{{ $component }}.yaml
-    - repoURL: {{ $.Values.configRepo }}
+          - $values/{{ $.Values.config.path }}/base/{{ $component }}.yaml
+          - $values/{{ $.Values.config.path }}/{{ $.Values.provider }}/{{ $component }}.yaml
+    - repoURL: {{ $.Values.config.repo }}
       targetRevision: HEAD
       ref: values
   destination:

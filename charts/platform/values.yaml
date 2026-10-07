@@ -196,7 +196,9 @@ istios:
       wave: "15"
 
 # Repository containing values for all applications in this chart 
-configRepo: https://github.com/rtnkwami/homelab.git
+config:
+  repo: https://github.com/rtnkwami/homelab.git
+  path: charts/platform/config
 
 # Either "aws" or "hetzner"
 provider: hetzner

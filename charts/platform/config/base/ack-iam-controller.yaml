@@ -2,6 +2,12 @@ aws:
   region: us-east-1
 deployment:
   replicas: 3
+  nodeSelector:
+    node.niovial.io/pool: system
+  tolerations:
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
   affinity:
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:

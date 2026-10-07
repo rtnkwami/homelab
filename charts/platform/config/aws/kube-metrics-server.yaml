@@ -1,5 +1,0 @@
-nodeSelector:
-    karpenter.sh/nodepool: system
-tolerations:
-  - key: CriticalAddonsOnly
-    operator: Exists
