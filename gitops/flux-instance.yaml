@@ -37,3 +37,8 @@ spec:
                   matchLabels:
                     app.kubernetes.io/name: flux
                 matchLabelKeys: ["pod-template-hash"]
+  sync:
+    kind: GitRepository
+    url: https://github.com/rtnkwami/homelab.git
+    ref: refs/heads/refactor/gitops
+    path: gitops/workloads
