@@ -1,12 +1,14 @@
 global:
   nodeSelector:
-    karpenter.sh/nodepool: system
+    node.niovial.io/pool: system
   tolerations:
-    - key: CriticalAddonsOnly
-      operator: Exists
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
 redis-ha:
   nodeSelector:
-    karpenter.sh/nodepool: system
+    node.niovial.io/pool: system
   tolerations:
-    - key: CriticalAddonsOnly
-      operator: Exists
+    - key: node.niovial.io/pool
+      operator: Equal
+      value: system
