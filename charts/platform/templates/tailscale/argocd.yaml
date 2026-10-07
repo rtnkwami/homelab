@@ -1,4 +1,4 @@
-{{- if and .Values.tailscale.enabled .Values.tailscale.services.enabled .Values.certManager.clusterIssuer.enabled }}
+{{- if index .Values.system "tailscale-operator" }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
