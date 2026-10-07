@@ -1,109 +1,16 @@
-{{- if .Values.spegel.enabled }}
+{{- range $component, $settings := .Values.system }}
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: spegel
+  name: {{ $settings.namespace }}
+  {{- with $settings.namespaceLabels }}
   labels:
-    pod-security.kubernetes.io/enforce: privileged
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $settings.namespaceAnnotations }}
   annotations:
     argocd.argoproj.io/sync-options: Delete=false
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 ---
-{{- end }}
-{{- if .Values.istio.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: istio-system
-  labels:
-    pod-security.kubernetes.io/enforce: privileged
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-{{- if .Values.victoriaMetrics.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: observability-agents
-  labels:
-    pod-security.kubernetes.io/enforce: privileged
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-{{- if .Values.tailscale.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: tailscale
-  labels:
-    pod-security.kubernetes.io/enforce: privileged
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cert-manager
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: external-dns
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- if .Values.victoriaMetrics.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: vm-operator
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-{{- if .Values.victoriaMetrics.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: observability
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-{{- if .Values.externalSecrets.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: external-secrets
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- end }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: gateway-system
-  labels:
-    istio.io/dataplane-mode: ambient
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
----
-{{- if and (eq .Values.provider "hetzner") .Values.aws.ack.enabled }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ack-system
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
-{{- end }}
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cnpg-system
-  annotations:
-    argocd.argoproj.io/sync-options: Delete=false
+{{ end -}}
