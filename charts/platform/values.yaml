@@ -195,7 +195,6 @@ istios:
       chart: ztunnel
       wave: "15"
 
-
 # Repository containing values for all applications in this chart 
 configRepo: https://github.com/rtnkwami/homelab.git
 
