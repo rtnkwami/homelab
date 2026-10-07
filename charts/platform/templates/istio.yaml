@@ -1,5 +1,5 @@
-{{- if .Values.istios.enabled }}
-{{- range $component, $settings := .Values.istios.components }}
+{{- if .Values.istio.enabled }}
+{{- range $component, $settings := .Values.istio.components }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -14,8 +14,8 @@ spec:
   project: default
   sources:
     - chart: {{ $settings.chart }}
-      repoURL: {{ $.Values.istios.repo }}
-      targetRevision: {{ $.Values.istios.version | quote }}
+      repoURL: {{ $.Values.istio.repo }}
+      targetRevision: {{ $.Values.istio.version | quote }}
       helm:
         ignoreMissingValueFiles: true
         valueFiles:
@@ -25,7 +25,7 @@ spec:
       targetRevision: HEAD
       ref: values
   destination:
-    namespace: {{ $.Values.istios.namespace }}
+    namespace: {{ $.Values.istio.namespace }}
     server: https://kubernetes.default.svc
   syncPolicy:
     syncOptions:
