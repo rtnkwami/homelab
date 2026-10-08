@@ -1,0 +1,111 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: descheduler
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  dependsOn:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: helmreleases.helm.toolkit.fluxcd.io
+      ready: true
+    
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: autoscaling
+      namespace: flux-system
+      ready: true 
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      metadata:
+        name: descheduler
+        namespace: flux-system
+      spec:
+        interval: 30m
+        url: https://kubernetes-sigs.github.io/descheduler
+
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: descheduler
+        namespace: flux-system
+      spec:
+        releaseName: descheduler
+        targetNamespace: kube-system
+        interval: 3m
+        driftDetection:
+          mode: enabled
+        chart:
+          spec:
+            chart: descheduler
+            version: "0.36.x"
+            sourceRef:
+              kind: HelmRepository
+              name: descheduler
+            interval: 15m
+        values:
+          kind: Deployment
+          leaderElection:
+            enabled: true
+          podDisruptionBudget:
+            enabled: true
+          nodeSelector:
+            node.niovial.io/pool: system
+          tolerations:
+            - key: node.niovial.io/pool
+              operator: Equal
+              value: system
+          replicas: 3
+          topologySpreadConstraints:
+            - topologyKey: "topology.kubernetes.io/zone"
+              maxSkew: 1
+              minDomains: 3
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: descheduler
+              matchLabelKeys: ["pod-template-hash"]
+          deschedulerPolicy:
+            maxNoOfPodsToEvictPerNode: 10
+            maxNoOfPodsToEvictPerNamespace: 10
+            # https://github.com/kubernetes-sigs/descheduler/blob/master/README.md
+            profiles:
+              - name: default
+                pluginConfig:
+                  - name: DefaultEvictor
+                    args:
+                      nodeFit: true
+                      minReplicas: 2
+                      podProtections:
+                        defaultDisabled:
+                        - "PodsWithLocalStorage"
+                        extraEnabled:
+                        - "PodsWithPVC"
+                  - name: RemoveDuplicates
+                  - name: RemovePodsHavingTooManyRestarts
+                    args:
+                      podRestartThreshold: 100
+                      includingInitContainers: true
+                  - name: RemovePodsViolatingNodeAffinity
+                    args:
+                      nodeAffinityType:
+                        - requiredDuringSchedulingIgnoredDuringExecution
+                  - name: RemovePodsViolatingNodeTaints
+                  - name: RemovePodsViolatingInterPodAntiAffinity
+                  - name: RemovePodsViolatingTopologySpreadConstraint
+                plugins:
+                  balance:
+                    enabled:
+                      - RemoveDuplicates
+                      - RemovePodsViolatingTopologySpreadConstraint
+                  deschedule:
+                    enabled:
+                      - RemovePodsHavingTooManyRestarts
+                      - RemovePodsViolatingNodeTaints
+                      - RemovePodsViolatingNodeAffinity
+                      - RemovePodsViolatingInterPodAntiAffinity
+                  
+                  
