@@ -25,6 +25,8 @@ spec:
             name: istio-system
             labels:
               pod-security.kubernetes.io/enforce: privileged
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
 
         - apiVersion: source.toolkit.fluxcd.io/v1
           kind: HelmRepository
