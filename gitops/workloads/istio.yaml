@@ -19,6 +19,13 @@ spec:
   steps:
     - name: istio-repository
       resources:
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: istio-system
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+
         - apiVersion: source.toolkit.fluxcd.io/v1
           kind: HelmRepository
           metadata:
