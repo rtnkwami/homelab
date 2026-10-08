@@ -37,7 +37,17 @@ spec:
               - key: node.niovial.io/pool
                 operator: Equal
                 value: system
-          
+      - target:
+          kind: Deployment
+          name: source-controller
+        patch: |
+          - op: replace
+            path: /spec/replicas
+            value: 1
+      - target:
+          kind: Deployment
+          name: kustomize-controller
+        patch: |
           - op: add
             path: /spec/template/spec/topologySpreadConstraints
             value:
@@ -47,15 +57,23 @@ spec:
                 whenUnsatisfiable: DoNotSchedule
                 labelSelector:
                   matchLabels:
-                    app.kubernetes.io/name: flux
+                    app: kustomize-controller
                 matchLabelKeys: ["pod-template-hash"]
       - target:
           kind: Deployment
-          name: source-controller
+          name: helm-controller
         patch: |
-          - op: replace
-            path: /spec/replicas
-            value: 1
+          - op: add
+            path: /spec/template/spec/topologySpreadConstraints
+            value:
+              - topologyKey: "topology.kubernetes.io/zone"
+                maxSkew: 1
+                minDomains: 3
+                whenUnsatisfiable: DoNotSchedule
+                labelSelector:
+                  matchLabels:
+                    app: helm-controller
+                matchLabelKeys: ["pod-template-hash"]    
   sync:
     kind: GitRepository
     url: https://github.com/rtnkwami/homelab.git
