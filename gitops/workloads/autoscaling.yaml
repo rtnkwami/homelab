@@ -1,0 +1,119 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: autoscaling
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  steps:
+    - name: node-classes
+      resources:
+        - apiVersion: eks.amazonaws.com/v1
+          kind: NodeClass
+          metadata: database
+          spec:
+            role: AmazonEKSAutoNodeRole
+            securityGroupSelectorTerms:
+              - tags:
+                  Name: "homelab-node"
+            subnetSelectorTerms:
+              - tags:
+                  node.niovial.io/pool: database
+
+    - name: node-pools
+      resources:    
+        - apiVersion: karpenter.sh/v1
+          kind: NodePool
+          metadata:
+            name: database
+          spec:
+            disruption:
+              consolidationPolicy: WhenEmpty
+              consolidateAfter: 1m
+              budgets:
+                - nodes: 10%
+            template:
+              metadata:
+                labels:
+                  node.niovial.io/pool: database
+              spec:
+                nodeClassRef:
+                  group: eks.amazonaws.com
+                  kind: NodeClass
+                  name: database
+                taints:
+                  - key: node.niovial.io/pool
+                    value: database
+                    effect: NoSchedule
+                requirements:
+                  - key: eks.amazonaws.com/instance-category
+                    operator: In
+                    values: ["c", "m", "r"]
+                    
+                  - key: eks.amazonaws.com/instance-generation
+                    operator: Gt
+                    values: ["4"]
+                  
+                  - key: karpenter.sh/capacity-type
+                    operator: In
+                    values: ["on-demand"]
+        
+        - apiVersion: karpenter.sh/v1
+          kind: NodePool
+          metadata:
+            name: critical
+          spec:
+            disruption:
+              consolidationPolicy: WhenEmptyOrUnderutilized
+              consolidateAfter: 30s
+              budgets:
+                - nodes: 10%
+            template:
+              metadata:
+                labels:
+                  node.niovial.io/pool: system
+              spec:
+                nodeClassRef:
+                  group: eks.amazonaws.com
+                  kind: NodeClass
+                  name: default
+                taints:
+                  - key: node.niovial.io/pool
+                    value: system
+                    effect: NoSchedule
+                requirements:
+                  - key: eks.amazonaws.com/instance-category
+                    operator: In
+                    values: ["c", "m", "r"]
+                  
+                  - key: eks.amazonaws.com/instance-generation
+                    operator: Gt
+                    values: ["4"]
+                  
+                  - key: karpenter.sh/capacity-type
+                    operator: In
+                    values: ["on-demand", "spot"]
+
+        - apiVersion: karpenter.sh/v1
+          kind: NodePool
+          metadata:
+            name: general
+          spec:
+            template:
+              metadata:
+                labels:
+                  node.niovial.io/pool: general
+              spec:
+                nodeClassRef:
+                  group: eks.amazonaws.com
+                  kind: NodeClass
+                  name: default
+                requirements:
+                  - key: eks.amazonaws.com/instance-category
+                    operator: In
+                    values: ["c", "m", "r"]
+
+                  - key: karpenter.sh/capacity-type
+                    operator: In
+                    values: ["on-demand", "spot"]

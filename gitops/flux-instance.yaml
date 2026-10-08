@@ -41,4 +41,4 @@ spec:
     kind: GitRepository
     url: https://github.com/rtnkwami/homelab.git
     ref: refs/heads/refactor/gitops
-    path: gitops/workloads
+    path: gitops
