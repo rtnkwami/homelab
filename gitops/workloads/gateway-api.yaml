@@ -25,6 +25,7 @@ spec:
       spec:
         interval: 30m
         url: https://github.com/kubernetes-sigs/gateway-api.git
+        ref: refs/heads/main
 
     - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
