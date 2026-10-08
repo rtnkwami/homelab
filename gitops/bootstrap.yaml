@@ -12,7 +12,7 @@ spec:
         - apiVersion: fluxcd.controlplane.io/v1
           kind: FluxInstance
           metadata:
-            name: flux-system
+            name: flux
             namespace: flux-system
             annotations:
               fluxcd.controlplane.io/prune: disabled
