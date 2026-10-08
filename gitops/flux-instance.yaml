@@ -49,6 +49,13 @@ spec:
                   matchLabels:
                     app.kubernetes.io/name: flux
                 matchLabelKeys: ["pod-template-hash"]
+      - target:
+          kind: Deployment
+          name: source-controller
+        patch: |
+          - op: replace
+            path: /spec/replicas
+            value: 1
   sync:
     kind: GitRepository
     url: https://github.com/rtnkwami/homelab.git
