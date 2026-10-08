@@ -1,7 +1,7 @@
 apiVersion: fluxcd.controlplane.io/v1
 kind: ResourceSet
 metadata:
-  name: root
+  name: bootstrap
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
