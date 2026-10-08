@@ -31,12 +31,12 @@ spec:
             value:
               node.niovial.io/pool: system
 
-            - op: add
-              path: /spec/template/spec/tolerations
-              value:
-                - key: node.niovial.io/pool
-                  operator: Equal
-                  value: system
+          - op: add
+            path: /spec/template/spec/tolerations
+            value:
+              - key: node.niovial.io/pool
+                operator: Equal
+                value: system
           
           - op: add
             path: /spec/template/spec/topologySpreadConstraints
