@@ -14,6 +14,9 @@ spec:
   cluster:
     type: kubernetes
     size: medium
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: flux
   kustomize:
     patches:
       - target:
@@ -22,6 +25,18 @@ spec:
           - op: add
             path: /spec/replicas
             value: 3
+          
+          - op: add
+            path: /spec/nodeSelector
+            value:
+              node.niovial.io/pool: system
+
+            - op: add
+              path: /spec/tolerations
+              value:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
           
           - op: add
             path: /spec/template/spec/topologySpreadConstraints
