@@ -27,12 +27,12 @@ spec:
             value: 3
           
           - op: add
-            path: /spec/nodeSelector
+            path: /spec/template/spec/nodeSelector
             value:
               node.niovial.io/pool: system
 
             - op: add
-              path: /spec/tolerations
+              path: /spec/template/spec/tolerations
               value:
                 - key: node.niovial.io/pool
                   operator: Equal
