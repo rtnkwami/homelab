@@ -11,7 +11,8 @@ spec:
       resources:
         - apiVersion: eks.amazonaws.com/v1
           kind: NodeClass
-          metadata: database
+          metadata:
+            name: database
           spec:
             role: AmazonEKSAutoNodeRole
             securityGroupSelectorTerms:
