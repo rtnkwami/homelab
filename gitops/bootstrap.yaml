@@ -16,7 +16,6 @@ spec:
             namespace: flux-system
             annotations:
               fluxcd.controlplane.io/prune: disabled
-              kustomize.toolkit.fluxcd.io/prune: disabled
           spec:
             distribution:
               version: "2.9.x"

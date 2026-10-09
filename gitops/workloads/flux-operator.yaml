@@ -5,7 +5,6 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
-    fluxcd.controlplane.io/prune: disabled
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   wait: true
@@ -15,6 +14,9 @@ spec:
       name: autoscaling
       namespace: flux-system
       ready: true
+  commonMetadata:
+    annotations:
+      fluxcd.controlplane.io/prune: disabled
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
