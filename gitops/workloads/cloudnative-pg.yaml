@@ -1,0 +1,109 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: cloudnative-pg
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  dependsOn:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: cert-manager
+      namespace: flux-system
+      ready: true
+  steps:
+    - name: cnpg
+      resources:
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: cnpg-system
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+      
+        - apiVersion: source.toolkit.fluxcd.io/v1
+          kind: HelmRepository
+          metadata:
+            name: cloudnative-pg
+            namespace: flux-system
+          spec:
+            interval: 30m
+            type: "oci"
+            url: oci://ghcr.io/cloudnative-pg/charts
+
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: cloudnative-pg
+            namespace: flux-system
+          spec:
+            releaseName: cnpg-operator
+            targetNamespace: cnpg-system
+            interval: 3m
+            driftDetection:
+              mode: enabled
+            chart:
+              spec:
+                chart: cloudnative-pg
+                version: "0.29.x"
+                sourceRef:
+                  kind: HelmRepository
+                  name: cloudnative-pg
+                interval: 15m
+            values:
+              replicaCount: 3
+              nodeSelector:
+                node.niovial.io/pool: system
+              tolerations:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
+              topologySpreadConstraints:
+                - topologyKey: "topology.kubernetes.io/zone"
+                  maxSkew: 1
+                  minDomains: 3
+                  whenUnsatisfiable: DoNotSchedule
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: cnpg-operator
+                  matchLabelKeys: ["pod-template-hash"]
+    
+    - name: barman
+      resources:
+      -   apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: barman-cloud-plugin
+            namespace: flux-system
+          spec:
+            releaseName: barman-cloud-plugin
+            targetNamespace: cnpg-system
+            interval: 3m
+            driftDetection:
+              mode: enabled
+            chart:
+              spec:
+                chart: plugin-barman-cloud
+                version: "0.7.x"
+                sourceRef:
+                  kind: HelmRepository
+                  name: cloudnative-pg
+                interval: 15m
+            values:
+              replicaCount: 3
+              nodeSelector:
+                node.niovial.io/pool: system
+              tolerations:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
+              topologySpreadConstraints:
+                - topologyKey: "topology.kubernetes.io/zone"
+                  maxSkew: 1
+                  minDomains: 3
+                  whenUnsatisfiable: DoNotSchedule
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: barman-cloud-plugin
+                  matchLabelKeys: ["pod-template-hash"]
