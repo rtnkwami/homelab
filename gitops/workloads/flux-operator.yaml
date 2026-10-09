@@ -5,11 +5,10 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
+    fluxcd.controlplane.io/prune: disabled
+    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  commonMetadata:
-    annotations:
-      fluxcd.controlplane.io/prune: disabled
-      kustomize.toolkit.fluxcd.io/prune: disabled
+  wait: true
   dependsOn:
     - apiVersion: fluxcd.controlplane.io/v1
       kind: ResourceSet

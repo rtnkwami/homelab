@@ -109,5 +109,3 @@ spec:
               namespace: flux-system
             path: gitops
             prune: true
-            deletionPolicy: WaitForTermination
-            timeout: 12m
