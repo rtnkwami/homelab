@@ -5,7 +5,6 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
-    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   wait: true
   resources:
@@ -71,3 +70,4 @@ spec:
             replicaCount: 3
             podDisruptionBudget:
               enabled: true
+          
