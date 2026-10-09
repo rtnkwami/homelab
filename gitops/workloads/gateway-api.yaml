@@ -6,12 +6,6 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
-  dependsOn:
-    - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
-      name: flux-operator
-      namespace: flux-system
-      ready: true
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: GitRepository
@@ -30,6 +24,7 @@ spec:
         name: gateway-api-crds
         namespace: flux-system
       spec:
+        wait: true
         interval: 15m
         sourceRef:
           kind: GitRepository

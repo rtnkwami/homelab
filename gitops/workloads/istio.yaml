@@ -6,12 +6,7 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
-  dependsOn:
-    - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
-      name: flux-operator
-      namespace: flux-system
-      ready: true
+  wait: true
   steps:
     - name: istio-repository
       resources:

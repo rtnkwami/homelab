@@ -8,7 +8,7 @@ metadata:
 spec:
   dependsOn:
     - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
+      kind: Kustomization
       name: gateway-api-crds
       namespace: flux-system
       ready: true
