@@ -6,6 +6,16 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
+  dependsOn:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: helmreleases.helm.toolkit.fluxcd.io
+    
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: bootstrap
+      namespace: flux-system
+      ready: true
   steps:
     - name: node-classes
       resources:
