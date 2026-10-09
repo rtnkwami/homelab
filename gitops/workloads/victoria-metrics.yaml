@@ -1,0 +1,161 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: victoria-metrics
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  dependsOn:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      name: helmreleases.helm.toolkit.fluxcd.io
+     
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: storage
+      namespace: flux-system
+      ready: true
+
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: cert-manager
+      namespace: flux-system
+      ready: true
+  steps:
+    - name: namespaces
+      resources:
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: vm-operator
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+              kustomize.toolkit.fluxcd.io/prune: disabled
+        
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: observability
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+              kustomize.toolkit.fluxcd.io/prune: disabled
+
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: observability-agents
+            labels:
+              pod-security.kubernetes.io/enforce: privileged
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+              kustomize.toolkit.fluxcd.io/prune: disabled
+
+    - name: victoria-metrics-repository
+      resources:
+        - apiVersion: source.toolkit.fluxcd.io/v1
+          kind: HelmRepository
+          metadata:
+            name: victoria-metrics
+            namespace: flux-system
+          spec:
+            interval: 30m
+            type: "oci"
+            url: oci://ghcr.io/victoriametrics/helm-charts/
+
+    - name: victoria-metrics-operator
+      resources:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: victoria-metrics-operator
+            namespace: flux-system
+          spec:
+            releaseName: vm-operator
+            targetNamespace: vm-operator
+            interval: 3m
+            driftDetection:
+              mode: enabled
+            chart:
+              spec:
+                chart: victoria-metrics-operator
+                version: "0.67.x"
+                sourceRef:
+                  kind: HelmRepository
+                  name: victoria-metrics
+                interval: 15m
+            values:
+              nodeSelector:
+                node.niovial.io/pool: system
+              tolerations:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
+              admissionWebhooks:
+                certManager:
+                  enabled: true
+              crds:
+                cleanup:
+                  enabled: true
+              replicaCount: 3
+              podDisruptionBudget:
+                enabled: true
+                minAvailable: 1
+              topologySpreadConstraints:
+                - topologyKey: "topology.kubernetes.io/zone"
+                  maxSkew: 1
+                  minDomains: 3
+                  whenUnsatisfiable: DoNotSchedule
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: victoria-metrics-operator
+                  matchLabelKeys: ["pod-template-hash"]
+
+    - name: victoria-metrics-k8s-stack
+      resources:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: victoria-metrics-k8s-stack
+            namespace: flux-system
+          spec:
+            releaseName: vm-stack
+            targetNamespace: observability
+            interval: 3m
+            driftDetection:
+              mode: enabled
+            chart:
+              spec:
+                chart: victoria-metrics-k8s-stack
+                version: "0.92.x"
+                sourceRef:
+                  kind: HelmRepository
+                  name: victoria-metrics
+                interval: 15m
+            values:
+              victoria-metrics-operator:
+                enabled: false
+              vmsingle:
+                spec:
+                  removePvcAfterDelete: true
+              prometheus-node-exporter:
+                namespaceOverride: observability-agents
+              vlsingle:
+                enabled: true
+                spec:
+                  affinity:
+                    podAntiAffinity:
+                      requiredDuringSchedulingIgnoredDuringExecution:
+                        - topologyKey: topology.kubernetes.io/zone
+                          labelSelector:
+                            matchLabels:
+                              app.kubernetes.io/name: vmsingle
+              vlagent:
+                enabled: true
+                namespaceOverride: observability-agents
+                spec:
+                  tolerations:
+                    - operator: Exists
+              grafana:
+                plugins:
+                  - victoriametrics-logs-datasource
