@@ -13,13 +13,7 @@ spec:
 
     - apiVersion: fluxcd.controlplane.io/v1
       kind: ResourceSet
-      name: autoscaling
-      namespace: flux-system
-      ready: true 
-    
-    - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
-      name: root
+      name: flux-operator
       namespace: flux-system
       ready: true 
   resources:
