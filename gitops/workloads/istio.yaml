@@ -78,6 +78,7 @@ spec:
                     name: istio-validator-istio-system
                   paths:
                     - /webhooks/0/clientConfig/caBundle
+                    - /webhooks/0/failurePolicy
             chart:
               spec:
                 chart: istiod
