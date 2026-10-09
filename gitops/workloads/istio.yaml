@@ -7,6 +7,12 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
   wait: true
+  dependsOn:
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      name: gateway-api-crds
+      namespace: flux-system
+      ready: true
   steps:
     - name: istio-repository
       resources:
