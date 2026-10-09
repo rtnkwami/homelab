@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
+    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   # flux-operator depends on this ResourceSet 
   wait: true
