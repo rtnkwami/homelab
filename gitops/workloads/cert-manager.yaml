@@ -7,7 +7,7 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
   dependsOn:
-    - apiVersion: fluxcd.controlplane.io/v1
+    - apiVersion: kustomize.toolkit.fluxcd.io/v1
       kind: Kustomization
       name: gateway-api-crds
       namespace: flux-system

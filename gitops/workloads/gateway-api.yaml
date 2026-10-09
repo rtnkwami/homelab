@@ -24,6 +24,7 @@ spec:
         name: gateway-api-crds
         namespace: flux-system
       spec:
+        # cert-manager and istio depend on this Kustomization
         wait: true
         interval: 15m
         sourceRef:
