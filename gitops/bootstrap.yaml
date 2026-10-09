@@ -107,7 +107,7 @@ spec:
               kind: GitRepository
               name: homelab
               namespace: flux-system
-            path: gitops/workloads
+            path: gitops
             prune: true
             deletionPolicy: WaitForTermination
             timeout: 12m
