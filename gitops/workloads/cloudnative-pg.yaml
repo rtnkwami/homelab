@@ -7,8 +7,8 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
   dependsOn:
-    - apiVersion: helm.toolkit.fluxcd.io/v2
-      kind: HelmRelease
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
       name: cert-manager
       namespace: flux-system
       ready: true
