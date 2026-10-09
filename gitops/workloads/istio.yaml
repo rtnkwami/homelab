@@ -72,6 +72,12 @@ spec:
             interval: 3m
             driftDetection:
               mode: enabled
+              ignore:
+                - target:
+                    kind: ValidatingWebhookConfiguration
+                    name: istio-validator-istio-system
+                  paths:
+                    - /webhooks/0/clientConfig/caBundle
             chart:
               spec:
                 chart: istiod
