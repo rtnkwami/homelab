@@ -6,6 +6,12 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
+  dependsOn:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: autoscaling
+      namespace: flux-system
+      ready: true
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository

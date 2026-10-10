@@ -12,6 +12,12 @@ spec:
       name: gateway-api-crds
       namespace: flux-system
       ready: true
+
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: autoscaling
+      namespace: flux-system
+      ready: true
   resources:
     - apiVersion: v1
       kind: Namespace

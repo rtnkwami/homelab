@@ -13,6 +13,12 @@ spec:
       name: gateway-api-crds
       namespace: flux-system
       ready: true
+
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSet
+      name: autoscaling
+      namespace: flux-system
+      ready: true
   steps:
     - name: istio-repository
       resources:
