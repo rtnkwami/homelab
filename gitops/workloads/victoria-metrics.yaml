@@ -27,7 +27,6 @@ spec:
             name: vm-operator
             annotations:
               fluxcd.controlplane.io/prune: disabled
-              kustomize.toolkit.fluxcd.io/prune: disabled
         
         - apiVersion: v1
           kind: Namespace
@@ -35,7 +34,6 @@ spec:
             name: observability
             annotations:
               fluxcd.controlplane.io/prune: disabled
-              kustomize.toolkit.fluxcd.io/prune: disabled
 
         - apiVersion: v1
           kind: Namespace
@@ -45,7 +43,6 @@ spec:
               pod-security.kubernetes.io/enforce: privileged
             annotations:
               fluxcd.controlplane.io/prune: disabled
-              kustomize.toolkit.fluxcd.io/prune: disabled
 
     - name: victoria-metrics-repository
       resources:
