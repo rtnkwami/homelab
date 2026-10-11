@@ -1,0 +1,25 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: storage
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  # victoria-metrics-k8s-stack depends on this ResourceSet
+  wait: true
+  commonMetadata:
+    annotations:
+      fluxcd.controlplane.io/prune: disabled
+  resources:
+    - apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: default-storage
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+      provisioner: ebs.csi.eks.amazonaws.com
+      volumeBindingMode: WaitForFirstConsumer
+      parameters:
+        type: gp3
