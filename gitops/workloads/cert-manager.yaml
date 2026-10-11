@@ -13,10 +13,9 @@ spec:
       namespace: flux-system
       ready: true
 
-    - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
-      name: autoscaling
-      namespace: flux-system
+    - apiVersion: karpenter.sh/v1
+      kind: NodePool
+      name: critical
       ready: true
   resources:
     - apiVersion: v1

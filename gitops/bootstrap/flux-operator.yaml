@@ -9,10 +9,9 @@ metadata:
 spec:
   wait: true
   dependsOn:
-    - apiVersion: fluxcd.controlplane.io/v1
-      kind: ResourceSet
-      name: autoscaling
-      namespace: flux-system
+    - apiVersion: karpenter.sh/v1
+      kind: NodePool
+      name: critical
       ready: true
   commonMetadata:
     annotations:
