@@ -7,6 +7,10 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
   wait: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
   resources:
     - apiVersion: services.k8s.aws/v1alpha1
       kind: IAMRoleSelector
