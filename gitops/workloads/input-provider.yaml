@@ -1,0 +1,13 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: shared-inputs
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  type: Static
+  defaultValues:
+    accountId: "913509421780"
+    region: us-east-1
+    eksCluster: homelab

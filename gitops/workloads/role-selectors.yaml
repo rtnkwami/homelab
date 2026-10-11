@@ -1,0 +1,19 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: ack-role-selectors
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  wait: true
+  resources:
+    - apiVersion: services.k8s.aws/v1alpha1
+      kind: IAMRoleSelector
+      metadata:
+        name: ack-iam-selector
+      spec:
+        arn: arn:aws:iam::<< inputs.accountId >>:role/ack-iam-controller
+        namespaceSelector:
+          names:
+            - external-secrets
