@@ -5,9 +5,11 @@ metadata:
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
-    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   wait: true
+  commonMetadata:
+    annotations:
+      fluxcd.controlplane.io/prune: disabled
   steps:
     - name: node-classes
       resources:
