@@ -149,6 +149,7 @@ spec:
           kind: PodIdentityAssociation
           metadata:
             name: eso-pod-identity
+            namespace: external-secrets
           spec:
             clusterName: << inputs.eksCluster >>
             namespace: external-secrets
