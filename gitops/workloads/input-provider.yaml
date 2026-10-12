@@ -13,6 +13,6 @@ spec:
     
     eksCluster: homelab
     
-    letsEncrpyt:
+    letsEncrypt:
       environment: staging
       email: cert-alerts@niovial.io
