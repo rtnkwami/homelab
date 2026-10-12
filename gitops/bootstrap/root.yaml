@@ -98,7 +98,7 @@ spec:
             name: homelab
             namespace: flux-system
           spec:
-            interval: 30m
+            interval: 1m
             url: https://github.com/rtnkwami/homelab.git
             ref:
               branch: refactor/gitops
