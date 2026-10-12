@@ -100,6 +100,12 @@ spec:
                 requests:
                   cpu: 256m
                   memory: 500Mi
+              nodeSelector:
+                node.niovial.io/pool: system
+              tolerations:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
               topologySpreadConstraints:
                 - topologyKey: "topology.kubernetes.io/zone"
                   maxSkew: 1
