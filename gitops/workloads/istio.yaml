@@ -34,7 +34,7 @@ spec:
           kind: HelmRepository
           metadata:
             name: istio
-            namespace: flux-system
+            namespace: istio-system
           spec:
             interval: 30m
             url: https://blob.istio.io/istio-release/charts
@@ -45,10 +45,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: istio-base
-            namespace: flux-system
+            namespace: istio-system
           spec:
             releaseName: istio-base
-            targetNamespace: istio-system
             interval: 3m
             driftDetection:
               mode: enabled
@@ -70,10 +69,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: istiod
-            namespace: flux-system
+            namespace: istio-system
           spec:
             releaseName: istiod
-            targetNamespace: istio-system
             interval: 3m
             driftDetection:
               mode: enabled
@@ -122,10 +120,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: istio-cni
-            namespace: flux-system
+            namespace: istio-system
           spec:
             releaseName: istio-cni
-            targetNamespace: istio-system
             interval: 3m
             driftDetection:
               mode: enabled
@@ -146,10 +143,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: ztunnel
-            namespace: flux-system
+            namespace: istio-system
           spec:
             releaseName: ztunnel
-            targetNamespace: istio-system
             interval: 3m
             driftDetection:
               mode: enabled

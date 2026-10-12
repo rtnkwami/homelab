@@ -29,7 +29,7 @@ spec:
       kind: HelmRepository
       metadata:
         name: cert-manager
-        namespace: flux-system
+        namespace: cert-manager
       spec:
         interval: 30m
         type: "oci"
@@ -39,10 +39,9 @@ spec:
       kind: HelmRelease
       metadata:
         name: cert-manager
-        namespace: flux-system
+        namespace: cert-manager
       spec:
         releaseName: cert-manager
-        targetNamespace: cert-manager
         interval: 3m
         driftDetection:
           mode: enabled

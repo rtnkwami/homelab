@@ -16,7 +16,7 @@ spec:
       kind: HelmRepository
       metadata:
         name: descheduler
-        namespace: flux-system
+        namespace: kube-system
       spec:
         interval: 30m
         url: https://kubernetes-sigs.github.io/descheduler
@@ -25,10 +25,9 @@ spec:
       kind: HelmRelease
       metadata:
         name: descheduler
-        namespace: flux-system
+        namespace: kube-system
       spec:
         releaseName: descheduler
-        targetNamespace: kube-system
         interval: 3m
         driftDetection:
           mode: enabled
