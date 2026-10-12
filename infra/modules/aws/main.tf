@@ -88,7 +88,7 @@ module "eks" {
   
   compute_config = {
     enabled = true
-    node_pools = ["system", "general-purpose"]
+    node_pools = ["system"]
   }
 
   vpc_id = module.vpc.vpc_id

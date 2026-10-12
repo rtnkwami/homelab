@@ -3,6 +3,7 @@ module "ack_capability_role" {
   version = "~>6.8"
 
   name = "ACKCapabilityRole"
+  use_name_prefix = false
 
   trust_policy_permissions = {
     TrustEksCapabilities = {
@@ -42,6 +43,7 @@ module "iam_controller_role" {
   version = "~>6.8"
 
   name = "ack-iam-controller"
+  use_name_prefix = false
 
   trust_policy_permissions = {
     TrustEksCapabilityRole = {
@@ -55,23 +57,16 @@ module "iam_controller_role" {
     }
   }
 
+  create_inline_policy = true
+
   inline_policy_permissions = {
     IamManagement = {
       actions = [
-        "iam:GetGroup",
-        "iam:CreateGroup",
-        "iam:DeleteGroup",
-        "iam:UpdateGroup",
         "iam:GetRole",
         "iam:CreateRole",
         "iam:DeleteRole",
         "iam:UpdateRole",
         "iam:PutRolePermissionsBoundary",
-        "iam:PutUserPermissionsBoundary",
-        "iam:GetUser",
-        "iam:CreateUser",
-        "iam:DeleteUser",
-        "iam:UpdateUser",
         "iam:GetPolicy",
         "iam:CreatePolicy",
         "iam:DeletePolicy",
@@ -80,12 +75,6 @@ module "iam_controller_role" {
         "iam:DeletePolicyVersion",
         "iam:ListPolicyVersions",
         "iam:ListPolicyTags",
-        "iam:ListAttachedGroupPolicies",
-        "iam:GetGroupPolicy",
-        "iam:PutGroupPolicy",
-        "iam:AttachGroupPolicy",
-        "iam:DetachGroupPolicy",
-        "iam:DeleteGroupPolicy",
         "iam:ListAttachedRolePolicies",
         "iam:ListRolePolicies",
         "iam:GetRolePolicy",
@@ -93,31 +82,23 @@ module "iam_controller_role" {
         "iam:AttachRolePolicy",
         "iam:DetachRolePolicy",
         "iam:DeleteRolePolicy",
-        "iam:ListAttachedUserPolicies",
-        "iam:ListUserPolicies",
-        "iam:GetUserPolicy",
-        "iam:PutUserPolicy",
-        "iam:AttachUserPolicy",
-        "iam:DetachUserPolicy",
-        "iam:DeleteUserPolicy",
         "iam:ListRoleTags",
-        "iam:ListUserTags",
         "iam:TagPolicy",
         "iam:UntagPolicy",
         "iam:TagRole",
         "iam:UntagRole",
-        "iam:TagUser",
-        "iam:UntagUser",
-        "iam:RemoveClientIDFromOpenIDConnectProvider",
-        "iam:ListOpenIDConnectProviderTags",
-        "iam:UpdateOpenIDConnectProviderThumbprint",
-        "iam:UntagOpenIDConnectProvider",
-        "iam:AddClientIDToOpenIDConnectProvider",
-        "iam:DeleteOpenIDConnectProvider",
-        "iam:GetOpenIDConnectProvider",
-        "iam:TagOpenIDConnectProvider",
-        "iam:CreateOpenIDConnectProvider",
-        "iam:UpdateAssumeRolePolicy"
+        "iam:UpdateAssumeRolePolicy",
+        "iam:PassRole"
+      ]
+      resources = ["*"]
+    }
+
+    EksAssociationManagement = {
+      actions = [
+        "eks:CreatePodIdentityAssociation",
+        "eks:DescribePodIdentityAssociation",
+        "eks:DeletePodIdentityAssociation",
+        "eks:TagResource"
       ]
       resources = ["*"]
     }
