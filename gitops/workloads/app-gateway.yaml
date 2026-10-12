@@ -1,0 +1,62 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: app-gateways
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  wait: true
+  dependsOn:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: cert-manager
+      namespace: cert-manager
+      ready: true
+
+    - apiVersion: external-secrets.io/v1
+      kind: ClusterSecretStore
+      name: homelab-secrets
+      ready: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
+  steps:
+    - name: cert-manager-dns-secret
+      resources:
+        - apiVersion: external-secrets.io/v1
+          kind: ExternalSecret
+          metadata:
+            name: cloudflare-dns-token
+            namespace: cert-manager
+          spec:
+            secretStoreRef:
+              name: homelab-secrets
+              kind: ClusterSecretStore
+            refreshPolicy: Periodic
+            refreshInterval: 24h
+            data:
+              - secretKey: dns-token
+                remoteRef:
+                  key: homelab/cloudflare-dns
+                  property: niovial.io
+
+    - name: cluster-issuer
+      resources:
+        - apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: letsencrypt-<< inputs.letsEncrypt.environment >>
+          spec:
+            acme:
+              email: << inputs.letsEncrypt.email >>
+              server: << if eq inputs.letsEncrypt.environment "staging" >>https://acme-staging-v02.api.letsencrypt.org/directory<< else >>https://acme-v02.api.letsencrypt.org/directory<< end >>
+              privateKeySecretRef:
+                name: letsencrypt-<< inputs.letsEncrypt.environment >>
+              solvers:
+                - dns01:
+                    cloudflare:
+                      apiTokenSecretRef:
+                        name: cloudflare-dns-token
+                        key: dns-token
