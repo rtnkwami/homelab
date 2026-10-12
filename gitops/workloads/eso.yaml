@@ -97,6 +97,8 @@ spec:
           metadata:
             name: homelab-secrets-access
             namespace: external-secrets
+            annotations:
+              services.k8s.aws/adoption-policy: adopt-or-create
           spec:
             name: external-secrets-operator
             description: Role used to access homelab secrets
