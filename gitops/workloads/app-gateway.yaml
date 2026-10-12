@@ -1,7 +1,7 @@
 apiVersion: fluxcd.controlplane.io/v1
 kind: ResourceSet
 metadata:
-  name: app-gateways
+  name: app-gateway
   namespace: flux-system
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
@@ -60,3 +60,85 @@ spec:
                       apiTokenSecretRef:
                         name: cloudflare-dns-token
                         key: dns-token
+
+    - name: gateway-config
+      resources:
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: gateway-system
+            labels:
+              istio.io/dataplane-mode: ambient
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: app-gateway-cm
+            namespace: gateway-system
+          data:
+            horizontalPodAutoscaler: |
+              spec:
+                minReplicas: 2
+                maxReplicas: 6
+                metrics:
+                  - type: Resource
+                    resource:
+                      name: cpu
+                      target:
+                        type: Utilization
+                        averageUtilization: 50
+                      
+            deployment: |
+              spec:
+                template:
+                  metadata:
+                    annotations:
+                      proxy.istio.io/config: '{"gatewayTopology" : { "proxyProtocol": {} }}'
+                  spec:
+                    topologySpreadConstraints:
+                      - topologyKey: "topology.kubernetes.io/zone"
+                        maxSkew: 1
+                        minDomains: 2
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            gateway.networking.k8s.io/gateway-name: app-gateway
+                        matchLabelKeys: ["pod-template-hash"]
+
+    - name: app-gateway
+      resources:
+        - apiVersion: gateway.networking.k8s.io/v1
+          kind: Gateway
+          metadata:
+            name: app-gateway
+            namespace: gateway-system
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-<< inputs.letsEncrypt.environment >>
+          spec:
+            gatewayClassName: istio
+            infrastructure:
+              annotations:
+                service.beta.kubernetes.io/aws-load-balancer-name: app-gateway
+                service.beta.kubernetes.io/aws-load-balancer-type: external
+                service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+                # route directly to pod ip, since pod ips are routable on the VPC via VPC CNI
+                service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+                service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+            parametersRef:
+              group: ""
+              kind: ConfigMap
+              name: app-gateway-cm
+            listeners:
+              - name: https
+                hostname: "*.niovial.io"
+                port: 443
+                protocol: HTTPS
+                allowedRoutes:
+                  namespaces:
+                    from: All
+                tls:
+                  mode: Terminate
+                  certificateRefs:
+                    - name: niovial-io-tls
