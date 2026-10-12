@@ -66,8 +66,6 @@ spec:
                   - key: node.niovial.io/pool
                     operator: Equal
                     value: system
-              serviceAccount:
-                name: external-secrets
                 topologySpreadConstraints:
                   - topologyKey: "topology.kubernetes.io/zone"
                     maxSkew: 1
@@ -77,6 +75,8 @@ spec:
                       matchLabels:
                         app.kubernetes.io/instance: external-secrets
                     matchLabelKeys: ["pod-template-hash"]
+              serviceAccount:
+                name: external-secrets
               replicaCount: 3
               leaderElect: true
               podDisruptionBudget:
