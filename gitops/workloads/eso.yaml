@@ -35,7 +35,7 @@ spec:
           kind: HelmRepository
           metadata:
             name: external-secrets
-            namespace: flux-system
+            namespace: external-secrets
           spec:
             interval: 30m
             url: https://charts.external-secrets.io
@@ -44,10 +44,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: external-secrets
-            namespace: flux-system
+            namespace: external-secrets
           spec:
             releaseName: external-secrets
-            targetNamespace: flux-system
             interval: 3m
             driftDetection:
               mode: enabled

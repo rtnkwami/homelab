@@ -50,7 +50,7 @@ spec:
           kind: HelmRepository
           metadata:
             name: victoria-metrics
-            namespace: flux-system
+            namespace: observability
           spec:
             interval: 30m
             type: "oci"
@@ -62,10 +62,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: victoria-metrics-operator
-            namespace: flux-system
+            namespace: vm-operator
           spec:
             releaseName: vm-operator
-            targetNamespace: vm-operator
             interval: 3m
             driftDetection:
               mode: enabled
@@ -76,6 +75,7 @@ spec:
                 sourceRef:
                   kind: HelmRepository
                   name: victoria-metrics
+                  namespace: observability
                 interval: 15m
             values:
               nodeSelector:
@@ -110,10 +110,9 @@ spec:
           kind: HelmRelease
           metadata:
             name: victoria-metrics-k8s-stack
-            namespace: flux-system
+            namespace: observability
           spec:
             releaseName: vm-stack
-            targetNamespace: observability
             interval: 3m
             driftDetection:
               mode: enabled

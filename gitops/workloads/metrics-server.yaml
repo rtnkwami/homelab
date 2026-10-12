@@ -16,7 +16,7 @@ spec:
       kind: HelmRepository
       metadata:
         name: kube-metrics-server
-        namespace: flux-system
+        namespace: kube-system
       spec:
         interval: 30m
         url: https://kubernetes-sigs.github.io/metrics-server
@@ -25,10 +25,9 @@ spec:
       kind: HelmRelease
       metadata:
         name: kube-metrics-server
-        namespace: flux-system
+        namespace: kube-system
       spec:
         releaseName: kube-metrics-server
-        targetNamespace: kube-system
         interval: 3m
         driftDetection:
           mode: enabled
