@@ -26,25 +26,41 @@ run = "mkdir -p .tofu/cache"
 TF_PLUGIN_CACHE_DIR = "{{ config_root }}/.tofu/cache"
 KUBECONFIG = "{{ config_root }}/infra/cluster/out/kubeconfig"
 
-# homelab k8s cluster tasks
-[tasks."homelab:init"]
+[tasks."eks:init"]
 depends = "tofu:cache"
-dir = "infra/cluster"
+dir = "infra/k8s/eks"
 run = "tofu init -upgrade"
 
-[tasks."homelab:preview"]
-dir = "infra/cluster"
+[tasks."talos:init"]
+depends = "tofu:cache"
+dir = "infra/k8s/talos"
+run = "tofu init -upgrade"
+
+[tasks."eks:preview"]
+dir = "infra/k8s/eks"
 run = """
   mkdir -p out
   tofu plan -out=out/cluster.tfplan
 """
 
-[tasks."homelab:deploy"]
-depends = "homelab:preview"
-dir = "infra/cluster"
+[tasks."talos:preview"]
+dir = "infra/k8s/talos"
+run = """
+  mkdir -p out
+  tofu plan -out=out/cluster.tfplan
+"""
+
+[tasks."eks:deploy"]
+depends = "eks:preview"
+dir = "infra/k8s/eks"
 run = "tofu apply out/cluster.tfplan"
 
-[tasks."homelab:bootstrap"]
+[tasks."talos:deploy"]
+depends = "talos:preview"
+dir = "infra/k8s/talos"
+run = "tofu apply out/cluster.tfplan"
+
+[tasks."eks:bootstrap"]
 run = """
   helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
    --version 0.61.0 \
@@ -58,19 +74,41 @@ run = """
    --set tolerations[1].value=system
 """
 
-[tasks."homelab:reset"]
+[tasks."talos:bootstrap"]
 run = """
-  kubectl delete \
-    -f gitops/flux-instance.yaml \
-    --ignore-not-found \
-    --timeout 10m 
-  
-  helm uninstall flux-operator -n flux-system --ignore-not-found
+  helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
+   --version 0.61.0 \
+   --namespace flux-system \
+   --create-namespace \
+   --rollback-on-failure \
+   --set nodeSelector."node\\.niovial\\.io/pool"=system \
+   --set tolerations[0].key=node.niovial.io/pool \
+   --set tolerations[0].operator=Equal \
+   --set tolerations[0].value=system
 """
 
-[tasks."homelab:destroy"]
-depends = "homelab:reset"
-dir = "infra/cluster"
+[tasks."eks:reset"]
+run = """
+  kubectl delete -f gitops/eks/bootstrap \
+    --ignore-not-found \
+    --timeout 10m 
+"""
+
+[tasks."talos:reset"]
+run = """
+  kubectl delete -f gitops/talos/bootstrap \
+    --ignore-not-found \
+    --timeout 10m 
+"""
+
+[tasks."eks:destroy"]
+depends = "eks:reset"
+dir = "infra/k8s/eks"
+run = "tofu destroy --auto-approve"
+
+[tasks."talos:destroy"]
+depends = "talos:reset"
+dir = "infra/k8s/talos"
 run = "tofu destroy --auto-approve"
 
 [tasks."homelab:images:create"]
