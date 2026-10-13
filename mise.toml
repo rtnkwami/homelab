@@ -51,7 +51,11 @@ run = """
    --namespace flux-system \
    --create-namespace \
    --rollback-on-failure \
-   --disable-openapi-validation
+   --set tolerations[0].key=CriticalAddonsOnly \
+   --set tolerations[0].operator=Exists \
+   --set tolerations[1].key=node.niovial.io/pool \
+   --set tolerations[1].operator=Equal \
+   --set tolerations[1].value=system
 """
 
 [tasks."homelab:reset"]
