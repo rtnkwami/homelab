@@ -13,8 +13,10 @@ variable "is_bootstrap" {
 
 variable "kubeconfig_path" {
   type = string
+  default = "out/kubeconfig"
 }
 
 variable "talosconfig_path" {
   type = string
+  default = "out/talosconfig"
 }
