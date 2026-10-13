@@ -101,7 +101,7 @@ spec:
             interval: 1m
             url: https://github.com/rtnkwami/homelab.git
             ref:
-              branch: refactor/gitops
+              branch: main
 
         - apiVersion: kustomize.toolkit.fluxcd.io/v1
           kind: Kustomization
