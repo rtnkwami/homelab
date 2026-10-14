@@ -39,14 +39,13 @@ spec:
                     - op: add
                       path: /spec/template/spec/nodeSelector
                       value:
-                        node.niovial.io/pool: system
+                        node-role.kubernetes.io/control-plane: ""
 
                     - op: add
                       path: /spec/template/spec/tolerations
                       value:
-                        - key: node.niovial.io/pool
-                          operator: Equal
-                          value: system
+                        - key: node-role.kubernetes.io/control-plane
+                          operator: Exists 
                 - target:
                     kind: Deployment
                     name: source-controller
