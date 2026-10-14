@@ -41,7 +41,7 @@ spec:
             interval: 15m
         values:
           config:
-            defaultAwsRegion: << input.clusterName >>
+            defaultAwsRegion: << inputs.clusterName >>
           replicaCount: 3
           podDisruptionBudget:
             enabled: true
