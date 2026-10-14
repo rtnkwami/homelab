@@ -15,7 +15,6 @@ spec:
         namespace: kube-system
       spec:
         interval: 30m
-        type: "oci"
         url: https://jkroepke.github.io/helm-charts/ 
     
     - apiVersion: helm.toolkit.fluxcd.io/v2
