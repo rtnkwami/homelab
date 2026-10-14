@@ -1,0 +1,113 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: root
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  steps:
+    - name: fluxcd
+      resources:
+        - apiVersion: fluxcd.controlplane.io/v1
+          kind: FluxInstance
+          metadata:
+            name: flux
+            namespace: flux-system
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+          spec:
+            distribution:
+              version: "2.9.x"
+              registry: "ghcr.io/fluxcd"
+            components:
+              - source-controller
+              - kustomize-controller
+              - helm-controller
+            cluster:
+              type: kubernetes
+              size: medium
+            kustomize:
+              patches:
+                - target:
+                    kind: Deployment
+                  patch: |
+                    - op: add
+                      path: /spec/replicas
+                      value: 3
+
+                    - op: add
+                      path: /spec/template/spec/nodeSelector
+                      value:
+                        node.niovial.io/pool: system
+
+                    - op: add
+                      path: /spec/template/spec/tolerations
+                      value:
+                        - key: node.niovial.io/pool
+                          operator: Equal
+                          value: system
+                - target:
+                    kind: Deployment
+                    name: source-controller
+                  patch: |
+                    - op: replace
+                      path: /spec/replicas
+                      value: 1
+                - target:
+                    kind: Deployment
+                    name: kustomize-controller
+                  patch: |
+                    - op: add
+                      path: /spec/template/spec/topologySpreadConstraints
+                      value:
+                        - topologyKey: "topology.kubernetes.io/zone"
+                          maxSkew: 1
+                          minDomains: 3
+                          whenUnsatisfiable: DoNotSchedule
+                          labelSelector:
+                            matchLabels:
+                              app: kustomize-controller
+                          matchLabelKeys: ["pod-template-hash"]
+                - target:
+                    kind: Deployment
+                    name: helm-controller
+                  patch: |
+                    - op: add
+                      path: /spec/template/spec/topologySpreadConstraints
+                      value:
+                        - topologyKey: "topology.kubernetes.io/zone"
+                          maxSkew: 1
+                          minDomains: 3
+                          whenUnsatisfiable: DoNotSchedule
+                          labelSelector:
+                            matchLabels:
+                              app: helm-controller
+                          matchLabelKeys: ["pod-template-hash"]    
+    
+    - name: bootstrap
+      resources:
+        - apiVersion: source.toolkit.fluxcd.io/v1
+          kind: GitRepository
+          metadata:
+            name: homelab
+            namespace: flux-system
+          spec:
+            interval: 1m
+            url: https://github.com/rtnkwami/homelab.git
+            ref:
+              branch: feat/migrate-hetzner-to-flux
+
+        - apiVersion: kustomize.toolkit.fluxcd.io/v1
+          kind: Kustomization
+          metadata:
+            name: bootstrap
+            namespace: flux-system
+          spec:
+            interval: 3m
+            sourceRef:
+              kind: GitRepository
+              name: homelab
+              namespace: flux-system
+            path: gitops/talos
+            prune: true

@@ -114,5 +114,5 @@ spec:
               kind: GitRepository
               name: homelab
               namespace: flux-system
-            path: gitops
+            path: gitops/eks
             prune: true
