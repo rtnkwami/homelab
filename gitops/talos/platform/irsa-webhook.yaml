@@ -7,6 +7,10 @@ metadata:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
   wait: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
@@ -36,6 +40,8 @@ spec:
               name: amazon-eks-pod-identity-webhook
             interval: 15m
         values:
+          config:
+            defaultAwsRegion: << input.clusterName >>
           replicaCount: 3
           podDisruptionBudget:
             enabled: true
