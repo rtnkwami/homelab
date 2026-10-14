@@ -1,0 +1,56 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: root
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  wait: true
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      metadata:
+        name: amazon-eks-pod-identity-webhook
+        namespace: kube-system
+      spec:
+        interval: 30m
+        type: "oci"
+        url: https://jkroepke.github.io/helm-charts/ 
+    
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: amazon-eks-pod-identity-webhook
+        namespace: kube-system
+      spec:
+        releaseName: irsa-webhook
+        interval: 3m
+        driftDetection:
+          mode: enabled
+        chart:
+          spec:
+            chart: amazon-eks-pod-identity-webhook
+            version: "2.6.x"
+            sourceRef:
+              kind: HelmRepository
+              name: amazon-eks-pod-identity-webhook
+            interval: 15m
+        values:
+          replicaCount: 3
+          podDisruptionBudget:
+            enabled: true
+            minAvailable: 1
+          nodeSelector:
+            node.niovial.io/pool: system
+          tolerations:
+            - key: node.niovial.io/pool
+              operator: Equal
+              value: system
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: topology.kubernetes.io/zone
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: irsa-webhook
