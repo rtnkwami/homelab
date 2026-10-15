@@ -101,7 +101,7 @@ locals {
         jsonencode({
           imagesForArch = {
             # needs to be a string
-            amd64 = tostring(data.hcloud_image.talos_x86.id)
+            amd64 = tostring(imager_image.talos_tailscale.image_id)
           }
           nodeConfigs = {
             for pool in local._autoscaler_nodepools : pool.name => {
