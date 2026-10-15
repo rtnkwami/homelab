@@ -1,3 +1,39 @@
+data "talos_image_factory_extensions_versions" "this" {
+  talos_version = local.versions.talos
+  filters = {
+    names = ["tailscale"]
+  }
+}
+
+resource "talos_image_factory_schematic" "talos_tailscale" {
+  schematic = yamlencode({
+    customization = {
+      systemExtensions = {
+        officialExtensions = data.talos_image_factory_extensions_versions.this.extensions_info.*.name
+      }
+    }    
+  })
+}
+
+data "talos_image_factory_urls" "talos_tailscale" {
+  talos_version = local.versions.talos
+  schematic_id =  talos_image_factory_schematic.talos_tailscale.id
+  platform = "hcloud"
+}
+
+resource "imager_image" "talos_tailscale" {
+  image_url = "${data.talos_image_factory_urls.talos_tailscale.urls.disk_image}"
+  architecture = "x86"
+  server_type = "cpx22"
+  location = "hel1"
+  description = "talos_tailscale_x86"
+  labels = { os = "talos_tailscale" }
+  
+  timeouts {
+    create = "10m"
+  }
+}
+
 # -----------
 # NOTE: The ssh key in this section is used specifically
 # to ensure that during the creation of servers, Hetzner
@@ -20,11 +56,6 @@ locals {
   hcloud_zones = ["nbg1", "fsn1", "hel1"]
 }
 
-data "hcloud_image" "talos_x86" {
-  with_selector = "os=talos-tailscale"
-  with_architecture = "x86"
-}
-
 resource "hcloud_placement_group" "controlplane" {
   name = "controlplane"
   type = "spread"
@@ -34,9 +65,9 @@ resource "hcloud_server" "controlplane" {
   for_each = toset(local.hcloud_zones)
 
   name = "controlplane-${each.value}"
-  server_type = "cx33"
+  server_type = "cpx22"
   location = each.value
-  image = data.hcloud_image.talos_x86.id
+  image = imager_image.talos_tailscale.image_id
   ssh_keys = [hcloud_ssh_key.this.id]
   placement_group_id = hcloud_placement_group.controlplane.id
 

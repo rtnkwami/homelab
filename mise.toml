@@ -83,10 +83,9 @@ run = """
    --namespace flux-system \
    --create-namespace \
    --rollback-on-failure \
-   --set nodeSelector."node\\.niovial\\.io/pool"=system \
-   --set tolerations[0].key=node.niovial.io/pool \
-   --set tolerations[0].operator=Equal \
-   --set tolerations[0].value=system
+   --set nodeSelector."node-role\\.kubernetes\\.io/control-plane"="" \
+   --set tolerations[0].key=node-role.kubernetes.io/control-plane \
+   --set tolerations[0].operator=Exists
 """
 
 [tasks."eks:reset"]
@@ -114,17 +113,3 @@ run = "tofu destroy --auto-approve"
 depends = "talos:reset"
 dir = "infra/k8s/talos"
 run = "tofu destroy --auto-approve"
-
-[tasks."homelab:images:create"]
-dir = "infra/images"
-run = """
-  tofu init
-  tofu apply --auto-approve
-"""
-
-[tasks."homelab:images:remove"]
-dir = "infra/images"
-run = """
-  tofu init
-  tofu destroy --auto-approve
-"""

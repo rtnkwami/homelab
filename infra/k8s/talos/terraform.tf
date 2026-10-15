@@ -20,6 +20,11 @@ terraform {
       version = "~>4.0"
     }
 
+    imager = {
+      source = "hcloud-talos/imager"
+      version = "~>1.0"
+    }
+
     random = {
       source = "hashicorp/random"
       version = "~>3.0"
