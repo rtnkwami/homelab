@@ -75,7 +75,6 @@ locals {
   })
 }
 # ==================
-
 # Step 3:
 # Create S3 bucket to store OIDC documents
 resource "aws_s3_bucket" "irsa_oidc" {

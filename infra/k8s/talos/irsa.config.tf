@@ -1,114 +1,109 @@
-# =================
-# IRSA Config for ACK IAM Controller
+# NOTE:
+# Generic role for all controllers in cluster to authN to AWS
+# and assume specific roles for specific tasks. The below configuration
+# requires the IAMRoleSelector configuration to be set on all deployed ACK controllers
+module "aws_controllers_k8s_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "~>6.8"
 
-# Define IAM role for IAM controller
-resource "aws_iam_policy" "ack_iam_controller" {
-  name = "ACKControllerAllowIAMManagement"
-  policy = data.aws_iam_policy_document.ack_iam_controller.json
-}
+  name = "AwsControllersK8sRole"
+  use_name_prefix = false
 
-data "aws_iam_policy_document" "ack_iam_controller" {
-  statement {
-    actions = [
-      "iam:GetGroup",
-      "iam:CreateGroup",
-      "iam:DeleteGroup",
-      "iam:UpdateGroup",
-      "iam:GetRole",
-      "iam:CreateRole",
-      "iam:DeleteRole",
-      "iam:UpdateRole",
-      "iam:PutRolePermissionsBoundary",
-      "iam:PutUserPermissionsBoundary",
-      "iam:GetUser",
-      "iam:CreateUser",
-      "iam:DeleteUser",
-      "iam:UpdateUser",
-      "iam:GetPolicy",
-      "iam:CreatePolicy",
-      "iam:DeletePolicy",
-      "iam:GetPolicyVersion",
-      "iam:CreatePolicyVersion",
-      "iam:DeletePolicyVersion",
-      "iam:ListPolicyVersions",
-      "iam:ListPolicyTags",
-      "iam:ListAttachedGroupPolicies",
-      "iam:GetGroupPolicy",
-      "iam:PutGroupPolicy",
-      "iam:AttachGroupPolicy",
-      "iam:DetachGroupPolicy",
-      "iam:DeleteGroupPolicy",
-      "iam:ListAttachedRolePolicies",
-      "iam:ListRolePolicies",
-      "iam:GetRolePolicy",
-      "iam:PutRolePolicy",
-      "iam:AttachRolePolicy",
-      "iam:DetachRolePolicy",
-      "iam:DeleteRolePolicy",
-      "iam:ListAttachedUserPolicies",
-      "iam:ListUserPolicies",
-      "iam:GetUserPolicy",
-      "iam:PutUserPolicy",
-      "iam:AttachUserPolicy",
-      "iam:DetachUserPolicy",
-      "iam:DeleteUserPolicy",
-      "iam:ListRoleTags",
-      "iam:ListUserTags",
-      "iam:TagPolicy",
-      "iam:UntagPolicy",
-      "iam:TagRole",
-      "iam:UntagRole",
-      "iam:TagUser",
-      "iam:UntagUser",
-      "iam:RemoveClientIDFromOpenIDConnectProvider",
-      "iam:ListOpenIDConnectProviderTags",
-      "iam:UpdateOpenIDConnectProviderThumbprint",
-      "iam:UntagOpenIDConnectProvider",
-      "iam:AddClientIDToOpenIDConnectProvider",
-      "iam:DeleteOpenIDConnectProvider",
-      "iam:GetOpenIDConnectProvider",
-      "iam:TagOpenIDConnectProvider",
-      "iam:CreateOpenIDConnectProvider",
-      "iam:UpdateAssumeRolePolicy"
-    ]
-    resources = ["*"]
+  trust_policy_permissions = {
+    TrustTalosK8sOIDC = {
+      principals = [{
+        type = "Federated"
+        identifiers = [aws_iam_openid_connect_provider.irsa_oidc.arn]
+      }]
+      actions = ["sts:AssumeRoleWithWebIdentity"]
+    }
   }
-}
-# ================
-# Define IAM trust policy
-data "aws_iam_policy_document" "ack_iam_controller_trust_policy" {
-  statement {
-    # AWS needs to trust identities minted by k8s OIDC provider
-    principals {
-      type = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.irsa_oidc.arn]
-    }
 
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    
-    # Where the identities come from
-    condition {
-      test = "StringEquals"
-      variable = "${local._irsa_oidc_issuer}:sub"
-      values = ["system:serviceaccount:ack-system:ack-iam-controller"]
-    }
-
-    # Which system the identities are meant to be used for
-    condition {
+  trust_policy_conditions = [
+    {
       test = "StringEquals"
       variable = "${local._irsa_oidc_issuer}:aud"
       values = [local._irsa_oidc_audience]
+    },
+    {
+      test = "StringLike"
+      variable = "${local._irsa_oidc_issuer}:sub"
+      values = ["system:serviceaccount:ack-system:*"]
+    }
+  ]
+}
+
+# NOTE:
+# Permission that allows generic ACK role to assume granular roles for specific tasks
+resource "aws_iam_role_policy" "assume_granular_ack_roles" {
+  role = module.aws_controllers_k8s_role.name
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "sts:AssumeRole",
+        "sts:TagSession"
+      ]
+      Resource = [module.iam_role_creator_role.arn]
+    }]
+  })
+}
+
+# NOTE:
+# Granular roles for access to AWS services that ACK controllers can assume
+module "iam_role_creator_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role"
+  version = "~>6.8"
+
+  name = "IAMRoleCreator"
+  use_name_prefix = false
+
+  trust_policy_permissions = {
+    TrustAckControllers = {
+      principals = [{
+        type = "AWS"
+        identifiers = [module.aws_controllers_k8s_role.arn]
+      }]
+      actions = ["sts:AssumeRole", "sts:TagSession"]
     }
   }
-}
-# =============
-
-resource "aws_iam_role" "ack_iam_controller" {
-  name = "ack-iam-controller"
-  assume_role_policy = data.aws_iam_policy_document.ack_iam_controller_trust_policy.json
-}
-
-resource "aws_iam_role_policy_attachment" "ack_iam_controller" {
-  role = aws_iam_role.ack_iam_controller.name
-  policy_arn = aws_iam_policy.ack_iam_controller.arn
+  
+  create_inline_policy = true
+  
+  inline_policy_permissions = {
+    IAMRoleCreationPermissionPolicy = {
+      actions = [
+        "iam:GetRole",
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:UpdateRole",
+        "iam:PutRolePermissionsBoundary",
+        "iam:GetPolicy",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:GetPolicyVersion",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:ListPolicyTags",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies",
+        "iam:GetRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:ListRoleTags",
+        "iam:TagPolicy",
+        "iam:UntagPolicy",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:PassRole"
+      ]
+      resources = ["*"]
+    }
+  }
 }

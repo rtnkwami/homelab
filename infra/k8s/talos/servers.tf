@@ -34,7 +34,7 @@ resource "hcloud_server" "controlplane" {
   for_each = toset(local.hcloud_zones)
 
   name = "controlplane-${each.value}"
-  server_type = "cpx22"
+  server_type = "cx33"
   location = each.value
   image = data.hcloud_image.talos_x86.id
   ssh_keys = [hcloud_ssh_key.this.id]
