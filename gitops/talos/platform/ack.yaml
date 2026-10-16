@@ -12,6 +12,10 @@ spec:
       name: amazon-eks-pod-identity-webhook
       namespace: kube-system
       ready: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
   resources:
     - apiVersion: v1
       kind: Namespace
