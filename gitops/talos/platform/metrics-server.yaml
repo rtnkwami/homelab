@@ -6,6 +6,11 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
+  dependsOn:
+    - apiVersion: karpenter.sh/v1
+      kind: NodePool
+      name: critical
+      ready: true
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
