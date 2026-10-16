@@ -48,7 +48,7 @@ spec:
           clusterName: << inputs.clusterName >>
           auth:
             secretRef:
-              name: hcloud-token
+              name: hcloud
           replicas: 3
           nodeSelector:
             node-role.kubernetes.io/control-plane: ""
