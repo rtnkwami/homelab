@@ -28,7 +28,7 @@ spec:
               family: talos
               selector:
                 os: ${talosSnapshot}
-            networkId: ${networkId}
+            networkID: ${networkId}
             sshKeyIDs: 
              - ${sshKeyId}
             firewallIDs:
