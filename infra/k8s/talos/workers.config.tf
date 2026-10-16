@@ -61,6 +61,14 @@ locals {
         }
       ]
       kubelet = {
+        extraConfig = {
+          registerWithTaints = [
+            {
+              key = "karpenter.sh/unregistered"
+              effect = "NoExecute"
+            }
+          ]
+        }
         # NOTE:
         # if this isn't set on worker nodes, kubelet on worker nodes will
         # try to reach kube-dns on the hardcoded original config which would
