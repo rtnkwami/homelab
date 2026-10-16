@@ -110,9 +110,4 @@ spec:
               namespace: flux-system
             path: gitops/talos
             prune: true
-            postBuild:
-            # see infra/k8s/talos/autoscaler.config.tf
-              substituteFrom:
-                - kind: ConfigMap
-                  name: hcloud-nodeclass-vars
                 

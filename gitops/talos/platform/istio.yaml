@@ -13,11 +13,6 @@ spec:
       name: gateway-api-crds
       namespace: flux-system
       ready: true
-
-    - apiVersion: karpenter.sh/v1
-      kind: NodePool
-      name: critical
-      ready: true
   steps:
     - name: istio-repository
       resources:
