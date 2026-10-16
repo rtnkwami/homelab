@@ -44,3 +44,43 @@ data "talos_machine_configuration" "worker" {
   kubernetes_version = local.versions.k8s
   config_patches = [for config in local.worker_config[each.key] : yamlencode(config)]
 }
+
+
+# Karpenter setup
+locals {
+  karpenter_worker_config = {
+    machine = {
+      files = [
+        {
+          path = "/etc/cri/conf.d/20-customization.part"
+          op = "create"
+          content = <<-EOF
+            [plugins."io.containerd.cri.v1.images"]
+            discard_unpacked_layers = false
+          EOF
+        }
+      ]
+      kubelet = {
+        # NOTE:
+        # if this isn't set on worker nodes, kubelet on worker nodes will
+        # try to reach kube-dns on the hardcoded original config which would
+        # cause them to timeout with an old ip.
+        clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
+        extraArgs = {
+          cloud-provider = "external"
+          rotate-server-certificates = true
+        }
+      }
+    }
+  }
+}
+
+data "talos_machine_configuration" "karpenter_worker" {
+  cluster_name = "homelab"
+  machine_type = "worker"
+  machine_secrets = talos_machine_secrets.this.machine_secrets
+  cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
+  talos_version = local.versions.talos
+  kubernetes_version = local.versions.k8s
+  config_patches = [yamlencode(local.karpenter_worker_config)]
+}

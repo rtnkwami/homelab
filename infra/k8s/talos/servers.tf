@@ -1,3 +1,7 @@
+locals {
+  talos_snapshot_name = "talos-${local.versions.talos}-tailscale"
+}
+
 data "talos_image_factory_extensions_versions" "this" {
   talos_version = local.versions.talos
   filters = {
@@ -24,10 +28,11 @@ data "talos_image_factory_urls" "talos_tailscale" {
 resource "imager_image" "talos_tailscale" {
   image_url = "${data.talos_image_factory_urls.talos_tailscale.urls.disk_image}"
   architecture = "x86"
-  server_type = "cpx22"
   location = "hel1"
-  description = "talos_tailscale_x86"
-  labels = { os = "talos_tailscale" }
+  description = "${local.talos_snapshot_name}-x86"
+  labels = {
+    os = local.talos_snapshot_name
+  }
   
   timeouts {
     create = "10m"
@@ -65,7 +70,7 @@ resource "hcloud_server" "controlplane" {
   for_each = toset(local.hcloud_zones)
 
   name = "controlplane-${each.value}"
-  server_type = "cpx22"
+  server_type = "cx33"
   location = each.value
   image = imager_image.talos_tailscale.image_id
   ssh_keys = [hcloud_ssh_key.this.id]
@@ -77,6 +82,10 @@ resource "hcloud_server" "controlplane" {
 
   labels = {
     "node.niovial.io/pool" = "controlplane"
+  }
+
+  lifecycle {
+    ignore_changes = [image]
   }
 }
 
