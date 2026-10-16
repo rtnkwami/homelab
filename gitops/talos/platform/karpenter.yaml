@@ -11,6 +11,9 @@ spec:
     - apiVersion: fluxcd.controlplane.io/v1
       kind: ResourceSetInputProvider
       name: shared-inputs
+  commonMetadata:
+    annotations:
+      fluxcd.controlplane.io/prune: disabled
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
