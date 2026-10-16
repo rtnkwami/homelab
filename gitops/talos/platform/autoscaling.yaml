@@ -33,6 +33,7 @@ spec:
              - ${sshKeyId}
             firewallIDs:
               - ${firewallId}
+            placementGroupStrategy: none
             userDataSecretRef:
               namespace: kube-system
               name: talos-worker-machineconfig
@@ -84,8 +85,6 @@ spec:
             disruption:
               consolidationPolicy: WhenEmpty
               consolidateAfter: 30s
-              budgets:
-                - nodes: 10%
             template:
               metadata:
                 labels:
