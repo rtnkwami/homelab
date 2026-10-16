@@ -45,6 +45,8 @@ locals {
       scale-down-delay-after-add = "1m"
       scale-down-delay-after-failure = "1m"
       scale-down-delay-type-local = "true"
+      unremovable-node-recheck-timeout = "30s"
+      ignore-daemonsets-utilization = "true"
       max-drain-parallelism = 10
     }
     # Configre node groups based on cost and capacity.
