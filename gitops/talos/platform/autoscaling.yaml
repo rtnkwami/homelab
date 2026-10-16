@@ -71,6 +71,10 @@ spec:
                   - key: karpenter.hetzner.cloud/server-family
                     operator: In
                     values: [cx, cpx]
+                  
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values: [nbg1, fsn1, hel1]
         
         - apiVersion: karpenter.sh/v1
           kind: NodePool
@@ -107,3 +111,7 @@ spec:
                   - key: karpenter.hetzner.cloud/server-family
                     operator: In
                     values: [cx, cpx]
+
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values: [nbg1, fsn1, hel1]
