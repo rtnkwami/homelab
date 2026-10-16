@@ -76,6 +76,7 @@ spec:
                         app.kubernetes.io/instance: ack-iam-controller
           leaderElection:
             enabled: true
+          enableCARM: false
           featureGates:
             IAMRoleSelector: true
           serviceAccount:
