@@ -1,0 +1,155 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: external-secrets
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  wait: true
+  dependsOn:
+    - apiVersion: services.k8s.aws/v1alpha1
+      kind: IAMRoleSelector
+      name: ack-iam-selector
+      ready: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
+  steps:
+    - name: eso-creation
+      resources:
+        - apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: external-secrets
+            annotations:
+              fluxcd.controlplane.io/prune: disabled
+
+        - apiVersion: source.toolkit.fluxcd.io/v1
+          kind: HelmRepository
+          metadata:
+            name: external-secrets
+            namespace: external-secrets
+          spec:
+            interval: 30m
+            url: https://charts.external-secrets.io
+
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          metadata:
+            name: external-secrets
+            namespace: external-secrets
+          spec:
+            releaseName: external-secrets
+            interval: 3m
+            driftDetection:
+              mode: enabled
+            chart:
+              spec:
+                chart: external-secrets
+                version: "2.10.x"
+                sourceRef:
+                  kind: HelmRepository
+                  name: external-secrets
+                interval: 15m
+            values:
+              global:
+                nodeSelector:
+                  node.niovial.io/pool: system
+                tolerations:
+                  - key: node.niovial.io/pool
+                    operator: Equal
+                    value: system
+                topologySpreadConstraints:
+                  - topologyKey: "topology.kubernetes.io/zone"
+                    maxSkew: 1
+                    minDomains: 3
+                    whenUnsatisfiable: DoNotSchedule
+                    labelSelector:
+                      matchLabels:
+                        app.kubernetes.io/instance: external-secrets
+                    matchLabelKeys: ["pod-template-hash"]
+              serviceAccount:
+                name: external-secrets
+              replicaCount: 3
+              leaderElect: true
+              podDisruptionBudget:
+                enabled: true
+              webhook:
+                replicaCount: 3
+                podDisruptionBudget:
+                  enabled: true
+              certController:
+                replicaCount: 3
+                podDisruptionBudget:
+                  enabled: true
+    
+    - name: eso-iam-role
+      resources:
+        - apiVersion: iam.services.k8s.aws/v1alpha1
+          kind: Role
+          metadata:
+            name: homelab-secrets-access
+            namespace: external-secrets
+            annotations:
+              services.k8s.aws/adoption-policy: adopt-or-create
+          spec:
+            name: external-secrets-operator
+            description: Role used to access homelab secrets
+            assumeRolePolicyDocument: >
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "pods.eks.amazonaws.com"
+                    },
+                    "Action": [
+                      "sts:AssumeRole",
+                      "sts:TagSession"
+                    ]
+                  }
+                ]
+              }
+            inlinePolicies:
+              HomelabSecretAccess: >
+                {
+                  "Version":"2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "secretsmanager:ListSecrets",
+                        "secretsmanager:BatchGetSecretValue"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "secretsmanager:GetResourcePolicy",
+                        "secretsmanager:GetSecretValue",
+                        "secretsmanager:DescribeSecret",
+                        "secretsmanager:ListSecretVersionIds"
+                      ],
+                      "Resource": [
+                        "arn:aws:secretsmanager:<< inputs.region >>:<< inputs.accountId >>:secret:homelab/*"
+                      ]
+                    }
+                  ]
+                }
+          
+    - name: eso-role-association
+      resources:
+        - apiVersion: eks.services.k8s.aws/v1alpha1
+          kind: PodIdentityAssociation
+          metadata:
+            name: eso-pod-identity
+            namespace: external-secrets
+          spec:
+            clusterName: << inputs.eksCluster >>
+            namespace: external-secrets
+            serviceAccount: external-secrets
+            roleARN: arn:aws:iam::<< inputs.accountId >>:role/external-secrets-operator
