@@ -45,7 +45,7 @@ spec:
                     "Principal": {
                       "Federated": "arn:aws:iam::<< inputs.accountId >>:oidc-provider/<< inputs.clusterOIDC >>"
                     },
-                    "Action": "sts:AssumeRoleWithWebIdentity"
+                    "Action": "sts:AssumeRoleWithWebIdentity",
                     "Condition": {
                       "StringEquals": {
                         "<< inputs.clusterOIDC >>:sub": "system:serviceaccount:external-secrets:external-secrets"
