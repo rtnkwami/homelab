@@ -12,6 +12,8 @@ spec:
     region: us-east-1
     
     clusterName: homelab
+
+    clusterOIDC: s3.us-east-1.amazonaws.com/niovial-homelab-oidc
     
     letsEncrypt:
       environment: staging
