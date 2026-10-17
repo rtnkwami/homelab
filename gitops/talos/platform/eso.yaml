@@ -43,12 +43,15 @@ spec:
                   {
                     "Effect": "Allow",
                     "Principal": {
-                      "Service": "pods.eks.amazonaws.com"
+                      "Federated": "arn:aws:iam::<< inputs.accountId >>:oidc-provider/<< inputs.clusterOIDC >>"
                     },
-                    "Action": [
-                      "sts:AssumeRole",
-                      "sts:TagSession"
-                    ]
+                    "Action": "sts:AssumeRoleWithWebIdentity"
+                    "Condition": {
+                      "StringEquals": {
+                        "<< inputs.clusterOIDC >>:sub": "system:serviceaccount:external-secrets:external-secrets"
+                        "<< inputs.clusterOIDC >>:aud": "sts.amazonaws.com"
+                      }
+                    }
                   }
                 ]
               }
