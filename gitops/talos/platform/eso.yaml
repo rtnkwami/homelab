@@ -149,7 +149,7 @@ spec:
             name: eso-pod-identity
             namespace: external-secrets
           spec:
-            clusterName: << inputs.eksCluster >>
+            clusterName: << inputs.clusterName >>
             namespace: external-secrets
             serviceAccount: external-secrets
             roleARN: arn:aws:iam::<< inputs.accountId >>:role/external-secrets-operator
