@@ -48,7 +48,7 @@ spec:
                     "Action": "sts:AssumeRoleWithWebIdentity",
                     "Condition": {
                       "StringEquals": {
-                        "<< inputs.clusterOIDC >>:sub": "system:serviceaccount:external-secrets:external-secrets"
+                        "<< inputs.clusterOIDC >>:sub": "system:serviceaccount:external-secrets:external-secrets",
                         "<< inputs.clusterOIDC >>:aud": "sts.amazonaws.com"
                       }
                     }
