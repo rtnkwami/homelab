@@ -133,15 +133,15 @@ spec:
                 name: external-secrets
                 annotations:
                   eks.amazonaws.com/role-arn: arn:aws:iam::<< inputs.accountId >>:role/external-secrets-operator
-              replicaCount: 3
+              replicaCount: 2
               leaderElect: true
               podDisruptionBudget:
                 enabled: true
               webhook:
-                replicaCount: 3
+                replicaCount: 2
                 podDisruptionBudget:
                   enabled: true
               certController:
-                replicaCount: 3
+                replicaCount: 2
                 podDisruptionBudget:
                   enabled: true
