@@ -41,7 +41,7 @@ spec:
       kind: HTTPRoute
       metadata:
         name: flux-web-ui
-        namespace: observability
+        namespace: flux-system
         annotations:
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
       spec:
