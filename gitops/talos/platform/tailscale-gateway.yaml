@@ -1,0 +1,89 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: tailscale-gateway
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  dependsOn:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: tailscale-operator
+      namespace: tailscale
+      ready: true
+
+    - apiVersion: v1
+      kind: Namespace
+      name: gateway-system
+      ready: true
+  steps:
+    - name: gateway-config
+      resources:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: tailscale-gateway-cm
+            namespace: gateway-system
+          data:
+            service: |
+              spec:
+                loadBalancerClass: tailscale
+
+            horizontalPodAutoscaler: |
+              spec:
+                minReplicas: 2
+                maxReplicas: 6
+                metrics:
+                  - type: Resource
+                    resource:
+                      name: memory
+                      target:
+                        type: Utilization
+                        averageUtilization: 60
+                      
+            deployment: |
+              spec:
+                template:
+                  spec:
+                    topologySpreadConstraints:
+                      - topologyKey: "topology.kubernetes.io/zone"
+                        maxSkew: 1
+                        minDomains: 2
+                        whenUnsatisfiable: DoNotSchedule
+                        labelSelector:
+                          matchLabels:
+                            gateway.networking.k8s.io/gateway-name: tailscale-gateway
+                        matchLabelKeys: ["pod-template-hash"]
+
+    - name: gateway
+      resources:
+        - apiVersion: gateway.networking.k8s.io/v1
+          kind: Gateway
+          metadata:
+            name: tailscale-gateway
+            namespace: gateway-system
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-<< inputs.letsEncrypt.environment >>
+          spec:
+            gatewayClassName: istio
+            infrastructure:
+              parametersRef:
+                group: ""
+                kind: ConfigMap
+                name: tailscale-gateway-cm
+              annotations:
+                tailscale.com/hostname: internal-niovial-io
+            listeners:
+              - name: https
+                hostname: "*.internal.niovial.io"
+                port: 443
+                protocol: HTTPS
+                allowedRoutes:
+                  namespaces:
+                    from: All
+                tls:
+                  mode: Terminate
+                  certificateRefs:
+                    - name: internal-niovial-io-tls
+    
