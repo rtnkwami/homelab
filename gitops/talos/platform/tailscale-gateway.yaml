@@ -9,6 +9,18 @@ spec:
   dependsOn:
     - apiVersion: helm.toolkit.fluxcd.io/v2
       kind: HelmRelease
+      name: cert-manager
+      namespace: cert-manager
+      ready: true
+
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: istiod
+      namespace: istio-system
+      ready: true
+
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
       name: tailscale-operator
       namespace: tailscale
       ready: true
