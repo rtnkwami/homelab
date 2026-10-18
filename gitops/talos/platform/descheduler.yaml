@@ -76,13 +76,6 @@ spec:
                   balance:
                     enabled:
                       - LowNodeUtilization
-                      - RemovePodsViolatingTopologySpreadConstraint
-                  deschedule:
-                    enabled:
-                      - RemovePodsHavingTooManyRestarts
-                      - RemovePodsViolatingNodeTaints
-                      - RemovePodsViolatingNodeAffinity
-                      - RemovePodsViolatingInterPodAntiAffinity
                 pluginConfig:
                   - name: DefaultEvictor
                     args:
