@@ -60,7 +60,7 @@ spec:
           aws:
             region: us-east-1
           deployment:
-            replicas: 3
+            replicas: 2
             nodeSelector:
               node.niovial.io/pool: system
             tolerations:
