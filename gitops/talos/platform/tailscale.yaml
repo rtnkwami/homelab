@@ -1,0 +1,56 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: tailscale
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  resources:
+    - apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: tailscale
+        labels:
+          pod-security.kubernetes.io/enforce: privileged
+        annotations:
+          fluxcd.controlplane.io/prune: disabled
+
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      metadata:
+        name: tailscale
+        namespace: tailscale
+      spec:
+        interval: 30m
+        url: https://pkgs.tailscale.com/helmcharts
+
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: tailscale-operator
+        namespace: tailscale
+      spec:
+        releaseName: tailscale-operator
+        interval: 3m
+        driftDetection:
+          mode: enabled
+        chart:
+          spec:
+            chart: tailscale-operator
+            version: "1.102.x"
+            sourceRef:
+              kind: HelmRepository
+              name: spegel
+            interval: 15m
+        values:
+          oauth:
+            clientId: TdWRkjSjua11CNTRL-kS1qtWEvNU11CNTRL
+            audience: api.tailscale.com/TdWRkjSjua11CNTRL-kS1qtWEvNU11CNTRL
+          operatorConfig:
+            nodeSelector:
+              node.niovial.io/pool: system
+            tolerations:
+              - key: node.niovial.io/pool
+                operator: Equal
+                value: system
