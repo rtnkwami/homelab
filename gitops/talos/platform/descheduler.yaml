@@ -72,9 +72,9 @@ spec:
             profiles:
               - name: default
                 plugins:
-                  balance:
-                    enabled:
-                      - LowNodeUtilization
+                  # balance:
+                  #   enabled:
+                  #     - LowNodeUtilization
                   deschedule:
                     enabled:
                       - RemovePodsViolatingNodeTaints
@@ -92,12 +92,12 @@ spec:
                         extraEnabled:
                           - "PodsWithPVC"
 
-                  - name: LowNodeUtilization
-                    args:
-                      metricsUtilization:
-                        source: KubernetesMetrics
-                      thresholds: { memory: 35 }
-                      targetThresholds: { memory: 75 }
+                  # - name: LowNodeUtilization
+                  #   args:
+                  #     metricsUtilization:
+                  #       source: KubernetesMetrics
+                  #     thresholds: { memory: 35 }
+                  #     targetThresholds: { memory: 75 }
 
                   - name: RemovePodsViolatingNodeTaints
 
