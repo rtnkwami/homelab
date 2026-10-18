@@ -22,6 +22,36 @@ spec:
       kind: ResourceSetInputProvider
       name: shared-inputs
   steps:
+    - name: proxy-class
+      resources:
+        - apiVersion: tailscale.com/v1alpha1
+          kind: ProxyClass
+          metadata:
+            name: ts-gateway-ha
+          spec:
+            statefulSet:
+              pod:
+                topologySpreadConstraints:
+                  - topologyKey: "topology.kubernetes.io/zone"
+                    maxSkew: 1
+                    minDomains: 2
+                    whenUnsatisfiable: DoNotSchedule
+                    labelSelector:
+                      matchLabels:
+                        tailscale.com/parent-resource: tailscale-gateway-istio
+                    matchLabelKeys: ["controller-revision-hash"]
+
+    - name: proxy-group
+      resources:
+        - apiVersion: tailscale.com/v1alpha1
+          kind: ProxyGroup
+          metadata:
+            name: ts-gateway-proxies
+          spec:
+            type: ingress
+            replicas: 3
+            proxyClass: ts-gateway-ha
+    
     - name: gateway-config
       resources:
         - apiVersion: v1
@@ -78,6 +108,7 @@ spec:
                 name: tailscale-gateway-cm
               annotations:
                 tailscale.com/hostname: internal-niovial-io
+                tailscale.com/proxy-group: ts-gateway-proxies
             listeners:
               - name: https
                 hostname: "*.internal.niovial.io"
