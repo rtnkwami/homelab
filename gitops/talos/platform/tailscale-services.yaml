@@ -1,0 +1,32 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: tailscale-services
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  dependsOn:
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: Gateway
+      name: tailscale-gateway
+      namespace: gateway-system
+      ready: true
+  resources:
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: grafana
+        namespace: observability
+        annotations:
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+      spec:
+        parentRefs:
+          - name: tailscale-gateway
+            namespace: gateway-system
+        hostnames:
+          - "grafana.internal.niovial.io"
+        rules:
+          - backendRefs:
+            - name: vm-stack-grafana
+              port: 80
