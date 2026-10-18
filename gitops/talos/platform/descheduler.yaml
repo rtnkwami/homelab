@@ -75,6 +75,12 @@ spec:
                   balance:
                     enabled:
                       - LowNodeUtilization
+                  deschedule:
+                    enabled:
+                      - RemovePodsViolatingNodeTaints
+                      - RemovePodsViolatingNodeAffinity
+                      - RemovePodsViolatingInterPodAntiAffinity
+                      - RemovePodsViolatingTopologySpreadConstraint
                 pluginConfig:
                   - name: DefaultEvictor
                     args:
@@ -92,3 +98,18 @@ spec:
                         source: KubernetesMetrics
                       thresholds: { memory: 35 }
                       targetThresholds: { memory: 75 }
+
+                  - name: RemovePodsViolatingNodeTaints
+
+                  - name: RemovePodsViolatingNodeAffinity
+                    args:
+                      nodeAffinityType:
+                        - requiredDuringSchedulingIgnoredDuringExecution
+
+                  - name: RemovePodsViolatingInterPodAntiAffinity
+
+                  - name: RemovePodsViolatingTopologySpreadConstraint
+                    args:
+                      constraints:
+                        - DoNotSchedule
+
