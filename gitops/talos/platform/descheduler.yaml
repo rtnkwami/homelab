@@ -6,6 +6,12 @@ metadata:
   annotations:
     fluxcd.controlplane.io/reconcileEvery: 3m
 spec:
+  dependsOn:
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      name: kube-metrics-server
+      namespace: kube-system
+      ready: true
   resources:
     - apiVersion: source.toolkit.fluxcd.io/v1
       kind: HelmRepository
@@ -56,38 +62,20 @@ spec:
                 matchLabels:
                   app.kubernetes.io/instance: descheduler
               matchLabelKeys: ["pod-template-hash"]
+          deschedulingInterval: 3m
+          # https://github.com/kubernetes-sigs/descheduler/blob/master/README.md
           deschedulerPolicy:
             maxNoOfPodsToEvictPerNode: 10
             maxNoOfPodsToEvictPerNamespace: 10
-            # https://github.com/kubernetes-sigs/descheduler/blob/master/README.md
+            # use metrics server as metrics provider
+            metricsProviders:
+              - source: KubernetesMetrics
             profiles:
               - name: default
-                pluginConfig:
-                  - name: DefaultEvictor
-                    args:
-                      nodeFit: true
-                      minReplicas: 2
-                      podProtections:
-                        defaultDisabled:
-                        - "PodsWithLocalStorage"
-                        extraEnabled:
-                        - "PodsWithPVC"
-                  - name: RemoveDuplicates
-                  - name: RemovePodsHavingTooManyRestarts
-                    args:
-                      podRestartThreshold: 100
-                      includingInitContainers: true
-                  - name: RemovePodsViolatingNodeAffinity
-                    args:
-                      nodeAffinityType:
-                        - requiredDuringSchedulingIgnoredDuringExecution
-                  - name: RemovePodsViolatingNodeTaints
-                  - name: RemovePodsViolatingInterPodAntiAffinity
-                  - name: RemovePodsViolatingTopologySpreadConstraint
                 plugins:
                   balance:
                     enabled:
-                      - RemoveDuplicates
+                      - LowNodeUtilization
                       - RemovePodsViolatingTopologySpreadConstraint
                   deschedule:
                     enabled:
@@ -95,5 +83,20 @@ spec:
                       - RemovePodsViolatingNodeTaints
                       - RemovePodsViolatingNodeAffinity
                       - RemovePodsViolatingInterPodAntiAffinity
-                  
-                  
+                pluginConfig:
+                  - name: DefaultEvictor
+                    args:
+                      nodeFit: true
+                      minReplicas: 2
+                      podProtections:
+                        defaultDisabled:
+                          - "PodsWithLocalStorage"
+                        extraEnabled:
+                          - "PodsWithPVC"
+
+                  - name: LowNodeUtilization
+                    args:
+                      metricsUtilization:
+                        source: KubernetesMetrics
+                      thresholds: { memory: 35 }
+                
