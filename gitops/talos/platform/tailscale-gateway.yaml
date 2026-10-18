@@ -17,6 +17,10 @@ spec:
       kind: Namespace
       name: gateway-system
       ready: true
+  inputsFrom:
+    - apiVersion: fluxcd.controlplane.io/v1
+      kind: ResourceSetInputProvider
+      name: shared-inputs
   steps:
     - name: gateway-config
       resources:
