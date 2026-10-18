@@ -38,7 +38,7 @@ spec:
                     whenUnsatisfiable: DoNotSchedule
                     labelSelector:
                       matchLabels:
-                        tailscale.com/parent-resource: tailscale-gateway-istio
+                        tailscale.com/parent-resource: ts-gateway-proxies
                     matchLabelKeys: ["controller-revision-hash"]
 
     - name: proxy-group
