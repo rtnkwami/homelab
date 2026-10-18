@@ -118,7 +118,7 @@ spec:
                 kind: ConfigMap
                 name: tailscale-gateway-cm
               annotations:
-                tailscale.com/hostname: internal-niovial-io
+                tailscale.com/hostname: homelab-private-gateway
                 tailscale.com/proxy-group: ts-gateway-proxies
             listeners:
               - name: https
