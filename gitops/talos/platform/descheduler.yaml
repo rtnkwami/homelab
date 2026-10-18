@@ -92,4 +92,4 @@ spec:
                       metricsUtilization:
                         source: KubernetesMetrics
                       thresholds: { memory: 35 }
-                
+                      targetThresholds: { memory: 75 }
