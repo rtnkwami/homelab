@@ -48,7 +48,7 @@ spec:
         values:
           config:
             defaultAwsRegion: << inputs.clusterName >>
-          replicaCount: 3
+          replicaCount: 2
           podDisruptionBudget:
             enabled: true
             minAvailable: 1

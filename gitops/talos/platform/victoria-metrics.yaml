@@ -84,14 +84,14 @@ spec:
               crds:
                 cleanup:
                   enabled: true
-              replicaCount: 3
+              replicaCount: 2
               podDisruptionBudget:
                 enabled: true
                 minAvailable: 1
               topologySpreadConstraints:
                 - topologyKey: "topology.kubernetes.io/zone"
                   maxSkew: 1
-                  minDomains: 3
+                  minDomains: 2
                   whenUnsatisfiable: DoNotSchedule
                   labelSelector:
                     matchLabels:

@@ -87,7 +87,7 @@ spec:
                 interval: 15m
             values:
               profile: ambient
-              autoscaleMin: 3
+              autoscaleMin: 2
               autoscaleMax: 6
               cpu:
                 targetAverageUtilization: 80
@@ -106,7 +106,7 @@ spec:
               topologySpreadConstraints:
                 - topologyKey: "topology.kubernetes.io/zone"
                   maxSkew: 1
-                  minDomains: 3
+                  minDomains: 2
                   whenUnsatisfiable: DoNotSchedule
                   labelSelector:
                     matchLabels:

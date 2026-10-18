@@ -51,7 +51,7 @@ spec:
                   name: cloudnative-pg
                 interval: 15m
             values:
-              replicaCount: 3
+              replicaCount: 2
               nodeSelector:
                 node.niovial.io/pool: system
               tolerations:
@@ -61,7 +61,7 @@ spec:
               topologySpreadConstraints:
                 - topologyKey: "topology.kubernetes.io/zone"
                   maxSkew: 1
-                  minDomains: 3
+                  minDomains: 2
                   whenUnsatisfiable: DoNotSchedule
                   labelSelector:
                     matchLabels:
@@ -89,7 +89,7 @@ spec:
                   name: cloudnative-pg
                 interval: 15m
             values:
-              replicaCount: 3
+              replicaCount: 2
               nodeSelector:
                 node.niovial.io/pool: system
               tolerations:
@@ -99,7 +99,7 @@ spec:
               topologySpreadConstraints:
                 - topologyKey: "topology.kubernetes.io/zone"
                   maxSkew: 1
-                  minDomains: 3
+                  minDomains: 2
                   whenUnsatisfiable: DoNotSchedule
                   labelSelector:
                     matchLabels:
