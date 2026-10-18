@@ -124,12 +124,8 @@ spec:
                 kind: ConfigMap
                 name: app-gateway-cm
               annotations:
-                service.beta.kubernetes.io/aws-load-balancer-name: app-gateway
-                service.beta.kubernetes.io/aws-load-balancer-type: external
-                service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-                # route directly to pod ip, since pod ips are routable on the VPC via VPC CNI
-                service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-                service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+                load-balancer.hetzner.cloud/name: "app-gateway"
+                load-balancer.hetzner.cloud/location: "nbg1"
             listeners:
               - name: https
                 hostname: "*.niovial.io"
