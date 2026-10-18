@@ -80,15 +80,15 @@ spec:
           data:
             horizontalPodAutoscaler: |
               spec:
-                minReplicas: 2
+                minReplicas: 3
                 maxReplicas: 6
                 metrics:
                   - type: Resource
                     resource:
-                      name: cpu
+                      name: memory
                       target:
                         type: Utilization
-                        averageUtilization: 50
+                        averageUtilization: 70
                       
             deployment: |
               spec:
@@ -100,8 +100,8 @@ spec:
                     topologySpreadConstraints:
                       - topologyKey: "topology.kubernetes.io/zone"
                         maxSkew: 1
-                        minDomains: 2
-                        whenUnsatisfiable: DoNotSchedule
+                        minDomains: 3
+                        whenUnsatisfiable: ScheduleAnyway
                         labelSelector:
                           matchLabels:
                             gateway.networking.k8s.io/gateway-name: app-gateway

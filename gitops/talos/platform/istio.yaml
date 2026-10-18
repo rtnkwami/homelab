@@ -89,6 +89,10 @@ spec:
               profile: ambient
               autoscaleMin: 3
               autoscaleMax: 6
+              cpu:
+                targetAverageUtilization: 80
+              memory:
+                targetAverageUtilization: 70
               resources:
                 requests:
                   cpu: 256m
