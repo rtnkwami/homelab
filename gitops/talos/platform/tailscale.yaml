@@ -41,7 +41,7 @@ spec:
             version: "1.102.x"
             sourceRef:
               kind: HelmRepository
-              name: spegel
+              name: tailscale
             interval: 15m
         values:
           oauth:
