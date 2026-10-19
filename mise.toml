@@ -25,7 +25,6 @@ run = "mkdir -p .tofu/cache"
 [env]
 TF_PLUGIN_CACHE_DIR = "{{ config_root }}/.tofu/cache"
 
-
 [tasks."eks:init"]
 depends = "tofu:cache"
 dir = "infra/k8s/eks"

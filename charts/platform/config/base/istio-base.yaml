@@ -1,3 +1,0 @@
-# https://istio.io/latest/docs/ambient/install/helm/#:~:text=If%20you%20apply,automatically
-base:
-  validationFailurePolicy: Fail
