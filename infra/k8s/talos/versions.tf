@@ -1,6 +1,6 @@
 locals {
   versions = {
-    talos = "v1.13.9"
+    talos = "v1.14.0"
     k8s = "v1.36.1"
     hcloud_ccm = "1.36.0"
     talos_ccm = "0.5.8"
