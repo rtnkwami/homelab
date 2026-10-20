@@ -18,24 +18,22 @@ locals {
       ]
     }
 
-
+    # NOTE:
+    # This is set to prevent talos from discarding unusued container image layers
+    # so that spegel can use them.
+    cri_customization_config = {
+      apiVersion = "v1alpha1"
+      kind =  "CRICustomizationConfig"
+      name = "prevent-image-layer-discarding"
+      content = <<-EOF
+        [plugins."io.containerd.cri.v1.images"]
+        discard_unpacked_layers = false
+      EOF
+    }
   }
 
   extra_config = {
     machine = {
-      # NOTE:
-      # This is set to prevent talos from discarding unusued container image layers
-      # so that spegel can use them.
-      files = [
-        {
-          path = "/etc/cri/conf.d/20-customization.part"
-          op = "create"
-          content = <<-EOF
-            [plugins."io.containerd.cri.v1.images"]
-            discard_unpacked_layers = false
-          EOF
-        }
-      ]
       # Use private ip of control plane load balancer to prevent talosctl access from passing
       # through the internet
       certSANs = [
