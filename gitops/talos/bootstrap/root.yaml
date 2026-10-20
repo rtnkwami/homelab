@@ -95,7 +95,7 @@ spec:
             interval: 1m
             url: https://github.com/rtnkwami/homelab.git
             ref:
-              branch: feat/migrate-hetzner-to-flux
+              branch: main
 
         - apiVersion: kustomize.toolkit.fluxcd.io/v1
           kind: Kustomization
