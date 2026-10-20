@@ -225,7 +225,7 @@ resource "talos_machine" "controlplane-2" {
 resource "talos_cluster" "this" {
   depends_on = [talos_machine.controlplane-2]
 
-  control_plane_nodes = [for k, v in hcloud_server_network.controlplane: v.ip]
+  control_plane_nodes = [for node in hcloud_server_network.controlplane: node.ip]
   client_configuration = talos_machine_secrets.this.client_configuration
   kubernetes_version = local.versions.k8s
 
@@ -236,6 +236,6 @@ resource "talos_cluster" "this" {
 data "talos_cluster_health" "this" {
   depends_on = [talos_cluster.this]
   client_configuration = talos_machine_secrets.this.client_configuration
-  control_plane_nodes = [for k, v in hcloud_server_network.controlplane: v.ip]
+  control_plane_nodes = [for node in hcloud_server_network.controlplane: node.ip]
   endpoints = [var.is_bootstrap ? hcloud_server.controlplane["hel1"].ipv4_address : local.controlplane.ip.private]
 }
