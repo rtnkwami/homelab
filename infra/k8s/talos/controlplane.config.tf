@@ -62,6 +62,14 @@ locals {
         validSubnets = [local.network_config.cidrs.controlplane]
       }
     }
+
+    # NOTE: needed for talos ccm to access talos from within the cluster
+    kubernetes_talos_api_access = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeTalosAPIAccessConfig"
+      allowedRoles = ["os:reader"]
+      allowedKubernetesNamespaces = ["kube-system"]
+    }
   }
 
   extra_config = {
@@ -72,14 +80,6 @@ locals {
         local.controlplane.ip.private,
         local.controlplane.ip.public
       ]
-      features = {
-        # NOTE: needed for talos ccm to access talos from within the cluster
-        kubernetesTalosAPIAccess = {
-          enabled                     = true
-          allowedRoles                = ["os:reader"]
-          allowedKubernetesNamespaces = ["kube-system"]
-        }
-      }
     }
     cluster = {
       network = {
