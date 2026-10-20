@@ -46,8 +46,10 @@ data "helm_template" "hcloud_csi" {
 }
 
 locals {
-  csi_manifest = {
+  hcloud_csi_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name     = "hcloud-csi"
-    contents = data.helm_template.hcloud_csi.manifest
+    manifest = data.helm_template.hcloud_csi.manifest
   }
 }

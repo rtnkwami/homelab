@@ -1,7 +1,9 @@
 locals {
   hcloud_secret_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name = "hcloud-secret"
-    contents = yamlencode({
+    manifest = yamlencode({
       apiVersion = "v1"
       kind       = "Secret"
       type       = "Opaque"
@@ -70,8 +72,10 @@ data "helm_template" "hcloud_ccm" {
 }
 
 locals {
-  ccm_manifest = {
+  hcloud_ccm_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name = "hcloud-ccm"
-    contents = data.helm_template.hcloud_ccm.manifest
+    manifest = data.helm_template.hcloud_ccm.manifest
   }
 }

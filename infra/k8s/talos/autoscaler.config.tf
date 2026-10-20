@@ -142,9 +142,11 @@ data "helm_template" "cluster_autoscaler" {
 }
 
 locals {
-  autoscaler_manifest = {
+  cluster_autoscaler_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name     = "cluster-autoscaler"
-    contents = <<-EOF
+    manifest = <<-EOF
       ${data.helm_template.cluster_autoscaler.manifest}
       ---
       ${yamlencode(local._asg_config_secret)}

@@ -1,14 +1,4 @@
 locals {
-  tailscale_config = {
-    apiVersion = "v1alpha1"
-    kind       = "ExtensionServiceConfig"
-    name       = "tailscale"
-    environment = [
-      "TS_AUTHKEY=${var.tailscale_authkey}",
-      "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
-    ]
-  }
-
   controlplane = {
     ip = {
       public = hcloud_load_balancer.this.ipv4
@@ -17,7 +7,21 @@ locals {
     bootstrap_ip = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   }
 
-  controlplane_config = {
+  talos_control_plane_config = {
+    tailscale_extension_config = {
+      apiVersion = "v1alpha1"
+      kind       = "ExtensionServiceConfig"
+      name       = "tailscale"
+      environment = [
+        "TS_AUTHKEY=${var.tailscale_authkey}",
+        "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
+      ]
+    }
+
+
+  }
+
+  extra_config = {
     machine = {
       # NOTE:
       # This is set to prevent talos from discarding unusued container image layers
@@ -104,15 +108,6 @@ locals {
         }
       }
 
-      inlineManifests = concat(
-        [local.cni_manifest],
-        [local.hcloud_secret_manifest],
-        [local.ccm_manifest],
-        [local.csi_manifest],
-        [local.autoscaler_manifest],
-        [local.talos_ccm_manifest]
-      )
-
       externalCloudProvider = {
         enabled = true
       }
@@ -131,10 +126,19 @@ data "talos_machine_configuration" "controlplane" {
   cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = [
-    yamlencode(local.tailscale_config),
-    yamlencode(local.controlplane_config)
-  ]
+  config_patches = concat(
+    [for config, document in local.talos_control_plane_config : yamlencode(document) ],
+    [
+      yamlencode(local.extra_config),
+      yamlencode(local.hcloud_secret_manifest),
+      # Tools to install at bootstrap
+      yamlencode(local.cilium_manifest),
+      yamlencode(local.talos_ccm_manifest),
+      yamlencode(local.hcloud_ccm_manifest),
+      yamlencode(local.hcloud_csi_manifest),
+      yamlencode(local.cluster_autoscaler_manifest)
+    ]
+  )
 }
 
 ephemeral "talos_cluster_kubeconfig" "this" {

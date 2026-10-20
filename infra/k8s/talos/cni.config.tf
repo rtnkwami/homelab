@@ -105,8 +105,10 @@ data "helm_template" "cilium" {
 }
 
 locals {
-  cni_manifest = {
+  cilium_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name = "cilium"
-    contents = data.helm_template.cilium.manifest
+    manifest = data.helm_template.cilium.manifest
   }
 }
