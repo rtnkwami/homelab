@@ -10,7 +10,7 @@ locals {
           discard_unpacked_layers = false
         EOF
       }
-      
+
       kubelet_config = {
         apiVersion = "v1alpha1"
         kind =  "KubeletConfig"
@@ -30,16 +30,13 @@ locals {
           cloud-provider = "external"
         }
       }
-    }
-  }
 
-  worker_config = {
-    # Generate a machine config for each autoscaling group configured for cluster autoscaler
-    for pool in local._autoscaler_nodepools : pool.name => [{
-      machine = {
-        nodeLabels = pool.labels
+      kube_node_config = {
+        apiVersion = "v1alpha1"
+        kind =  "KubeNodeConfig"
+        labels = pool.labels
       }
-    }]
+    }
   }
 }
 
@@ -52,8 +49,5 @@ data "talos_machine_configuration" "worker" {
   cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = concat(
-    [for config in local.worker_config[each.key] : yamlencode(config)],
-    [for config in local.talos_worker_config[each.key] : yamlencode(config)]
-  )
+  config_patches = [for config in local.talos_worker_config[each.key] : yamlencode(config)]
 }
