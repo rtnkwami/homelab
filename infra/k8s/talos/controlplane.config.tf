@@ -100,6 +100,20 @@ locals {
       kind =  "KubeProxyConfig"
       enabled = false
     }
+
+    # NOTE: this is used to configure service accounts for AWS IRSA
+    # See irsa.config.tf
+    kube_api_server_config = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeServiceAccountConfig"
+      issuer = {
+        issuerURL = "https://${local._irsa_oidc_issuer}"
+        privateKey = tls_private_key.service_account_signing_key.private_key_pem
+      }
+      accepted = {
+        audiences = [local._irsa_oidc_audience]
+      }
+    }
   }
 
   extra_config = {
@@ -112,19 +126,6 @@ locals {
       ]
     }
     cluster = {
-      # NOTE:
-      # See irsa.config.tf
-      apiServer = {
-        extraArgs = {
-          service-account-issuer = "https://${local._irsa_oidc_issuer}"
-          api-audiences = local._irsa_oidc_audience
-        }
-      }
-
-      serviceAccount = {
-        key = base64encode(tls_private_key.service_account_signing_key.private_key_pem)
-      }
-
       controllerManager = {
         extraArgs = {
           cloud-provider = "external"
