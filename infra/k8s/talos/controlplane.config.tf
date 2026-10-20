@@ -34,7 +34,10 @@ locals {
       ]
       # Use private ip of control plane load balancer to prevent talosctl access from passing
       # through the internet
-      certSANs = [local.controlplane.ip.private]
+      certSANs = [
+        local.controlplane.ip.private,
+        local.controlplane.ip.public
+      ]
       kubelet = {
         # NOTE: 
         # Replace default network config with actual configured networking and subnets, as
@@ -134,30 +137,77 @@ data "talos_machine_configuration" "controlplane" {
   ]
 }
 
-resource "talos_machine_configuration_apply" "controlplane" {
+ephemeral "talos_cluster_kubeconfig" "this" {
+  count = var.is_bootstrap ? 0 : 1
+
+  machine_secrets = talos_machine_secrets.this.machine_secrets
+  cluster_name = "homelab"
+  endpoint = "https://${local.controlplane.ip.private}:6443"
+}
+
+resource "talos_machine" "controlplane-0" {
   depends_on = [hcloud_server_network.controlplane]
-  for_each = hcloud_server.controlplane
 
   client_configuration = talos_machine_secrets.this.client_configuration
-  machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
-  node = hcloud_server_network.controlplane[each.key].ip
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  # NOTE: talos_machine will upgrade control plane talos os if the talos version changes
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  # NOTE: set this because talos_cluster handles k8s upgrades, while talos_machine handles talos upgrades
+  ignore_kubernetes_upgrade_drift = true
+  drain_on_upgrade = var.is_bootstrap ? false : true
+  kubeconfig_wo = var.is_bootstrap ? null : ephemeral.talos_cluster_kubeconfig.this[0].kubeconfig_raw
+  
+  node = hcloud_server_network.controlplane["hel1"].ip
   # NOTE:
   # Control plane nodes act as subnet routers to tailscale. Before tailscaled is active on the control
   # plane nodes, terraform needs to access the nodes somehow. That is what the public IP is for.
   # Once the cluster has been bootstrapped, var.is_bootstrap can be set to false to disable all
   # inbound public access, and only use tailscale for further operations.
-  endpoint = var.is_bootstrap ? local.controlplane.ip.public : local.controlplane.ip.private
+  endpoint = var.is_bootstrap ? hcloud_server.controlplane["hel1"].ipv4_address : local.controlplane.ip.private
 }
 
-resource "talos_machine_bootstrap" "controlplane" {
-  depends_on = [talos_machine_configuration_apply.controlplane]
+resource "talos_machine" "controlplane-1" {
+  depends_on = [talos_machine.controlplane-0]
 
-  node = local.controlplane.bootstrap_ip
   client_configuration = talos_machine_secrets.this.client_configuration
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  ignore_kubernetes_upgrade_drift = true
+  drain_on_upgrade = var.is_bootstrap ? false : true
+  kubeconfig_wo = var.is_bootstrap ? null : ephemeral.talos_cluster_kubeconfig.this[0].kubeconfig_raw
+ 
+  node = hcloud_server_network.controlplane["nbg1"].ip
+  endpoint = var.is_bootstrap ? hcloud_server.controlplane["nbg1"].ipv4_address : local.controlplane.ip.private
 }
 
-# Give the cluster time to initialize
-resource "time_sleep" "this" {
-  depends_on = [talos_machine_bootstrap.controlplane]
-  create_duration = "2m"
+resource "talos_machine" "controlplane-2" {
+  depends_on = [talos_machine.controlplane-1]
+
+  client_configuration = talos_machine_secrets.this.client_configuration
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  ignore_kubernetes_upgrade_drift = true
+  drain_on_upgrade = var.is_bootstrap ? false : true
+  kubeconfig_wo = var.is_bootstrap ? null : ephemeral.talos_cluster_kubeconfig.this[0].kubeconfig_raw
+  
+  node = hcloud_server_network.controlplane["fsn1"].ip
+  endpoint = var.is_bootstrap ? hcloud_server.controlplane["fsn1"].ipv4_address : local.controlplane.ip.private
+}
+
+resource "talos_cluster" "this" {
+  depends_on = [talos_machine.controlplane-2]
+
+  control_plane_nodes = [for k, v in hcloud_server_network.controlplane: v.ip]
+  client_configuration = talos_machine_secrets.this.client_configuration
+  kubernetes_version = local.versions.k8s
+
+  node = hcloud_server_network.controlplane["hel1"].ip
+  endpoint = var.is_bootstrap ? hcloud_server.controlplane["hel1"].ipv4_address : local.controlplane.ip.private
+}
+
+data "talos_cluster_health" "this" {
+  depends_on = [talos_cluster.this]
+  client_configuration = talos_machine_secrets.this.client_configuration
+  control_plane_nodes = [for k, v in hcloud_server_network.controlplane: v.ip]
+  endpoints = [var.is_bootstrap ? hcloud_server.controlplane["hel1"].ipv4_address : local.controlplane.ip.private]
 }
