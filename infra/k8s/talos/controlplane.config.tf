@@ -114,6 +114,14 @@ locals {
         audiences = [local._irsa_oidc_audience]
       }
     }
+
+    kube_controller_manager_config = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeControllerManagerConfig"
+      extraArgs = {
+        cloud-provider = "external"
+      }
+    }
   }
 
   extra_config = {
@@ -126,12 +134,6 @@ locals {
       ]
     }
     cluster = {
-      controllerManager = {
-        extraArgs = {
-          cloud-provider = "external"
-        }
-      }
-
       externalCloudProvider = {
         enabled = true
       }
