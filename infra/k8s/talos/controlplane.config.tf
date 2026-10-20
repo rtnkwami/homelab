@@ -141,9 +141,7 @@ locals {
   }
 }
 
-resource "talos_machine_secrets" "this" {
-  talos_version = local.versions.talos
-}
+resource "talos_machine_secrets" "this" {}
 
 data "talos_machine_configuration" "controlplane" {
   cluster_name = "homelab"
