@@ -70,6 +70,36 @@ locals {
       allowedRoles = ["os:reader"]
       allowedKubernetesNamespaces = ["kube-system"]
     }
+
+    kube_network_config = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeNetworkConfig"
+      # NOTE:
+      # enabling this causes kube-controller-manager settings:
+      # --allocate-node-cidrs = true
+      # --cluster-cidr = podSubnets
+      podSubnets = [local.network_config.cidrs.k8s_pods]
+      serviceSubnets = [local.network_config.cidrs.k8s_services]
+      # NOTE:
+      # The maximum node count in the node subnets would cause ip exhaustion if the
+      # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
+      # is not infinite, pod count per node has been reduced.
+      nodeCIDRMaskSizeIPv4 = 26
+    }
+
+    # NOTE: disabled due to cilium installation
+    kube_flannel_cni_config = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeFlannelCNIConfig"
+      "$patch" = "delete"
+    }
+
+    # NOTE: disabled due to cilium installation
+    kube_proxy_config = {
+      apiVersion = "v1alpha1"
+      kind =  "KubeProxyConfig"
+      enabled = false
+    }
   }
 
   extra_config = {
@@ -82,22 +112,6 @@ locals {
       ]
     }
     cluster = {
-      network = {
-        # NOTE:
-        # enabling this causes kube-controller-manager settings:
-        # --allocate-node-cidrs = true
-        # --cluster-cidr = podSubnets
-        podSubnets = [local.network_config.cidrs.k8s_pods]
-        serviceSubnets = [local.network_config.cidrs.k8s_services]
-        # use cilium instead of default cni
-        cni = {
-          name = "none"
-        }
-      }
-      # disable kube-proxy in favor of cilium
-      proxy = {
-        disabled = true
-      }
       # NOTE:
       # See irsa.config.tf
       apiServer = {
@@ -113,11 +127,6 @@ locals {
 
       controllerManager = {
         extraArgs = {
-          # NOTE:
-          # The maximum node count in the node subnets would cause ip exhaustion if the
-          # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
-          # is not infinite, pod count per node has been reduced.
-          node-cidr-mask-size-ipv4 = "26"
           cloud-provider = "external"
         }
       }
