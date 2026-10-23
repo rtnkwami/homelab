@@ -6,139 +6,6 @@ locals {
     }
     bootstrap_ip = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   }
-
-  talos_control_plane_config = {
-    tailscale_extension_config = {
-      apiVersion = "v1alpha1"
-      kind       = "ExtensionServiceConfig"
-      name       = "tailscale"
-      environment = [
-        "TS_AUTHKEY=${var.tailscale_authkey}",
-        "TS_ROUTES=${local.network_cidrs.infra},${local.network_cidrs.controlplane}",
-      ]
-    }
-
-    # NOTE:
-    # This is set to prevent talos from discarding unusued container image layers
-    # so that spegel can use them.
-    cri_customization_config = {
-      apiVersion = "v1alpha1"
-      kind =  "CRICustomizationConfig"
-      name = "prevent-image-layer-discarding"
-      content = <<-EOF
-        [plugins."io.containerd.cri.v1.images"]
-        discard_unpacked_layers = false
-      EOF
-    }
-
-    kubelet_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeletConfig"
-      config = {
-        # NOTE: this setting replaces --rotate-server-certificates
-        # It requires RotateKubeletServerCertificate to be set to true (which is its default)
-        # REF: https://github.com/kubernetes/enhancements/pull/4411#:~:text=When%20the%20feature%20gate%20%60RotateKubeletServerCertificate%60%20is%20true%2C%20then%20%60ServerTLSBootstrap%60%20is%20also%20required%20to%20be%20true%2E,-To
-        serverTLSBootstrap = true
-      }
-      # NOTE: 
-      # Replace default network config with actual configured networking and subnets, as
-      # network segregation needs to be implemented
-      clusterDNS = [cidrhost(local.network_cidrs.k8s_services, 10)]
-      extraArgs = {
-        # NOTE: adds taint: node.cloudprovider.kubernetes.io/uninitialized to nodes during init
-        # This marks the node as needing a second initialization from an external controller
-        # before it can be scheduled work. This is important since the scheduler may require 
-        # cloud specific information about nodes such as their region or type.
-        cloud-provider = "external"
-      }
-    }
-
-    kube_node_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeNodeConfig"
-      # NOTE: if this setting is not set, node IPs may be set from outside the configured CIDR range
-      # for the cluster.
-      nodeIP = {
-        validSubnets = [local.network_cidrs.controlplane]
-      }
-    }
-
-    # NOTE: needed for talos ccm to access talos from within the cluster
-    kubernetes_talos_api_access = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeTalosAPIAccessConfig"
-      allowedRoles = ["os:reader"]
-      allowedKubernetesNamespaces = ["kube-system"]
-    }
-
-    kube_network_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeNetworkConfig"
-      # NOTE:
-      # enabling this causes kube-controller-manager settings:
-      # --allocate-node-cidrs = true
-      # --cluster-cidr = podSubnets
-      podSubnets = [local.network_cidrs.k8s_pods]
-      serviceSubnets = [local.network_cidrs.k8s_services]
-      # NOTE:
-      # The maximum node count in the node subnets would cause ip exhaustion if the
-      # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
-      # is not infinite, pod count per node has been reduced.
-      nodeCIDRMaskSizeIPv4 = 26
-    }
-
-    # NOTE: disabled due to cilium installation
-    kube_flannel_cni_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeFlannelCNIConfig"
-      "$patch" = "delete"
-    }
-
-    # NOTE: disabled due to cilium installation
-    kube_proxy_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeProxyConfig"
-      enabled = false
-    }
-
-    # NOTE: this is used to configure service accounts for AWS IRSA
-    # See irsa.config.tf
-    kube_api_server_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeServiceAccountConfig"
-      issuer = {
-        issuerURL = "https://${local._irsa_oidc_issuer}"
-        privateKey = tls_private_key.service_account_signing_key.private_key_pem
-      }
-      accepted = {
-        audiences = [local._irsa_oidc_audience]
-      }
-    }
-
-    kube_controller_manager_config = {
-      apiVersion = "v1alpha1"
-      kind =  "KubeControllerManagerConfig"
-      extraArgs = {
-        cloud-provider = "external"
-      }
-    }
-  }
-
-  extra_config = {
-    machine = {
-      # Use private ip of control plane load balancer to prevent talosctl access from passing
-      # through the internet
-      certSANs = [
-        local.controlplane.ip.private,
-        local.controlplane.ip.public
-      ]
-    }
-    cluster = {
-      externalCloudProvider = {
-        enabled = true
-      }
-    }
-  }
 }
 
 resource "talos_machine_secrets" "this" {}
@@ -150,19 +17,115 @@ data "talos_machine_configuration" "controlplane" {
   cluster_endpoint = "https://${local.controlplane.ip.private}:6443"
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = concat(
-    [for config, document in local.talos_control_plane_config : yamlencode(document) ],
-    [
-      yamlencode(local.extra_config),
-      yamlencode(local.hcloud_secret_manifest),
-      # Tools to install at bootstrap
-      yamlencode(local.cilium_manifest),
-      yamlencode(local.talos_ccm_manifest),
-      yamlencode(local.hcloud_ccm_manifest),
-      yamlencode(local.hcloud_csi_manifest),
-      yamlencode(local.cluster_autoscaler_manifest)
-    ]
-  )
+  config_patches = [
+    for document in [
+      {
+        apiVersion = "v1alpha1"
+        kind       = "ExtensionServiceConfig"
+        name       = "tailscale"
+        environment = [
+          "TS_AUTHKEY=${var.tailscale_authkey}",
+          "TS_ROUTES=${local.network_cidrs.infra},${local.network_cidrs.controlplane}",
+        ]
+      },
+      {
+        # Spegel requires this configuration to work properly
+        apiVersion = "v1alpha1"
+        kind =  "CRICustomizationConfig"
+        name = "prevent-image-layer-discarding"
+        content = <<-EOF
+          [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+        EOF
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeNetworkConfig"
+        podSubnets = [local.network_cidrs.k8s_pods]
+        serviceSubnets = [local.network_cidrs.k8s_services]
+        # NOTE:
+        # The maximum node count in the node subnets would cause ip exhaustion if the
+        # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
+        # is not infinite, pod count per node has been reduced.
+        nodeCIDRMaskSizeIPv4 = 26
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeFlannelCNIConfig"
+        "$patch" = "delete"
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeProxyConfig"
+        enabled = false
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeNodeConfig"
+        nodeIP = {
+          validSubnets = [local.network_cidrs.controlplane]
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeletConfig"
+        config = {
+          # NOTE: this setting replaces --rotate-server-certificates
+          # It requires RotateKubeletServerCertificate to be set to true (which is its default)
+          # REF: https://github.com/kubernetes/enhancements/pull/4411#:~:text=When%20the%20feature%20gate%20%60RotateKubeletServerCertificate%60%20is%20true%2C%20then%20%60ServerTLSBootstrap%60%20is%20also%20required%20to%20be%20true%2E,-To
+          serverTLSBootstrap = true
+        }
+        clusterDNS = [cidrhost(local.network_cidrs.k8s_services, 10)]
+        extraArgs = {
+          cloud-provider = "external"
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeControllerManagerConfig"
+        extraArgs = {
+          cloud-provider = "external"
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeServiceAccountConfig"
+        issuer = {
+          issuerURL = "https://${local._irsa_oidc_issuer}"
+          privateKey = tls_private_key.service_account_signing_key.private_key_pem
+        }
+        accepted = {
+          audiences = [local._irsa_oidc_audience]
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeTalosAPIAccessConfig"
+        allowedRoles = ["os:reader"]
+        allowedKubernetesNamespaces = ["kube-system"]
+      },
+      {
+        machine = {
+          certSANs = [
+            local.controlplane.ip.private,
+            local.controlplane.ip.public
+          ]
+        }
+        cluster = {
+          externalCloudProvider = {
+            enabled = true
+          }
+        }
+      },
+      local.hcloud_secret_manifest,
+      local.talos_ccm_manifest,
+      local.hcloud_ccm_manifest,
+      local.hcloud_csi_manifest,
+      local.cilium_manifest,
+      local.cluster_autoscaler_manifest,
+      local.asg_config_manifest
+    ] : yamlencode(document)
+  ]
 }
 
 ephemeral "talos_cluster_kubeconfig" "this" {
