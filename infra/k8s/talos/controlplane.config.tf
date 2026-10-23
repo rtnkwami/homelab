@@ -14,7 +14,7 @@ locals {
       name       = "tailscale"
       environment = [
         "TS_AUTHKEY=${var.tailscale_authkey}",
-        "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
+        "TS_ROUTES=${local.network_cidrs.infra},${local.network_cidrs.controlplane}",
       ]
     }
 
@@ -43,7 +43,7 @@ locals {
       # NOTE: 
       # Replace default network config with actual configured networking and subnets, as
       # network segregation needs to be implemented
-      clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
+      clusterDNS = [cidrhost(local.network_cidrs.k8s_services, 10)]
       extraArgs = {
         # NOTE: adds taint: node.cloudprovider.kubernetes.io/uninitialized to nodes during init
         # This marks the node as needing a second initialization from an external controller
@@ -59,7 +59,7 @@ locals {
       # NOTE: if this setting is not set, node IPs may be set from outside the configured CIDR range
       # for the cluster.
       nodeIP = {
-        validSubnets = [local.network_config.cidrs.controlplane]
+        validSubnets = [local.network_cidrs.controlplane]
       }
     }
 
@@ -78,8 +78,8 @@ locals {
       # enabling this causes kube-controller-manager settings:
       # --allocate-node-cidrs = true
       # --cluster-cidr = podSubnets
-      podSubnets = [local.network_config.cidrs.k8s_pods]
-      serviceSubnets = [local.network_config.cidrs.k8s_services]
+      podSubnets = [local.network_cidrs.k8s_pods]
+      serviceSubnets = [local.network_cidrs.k8s_services]
       # NOTE:
       # The maximum node count in the node subnets would cause ip exhaustion if the
       # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated

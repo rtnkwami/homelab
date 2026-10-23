@@ -30,10 +30,10 @@ resource "hcloud_firewall" "workers" {
     direction = "in"
     protocol = "tcp"
     source_ips = [
-      local.network_config.cidrs.infra,
-      local.network_config.cidrs.controlplane,
-      local.network_config.cidrs.app,
-      local.network_config.cidrs.db
+      local.network_cidrs.infra,
+      local.network_cidrs.controlplane,
+      local.network_cidrs.app,
+      local.network_cidrs.db
     ]
   }
 

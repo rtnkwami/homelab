@@ -33,7 +33,7 @@ locals {
     # - https://docs.cilium.io/en/stable/network/concepts/routing/#id4
     networking = {
       enabled = true
-      clusterCIDR = local.network_config.cidrs.k8s_pods
+      clusterCIDR = local.network_cidrs.k8s_pods
     }
     env = {
       HCLOUD_LOAD_BALANCERS_ENABLED = { value = "true" }

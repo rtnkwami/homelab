@@ -47,7 +47,7 @@ locals {
       ]
       min = 0
       max = 5
-      subnet = local.network_config.cidrs.app
+      subnet = local.network_cidrs.app
     }
     general = {
       labels = {
@@ -56,7 +56,7 @@ locals {
       taints = []
       min = 0
       max = 20
-      subnet = local.network_config.cidrs.app
+      subnet = local.network_cidrs.app
     }
     database = {
       labels = {
@@ -71,7 +71,7 @@ locals {
       ]
       min = 0
       max = 20
-      subnet = local.network_config.cidrs.db
+      subnet = local.network_cidrs.db
     }
   }
 }

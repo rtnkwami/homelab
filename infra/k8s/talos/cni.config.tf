@@ -52,7 +52,7 @@ locals {
     # Any traffic going to pods within this cluster should not be SNAT'd, because pod IPs
     # are already routable over the hcloud network.
     # REF: network.tf
-    ipv4NativeRoutingCIDR = local.network_config.cidrs.k8s_pods
+    ipv4NativeRoutingCIDR = local.network_cidrs.k8s_pods
     # Enable eBPF masquerading (instead of default iptables masquerading) on pod IP-> external IP
     # traffic. It also doesn't work well with Istio
     # REF: https://istio.io/latest/docs/ambient/install/platform-prerequisites/#cilium:~:text=Cilium%E2%80%99s,correctly
