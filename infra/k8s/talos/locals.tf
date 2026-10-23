@@ -5,7 +5,7 @@ locals {
   # Hetzner infrastructure and other infra unrelated to the k8s cluster
   network_cidrs = {
     # NOTE: First half of hcloud network
-    infra = cidrsubnet(var.network_cidr, 11, 0)
+    infra = cidrsubnet(var.network_cidr, 12, 0)
     # NOTE: Second half of hcloud network used for k8s cluster
     controlplane = cidrsubnet(var.network_cidr, 8, 128)
     app = cidrsubnet(var.network_cidr, 8, 129)
