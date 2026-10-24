@@ -1,14 +1,14 @@
+variable "network_cidr" {
+  type = string
+  default = "10.128.0.0/16"
+}
+
 variable "hcloud_token" {
   sensitive = true
 }
 
 variable "tailscale_authkey" {
   sensitive = true
-}
-
-variable "is_bootstrap" {
-  type = bool
-  default = false
 }
 
 variable "kubeconfig_path" {

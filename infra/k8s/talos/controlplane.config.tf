@@ -1,14 +1,4 @@
 locals {
-  tailscale_config = {
-    apiVersion = "v1alpha1"
-    kind       = "ExtensionServiceConfig"
-    name       = "tailscale"
-    environment = [
-      "TS_AUTHKEY=${var.tailscale_authkey}",
-      "TS_ROUTES=${local.network_config.cidrs.infra},${local.network_config.cidrs.controlplane}",
-    ]
-  }
-
   controlplane = {
     ip = {
       public = hcloud_load_balancer.this.ipv4
@@ -16,110 +6,9 @@ locals {
     }
     bootstrap_ip = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   }
-
-  controlplane_config = {
-    machine = {
-      # NOTE:
-      # This is set to prevent talos from discarding unusued container image layers
-      # so that spegel can use them.
-      files = [
-        {
-          path = "/etc/cri/conf.d/20-customization.part"
-          op = "create"
-          content = <<-EOF
-            [plugins."io.containerd.cri.v1.images"]
-            discard_unpacked_layers = false
-          EOF
-        }
-      ]
-      # Use private ip of control plane load balancer to prevent talosctl access from passing
-      # through the internet
-      certSANs = [local.controlplane.ip.private]
-      kubelet = {
-        # NOTE: 
-        # Replace default network config with actual configured networking and subnets, as
-        # network segregation needs to be implemented
-        clusterDNS = [cidrhost(local.network_config.cidrs.k8s_services, 10)]
-        # NOTE:
-        # If this config is not set, node IPs may be set from outside the configured CIDR range
-        # for the cluster
-        nodeIP = {
-          validSubnets = [local.network_config.cidrs.controlplane]
-        }
-        extraArgs = {
-          cloud-provider = "external"
-          rotate-server-certificates = true
-        }
-      }
-      features = {
-        # NOTE: needed for talos ccm to access talos from within the cluster
-        kubernetesTalosAPIAccess = {
-          enabled                     = true
-          allowedRoles                = ["os:reader"]
-          allowedKubernetesNamespaces = ["kube-system"]
-        }
-      }
-    }
-    cluster = {
-      network = {
-        # NOTE:
-        # enabling this causes kube-controller-manager settings:
-        # --allocate-node-cidrs = true
-        # --cluster-cidr = podSubnets
-        podSubnets = [local.network_config.cidrs.k8s_pods]
-        serviceSubnets = [local.network_config.cidrs.k8s_services]
-        # use cilium instead of default cni
-        cni = {
-          name = "none"
-        }
-      }
-      # disable kube-proxy in favor of cilium
-      proxy = {
-        disabled = true
-      }
-      # NOTE:
-      # See irsa.config.tf
-      apiServer = {
-        extraArgs = {
-          service-account-issuer = "https://${local._irsa_oidc_issuer}"
-          api-audiences = local._irsa_oidc_audience
-        }
-      }
-
-      serviceAccount = {
-        key = base64encode(tls_private_key.service_account_signing_key.private_key_pem)
-      }
-
-      controllerManager = {
-        extraArgs = {
-          # NOTE:
-          # The maximum node count in the node subnets would cause ip exhaustion if the
-          # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
-          # is not infinite, pod count per node has been reduced.
-          node-cidr-mask-size-ipv4 = "26"
-          cloud-provider = "external"
-        }
-      }
-
-      inlineManifests = concat(
-        [local.cni_manifest],
-        [local.hcloud_secret_manifest],
-        [local.ccm_manifest],
-        [local.csi_manifest],
-        [local.autoscaler_manifest],
-        [local.talos_ccm_manifest]
-      )
-
-      externalCloudProvider = {
-        enabled = true
-      }
-    }
-  }
 }
 
-resource "talos_machine_secrets" "this" {
-  talos_version = local.versions.talos
-}
+resource "talos_machine_secrets" "this" {}
 
 data "talos_machine_configuration" "controlplane" {
   cluster_name = "homelab"
@@ -129,35 +18,179 @@ data "talos_machine_configuration" "controlplane" {
   talos_version = local.versions.talos
   kubernetes_version = local.versions.k8s
   config_patches = [
-    yamlencode(local.tailscale_config),
-    yamlencode(local.controlplane_config)
+    for document in [
+      {
+        apiVersion = "v1alpha1"
+        kind       = "ExtensionServiceConfig"
+        name       = "tailscale"
+        environment = [
+          "TS_AUTHKEY=${var.tailscale_authkey}",
+          "TS_ROUTES=${local.network_cidrs.app},${local.network_cidrs.db}",
+        ]
+      },
+      {
+        # Spegel requires this configuration to work properly
+        apiVersion = "v1alpha1"
+        kind =  "CRICustomizationConfig"
+        name = "prevent-image-layer-discarding"
+        content = <<-EOF
+          [plugins."io.containerd.cri.v1.images"]
+          discard_unpacked_layers = false
+        EOF
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeNetworkConfig"
+        podSubnets = [local.network_cidrs.k8s_pods]
+        serviceSubnets = [local.network_cidrs.k8s_services]
+        # NOTE:
+        # The maximum node count in the node subnets would cause ip exhaustion if the
+        # default pod count (~110) for k8s was used. Since the cluster pod cidr allocated
+        # is not infinite, pod count per node has been reduced.
+        nodeCIDRMaskSizeIPv4 = 26
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeFlannelCNIConfig"
+        "$patch" = "delete"
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeProxyConfig"
+        enabled = false
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeNodeConfig"
+        nodeIP = {
+          validSubnets = [local.network_cidrs.controlplane]
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeletConfig"
+        config = {
+          # NOTE: this setting replaces --rotate-server-certificates
+          # It requires RotateKubeletServerCertificate to be set to true (which is its default)
+          # REF: https://github.com/kubernetes/enhancements/pull/4411#:~:text=When%20the%20feature%20gate%20%60RotateKubeletServerCertificate%60%20is%20true%2C%20then%20%60ServerTLSBootstrap%60%20is%20also%20required%20to%20be%20true%2E,-To
+          serverTLSBootstrap = true
+        }
+        clusterDNS = [cidrhost(local.network_cidrs.k8s_services, 10)]
+        extraArgs = {
+          cloud-provider = "external"
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeControllerManagerConfig"
+        extraArgs = {
+          cloud-provider = "external"
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeServiceAccountConfig"
+        issuer = {
+          issuerURL = "https://${local._irsa_oidc_issuer}"
+          privateKey = tls_private_key.service_account_signing_key.private_key_pem
+        }
+        accepted = {
+          audiences = [local._irsa_oidc_audience]
+        }
+      },
+      {
+        apiVersion = "v1alpha1"
+        kind =  "KubeTalosAPIAccessConfig"
+        allowedRoles = ["os:reader"]
+        allowedKubernetesNamespaces = ["kube-system"]
+      },
+      {
+        machine = {
+          certSANs = [
+            local.controlplane.ip.private,
+            local.controlplane.ip.public
+          ]
+        }
+        cluster = {
+          externalCloudProvider = {
+            enabled = true
+          }
+        }
+      },
+      local.hcloud_secret_manifest,
+      local.talos_ccm_manifest,
+      local.hcloud_ccm_manifest,
+      local.hcloud_csi_manifest,
+      local.cilium_manifest,
+      local.cluster_autoscaler_manifest,
+      local.asg_config_manifest
+    ] : yamlencode(document)
   ]
 }
 
-resource "talos_machine_configuration_apply" "controlplane" {
-  depends_on = [hcloud_server_network.controlplane]
-  for_each = hcloud_server.controlplane
-
-  client_configuration = talos_machine_secrets.this.client_configuration
-  machine_configuration_input = data.talos_machine_configuration.controlplane.machine_configuration
-  node = hcloud_server_network.controlplane[each.key].ip
-  # NOTE:
-  # Control plane nodes act as subnet routers to tailscale. Before tailscaled is active on the control
-  # plane nodes, terraform needs to access the nodes somehow. That is what the public IP is for.
-  # Once the cluster has been bootstrapped, var.is_bootstrap can be set to false to disable all
-  # inbound public access, and only use tailscale for further operations.
-  endpoint = var.is_bootstrap ? local.controlplane.ip.public : local.controlplane.ip.private
+ephemeral "talos_cluster_kubeconfig" "this" {
+  machine_secrets = talos_machine_secrets.this.machine_secrets
+  cluster_name = "homelab"
+  endpoint = "https://${local.controlplane.ip.private}:6443"
 }
 
-resource "talos_machine_bootstrap" "controlplane" {
-  depends_on = [talos_machine_configuration_apply.controlplane]
+resource "talos_machine" "controlplane-0" {
+  depends_on = [
+    hcloud_server_network.tailscale_router_0,
+    hcloud_server_network.tailscale_router_1
+  ]
 
-  node = local.controlplane.bootstrap_ip
   client_configuration = talos_machine_secrets.this.client_configuration
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  # NOTE: talos_machine will upgrade control plane talos os if the talos version changes
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  # NOTE: set this because talos_cluster handles k8s upgrades, while talos_machine handles talos upgrades
+  ignore_kubernetes_upgrade_drift = true
+  kubeconfig_wo = ephemeral.talos_cluster_kubeconfig.this.kubeconfig_raw
+  
+  node = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
 }
 
-# Give the cluster time to initialize
-resource "time_sleep" "this" {
-  depends_on = [talos_machine_bootstrap.controlplane]
-  create_duration = "2m"
+resource "talos_machine" "controlplane-1" {
+  depends_on = [talos_machine.controlplane-0]
+
+  client_configuration = talos_machine_secrets.this.client_configuration
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  ignore_kubernetes_upgrade_drift = true
+  kubeconfig_wo = ephemeral.talos_cluster_kubeconfig.this.kubeconfig_raw
+ 
+  node = hcloud_server_network.controlplane[local.hcloud_zones[1]].ip
+}
+
+resource "talos_machine" "controlplane-2" {
+  depends_on = [talos_machine.controlplane-1]
+
+  client_configuration = talos_machine_secrets.this.client_configuration
+  machine_configuration = data.talos_machine_configuration.controlplane.machine_configuration
+  image = data.talos_image_factory_urls.talos_tailscale.urls.installer
+  ignore_kubernetes_upgrade_drift = true
+  kubeconfig_wo = ephemeral.talos_cluster_kubeconfig.this.kubeconfig_raw
+  
+  node = hcloud_server_network.controlplane[local.hcloud_zones[2]].ip
+}
+
+resource "talos_cluster" "this" {
+  depends_on = [talos_machine.controlplane-2]
+
+  control_plane_nodes = [for node in hcloud_server_network.controlplane: node.ip]
+  client_configuration = talos_machine_secrets.this.client_configuration
+  kubernetes_version = local.versions.k8s
+
+  node = hcloud_server_network.controlplane["hel1"].ip
+  endpoint = local.controlplane.ip.private
+}
+
+data "talos_cluster_health" "this" {
+  depends_on = [talos_cluster.this]
+  client_configuration = talos_machine_secrets.this.client_configuration
+  # NOTE: I have no idea why, but if I set this to false, this healthcheck hangs forever
+  skip_kubernetes_checks = true
+  control_plane_nodes = [for node in hcloud_server_network.controlplane: node.ip]
+  endpoints = [local.controlplane.ip.private]
 }

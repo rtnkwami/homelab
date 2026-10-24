@@ -20,7 +20,9 @@ data "helm_template" "talos_ccm" {
 
 locals {
   talos_ccm_manifest = {
+    apiVersion = "v1alpha1"
+    kind =  "KubeInlineManifestConfig"
     name = "talos-ccm"
-    contents = data.helm_template.talos_ccm.manifest
+    manifest = data.helm_template.talos_ccm.manifest
   }
 }
