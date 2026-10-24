@@ -8,5 +8,6 @@ locals {
     cilium = "1.20.1"
     gwAPI = "v1.6.1"
     cluster_autoscaler = "9.59.0"
+    metrics_server = "3.14.0"
   }
 }
