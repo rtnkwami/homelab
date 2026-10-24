@@ -7,8 +7,7 @@ resource "hcloud_load_balancer" "this" {
 resource "hcloud_load_balancer_network" "this" {
   load_balancer_id = hcloud_load_balancer.this.id
   subnet_id = hcloud_network_subnet.infra.id
-  
-  enable_public_interface = var.is_bootstrap
+  enable_public_interface = false
 }
 
 resource "hcloud_load_balancer_service" "this" {

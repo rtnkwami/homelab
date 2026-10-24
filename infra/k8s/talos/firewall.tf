@@ -1,5 +1,4 @@
 resource "hcloud_firewall" "controlplane" {
-  depends_on = [data.talos_cluster_health.this]
   name = "controlplane-firewall"
 
   rule {
