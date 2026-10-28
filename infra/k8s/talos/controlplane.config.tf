@@ -115,6 +115,9 @@ locals {
         externalCloudProvider = {
           enabled = true
         }
+        etcd = {
+          advertisedSubnets = [local.network_cidrs.controlplane]
+        }
       }
     }
   ]
@@ -189,7 +192,7 @@ resource "talos_cluster" "this" {
   client_configuration = talos_machine_secrets.this.client_configuration
   kubernetes_version = local.versions.k8s
 
-  node = hcloud_server_network.controlplane["hel1"].ip
+  node = hcloud_server_network.controlplane[local.hcloud_zones[0]].ip
   endpoint = local.controlplane.ip.private
 }
 

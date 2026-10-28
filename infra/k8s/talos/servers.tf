@@ -57,10 +57,6 @@ resource "random_uuid" "this" {}
 
 # -----------
 # SECTION: Control Plane
-locals {
-  hcloud_zones = ["nbg1", "fsn1", "hel1"]
-}
-
 resource "hcloud_placement_group" "controlplane" {
   name = "controlplane"
   type = "spread"

@@ -1,4 +1,5 @@
 locals {
+  hcloud_zones = ["nbg1", "fsn1", "hel1"]
   # NOTE: Network Configuration
   
   # This divides the Hetzner network into two parts, the first part is reserved for
