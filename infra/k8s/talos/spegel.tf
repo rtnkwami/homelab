@@ -7,6 +7,7 @@ resource "helm_release" "spegel" {
   namespace = "spegel"
   create_namespace = true
   version = local.versions.spegel
+  disable_webhooks = true
 
   values = [
     yamlencode({
