@@ -1,6 +1,4 @@
-resource "helm_release" "spegel" {
-  provider = helm.deploy
-  
+data "helm_template" "spegel" {
   name = "spegel"
   chart = "spegel"
   repository = "oci://ghcr.io/spegel-org/helm-charts"
@@ -20,18 +18,23 @@ resource "helm_release" "spegel" {
 
 locals {
   spegel_namespace_manifest = {
+    apiVersion = "v1"
+    kind = "Namespace"
+    metadata = {
+      name = "spegel"
+      labels = {
+        "pod-security.kubernetes.io/enforce" = "privileged"
+      }
+    }
+  }
+  spegel_manifest = {
     apiVersion = "v1alpha1"
     kind =  "KubeInlineManifestConfig"
     name = "spegel"
-    manifest = yamlencode({
-      apiVersion = "v1"
-      kind = "Namespace"
-      metadata = {
-        name = "spegel"
-        labels = {
-          "pod-security.kubernetes.io/enforce" = "privileged"
-        }
-      }
-    })
+    manifest = <<-EOF
+      ${yamlencode(local.spegel_namespace_manifest)}
+      ---
+      ${data.helm_template.spegel.manifest}
+    EOF
   }
 }

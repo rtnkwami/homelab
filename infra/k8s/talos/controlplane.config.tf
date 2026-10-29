@@ -9,14 +9,14 @@ locals {
 
   inline_manifests = [
     local.hcloud_secret_manifest,
-    local.spegel_namespace_manifest,
     local.talos_ccm_manifest,
     local.hcloud_ccm_manifest,
     local.hcloud_csi_manifest,
     local.cilium_manifest,
     local.kube_metrics_server_manifest,
     local.cluster_autoscaler_manifest,
-    local.asg_config_manifest
+    local.asg_config_manifest,
+    local.spegel_manifest
   ]
 
   controlplane_config = [
