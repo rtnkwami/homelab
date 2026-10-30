@@ -41,19 +41,20 @@ locals {
     ]
   ])
 
-  # NOTE:
-  # The schema for each nodepool is:
-  # <pool-name> = {
-  #   subnet = string (cidr range)
-  #   min = number
-  #   max = number
-  #   labels = map
-  #   taints = list
-  # }
-  # For each nodepool/group here, a cluster autoscaler autoscaling group will be created
-  # per server type and zone.
   _nodepools = {
     system = {
+      machine_config_overrides = [
+        # NOTE: make only system nodes tailscale subnet routers.
+        {
+          apiVersion = "v1alpha1"
+          kind       = "ExtensionServiceConfig"
+          name       = "tailscale"
+          environment = [
+            "TS_AUTHKEY=${var.tailscale_authkey}",
+            "TS_ROUTES=${local.network_cidrs.controlplane}",
+          ]
+        }
+      ]
       labels = {
         "node.niovial.io/pool" = "system"
       }

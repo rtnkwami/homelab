@@ -26,7 +26,7 @@ locals {
       name       = "tailscale"
       environment = [
         "TS_AUTHKEY=${var.tailscale_authkey}",
-        "TS_ROUTES=${local.network_cidrs.app},${local.network_cidrs.db}",
+        "TS_ROUTES=${local.network_cidrs.infra},${local.network_cidrs.app},${local.network_cidrs.db}",
       ]
     },
     {

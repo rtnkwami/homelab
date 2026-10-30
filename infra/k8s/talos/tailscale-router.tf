@@ -13,7 +13,7 @@ data "talos_machine_configuration" "tailscale_router" {
         name       = "tailscale"
         environment = [
           "TS_AUTHKEY=${var.tailscale_authkey}",
-          "TS_ROUTES=${local.network_cidrs.infra},${local.network_cidrs.controlplane}",
+          "TS_ROUTES=${local.network_cidrs.controlplane}",
         ]
       },
       {
@@ -53,12 +53,16 @@ data "talos_machine_configuration" "tailscale_router" {
 }
 
 resource "hcloud_server" "tailscale_router_0" {
-  name = "tailscale-router-0"
+  name = "ts-router-0"
   server_type = "cx23"
   location = "nbg1"
   image = imager_image.talos_tailscale.image_id
   ssh_keys = [hcloud_ssh_key.this.id]
   user_data = data.talos_machine_configuration.tailscale_router.machine_configuration
+
+  labels = {
+    "hcloud/node-group" = "system-cx23-nbg1"
+  }
 
   public_net {
     ipv4_enabled = true
@@ -66,7 +70,7 @@ resource "hcloud_server" "tailscale_router_0" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [image, user_data]
+    ignore_changes = all
   }
 }
 
@@ -76,12 +80,16 @@ resource "hcloud_server_network" "tailscale_router_0" {
 }
 
 resource "hcloud_server" "tailscale_router_1" {
-  name = "tailscale-router-1"
+  name = "ts-router-1"
   server_type = "cx23"
   location = "hel1"
   image = imager_image.talos_tailscale.image_id
   ssh_keys = [hcloud_ssh_key.this.id]
   user_data = data.talos_machine_configuration.tailscale_router.machine_configuration
+  
+  labels = {
+    "hcloud/node-group" = "system-cx23-hel1"
+  }
 
   public_net {
     ipv4_enabled = true
@@ -89,7 +97,7 @@ resource "hcloud_server" "tailscale_router_1" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [image, user_data]
+    ignore_changes = all
   }
 }
 
