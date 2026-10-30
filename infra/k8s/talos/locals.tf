@@ -43,6 +43,9 @@ locals {
 
   _nodepools = {
     system = {
+      min = 0
+      max = 5
+      subnet = local.network_cidrs.app
       machine_config_overrides = [
         # NOTE: make only system nodes tailscale subnet routers.
         {
@@ -63,22 +66,22 @@ locals {
         value = "system"
         effect = "NoSchedule"
       }]
-      min = 0
-      max = 5
-      subnet = local.network_cidrs.app
     }
 
     general = {
+      min = 0
+      max = 20
+      subnet = local.network_cidrs.app
       labels = {
         "node.niovial.io/pool" = "general"
       }
       taints = []
-      min = 0
-      max = 20
-      subnet = local.network_cidrs.app
     }
 
     database = {
+      min = 0
+      max = 20
+      subnet = local.network_cidrs.db
       labels = {
         "node.niovial.io/pool" = "database"
       }
@@ -87,9 +90,6 @@ locals {
         value = "database"
         effect = "NoSchedule"
       }]
-      min = 0
-      max = 20
-      subnet = local.network_cidrs.db
     }
   }
 }
