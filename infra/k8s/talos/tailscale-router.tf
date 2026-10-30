@@ -1,3 +1,8 @@
+locals {
+  ts_router_0_name = "system-cx23-nbg1"
+  ts_router_1_name = "system-cx23-hel1"
+}
+
 data "talos_machine_configuration" "tailscale_router" {
   cluster_name = "homelab"
   machine_type = "worker"
@@ -61,7 +66,7 @@ resource "hcloud_server" "tailscale_router_0" {
   user_data = data.talos_machine_configuration.tailscale_router.machine_configuration
 
   labels = {
-    "hcloud/node-group" = "system-cx23-nbg1"
+    "hcloud/node-group" = local.ts_router_0_name
   }
 
   public_net {
@@ -88,7 +93,7 @@ resource "hcloud_server" "tailscale_router_1" {
   user_data = data.talos_machine_configuration.tailscale_router.machine_configuration
   
   labels = {
-    "hcloud/node-group" = "system-cx23-hel1"
+    "hcloud/node-group" = local.ts_router_1_name
   }
 
   public_net {
