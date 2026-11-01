@@ -34,7 +34,7 @@ spec:
                   patch: |
                     - op: add
                       path: /spec/replicas
-                      value: 3
+                      value: 2
 
                     - op: add
                       path: /spec/template/spec/nodeSelector
