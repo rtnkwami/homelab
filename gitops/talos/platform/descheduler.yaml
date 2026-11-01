@@ -47,10 +47,11 @@ spec:
           podDisruptionBudget:
             enabled: true
           nodeSelector:
-            node-role.kubernetes.io/control-plane: ""
+            node.niovial.io/pool: system
           tolerations:
-            - key: node-role.kubernetes.io/control-plane
-              operator: Exists
+            - key: node.niovial.io/pool
+              operator: Equal
+              value: system
           replicas: 3
           topologySpreadConstraints:
             - topologyKey: "topology.kubernetes.io/zone"
