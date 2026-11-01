@@ -26,6 +26,11 @@ data "helm_template" "cluster_autoscaler" {
         operator = "Exists"
       }]
       replicaCount = 3
+      deployment = {
+        annotations = {
+          "secret.reloader.stakater.com/reload" = "asg-config"
+        }
+      }
       topologySpreadConstraints = [{
         topologyKey       = "topology.kubernetes.io/zone"
         maxSkew           = 1
