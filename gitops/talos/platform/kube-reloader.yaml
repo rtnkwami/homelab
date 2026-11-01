@@ -1,0 +1,54 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: kube-reloader
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: 3m
+spec:
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: HelmRepository
+      metadata:
+        name: kube-reloader
+        namespace: kube-reloader
+      spec:
+        interval: 30m
+        url: https://stakater.github.io/stakater-charts
+
+    - apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: kube-reloader
+        namespace: kube-reloader
+      spec:
+        releaseName: kube-reloader
+        interval: 3m
+        driftDetection:
+          mode: enabled
+        chart:
+          spec:
+            chart: reloader
+            version: "2.2.x"
+            sourceRef:
+              kind: HelmRepository
+              name: kube-reloader
+            interval: 15m
+        values:
+          enableHA: true
+          deployment:
+            replicas: 2
+            nodeSelector:
+              node.niovial.io/pool: system
+            tolerations:
+              - key: node.niovial.io/pool
+                operator: Equal
+                value: system
+            topologySpreadConstraints:
+              - topologyKey: topology.kubernetes.io/zone
+                maxSkew: 1
+                whenUnsatisfiable: DoNotSchedule
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: kube-reloader
+                matchLabelKeys: [pod-template-hash]
