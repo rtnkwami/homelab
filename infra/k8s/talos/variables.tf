@@ -13,10 +13,10 @@ variable "tailscale_authkey" {
 
 variable "kubeconfig_path" {
   type = string
-  default = "out/kubeconfig"
+  default = ".config/kubeconfig"
 }
 
 variable "talosconfig_path" {
   type = string
-  default = "out/talosconfig"
+  default = ".config/talosconfig"
 }

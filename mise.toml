@@ -38,29 +38,29 @@ run = "tofu init -upgrade"
 [tasks."eks:preview"]
 dir = "infra/k8s/eks"
 run = """
-  mkdir -p out
-  tofu plan -out=out/cluster.tfplan
+  mkdir -p .config
+  tofu plan -out=.config/cluster.tfplan
 """
 
 [tasks."talos:preview"]
 dir = "infra/k8s/talos"
 run = """
-  mkdir -p out
-  tofu plan -out=out/cluster.tfplan
+  mkdir -p .config
+  tofu plan -out=.config/cluster.tfplan
 """
 
 [tasks."eks:deploy"]
 depends = "eks:preview"
 dir = "infra/k8s/eks"
-run = "tofu apply out/cluster.tfplan"
+run = "tofu apply .config/cluster.tfplan"
 
 [tasks."talos:deploy"]
 depends = "talos:preview"
 dir = "infra/k8s/talos"
-run = "tofu apply out/cluster.tfplan"
+run = "tofu apply .config/cluster.tfplan"
 
 [tasks."eks:bootstrap"]
-env = { KUBECONFIG = "{{ config_root }}/infra/k8s/eks/out/kubeconfig" }
+env = { KUBECONFIG = "{{ config_root }}/infra/k8s/eks/.config/kubeconfig" }
 run = """
   helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
    --version 0.61.0 \
@@ -75,7 +75,7 @@ run = """
 """
 
 [tasks."talos:bootstrap"]
-env = { KUBECONFIG = "{{ config_root }}/infra/k8s/talos/out/kubeconfig" }
+env = { KUBECONFIG = "{{ config_root }}/infra/k8s/talos/.config/kubeconfig" }
 run = """
   helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
    --version 0.61.0 \
@@ -88,7 +88,7 @@ run = """
 """
 
 [tasks."eks:reset"]
-env = { KUBECONFIG = "{{ config_root }}/infra/k8s/eks/out/kubeconfig" }
+env = { KUBECONFIG = "{{ config_root }}/infra/k8s/eks/.config/kubeconfig" }
 run = """
   kubectl delete -f gitops/eks/bootstrap \
     --ignore-not-found \
@@ -96,7 +96,7 @@ run = """
 """
 
 [tasks."talos:reset"]
-env = { KUBECONFIG = "{{ config_root }}/infra/k8s/talos/out/kubeconfig" }
+env = { KUBECONFIG = "{{ config_root }}/infra/k8s/talos/.config/kubeconfig" }
 run = """
   kubectl delete -f gitops/talos/bootstrap \
     --ignore-not-found \

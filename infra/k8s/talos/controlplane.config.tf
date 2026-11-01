@@ -205,3 +205,24 @@ data "talos_cluster_health" "this" {
   control_plane_nodes = [for node in hcloud_server_network.controlplane: node.ip]
   endpoints = [local.controlplane.ip.private]
 }
+
+# NOTE: This resource causes "talosctl upgrade-k8s" to be run against the cluster when
+# talos inline manifests are changed. If this command is not run against the cluster,
+# talos will never update the live manifests, regardless of how many applies you do.
+# In addition, although talos_cluster.this runs "talosctl upgrade-k8s", it only does so
+# when the k8s version changes. This means that regular configuration of inline manifests
+# will never reconcile unless you are doing an actual upgrade of k8s.
+# As such this script is needed to run it manually.
+resource "terraform_data" "reconcile_inline_manifests" {
+  depends_on = [talos_cluster_kubeconfig.this]
+  triggers_replace = [sha256(jsonencode(local.inline_manifests))]
+
+  provisioner "local-exec" {
+    environment = {
+      TALOSCONFIG = var.talosconfig_path
+    }
+    command = "talosctl upgrade-k8s -n ${local.controlplane.bootstrap_ip} --to ${local.versions.k8s}"
+  }
+}
+
+
