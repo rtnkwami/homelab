@@ -35,20 +35,21 @@ spec:
               name: kube-reloader
             interval: 15m
         values:
-          enableHA: true
-          deployment:
-            replicas: 2
-            nodeSelector:
-              node.niovial.io/pool: system
-            tolerations:
-              - key: node.niovial.io/pool
-                operator: Equal
-                value: system
-            topologySpreadConstraints:
-              - topologyKey: topology.kubernetes.io/zone
-                maxSkew: 1
-                whenUnsatisfiable: DoNotSchedule
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/instance: kube-reloader
-                matchLabelKeys: [pod-template-hash]
+          reloader:
+            enableHA: true
+            deployment:
+              replicas: 2
+              nodeSelector:
+                node.niovial.io/pool: system
+              tolerations:
+                - key: node.niovial.io/pool
+                  operator: Equal
+                  value: system
+              topologySpreadConstraints:
+                - topologyKey: topology.kubernetes.io/zone
+                  maxSkew: 1
+                  whenUnsatisfiable: DoNotSchedule
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/instance: kube-reloader
+                  matchLabelKeys: [pod-template-hash]
