@@ -14,11 +14,24 @@ resource "helm_release" "kube_reloader" {
         deployment = {
           replicas = 2
           nodeSelector = {
-            "node-role.kubernetes.io/control-plane" = ""
+            "node.niovial.io/pool" = "system"
           }
           tolerations = [{
-            key = "node-role.kubernetes.io/control-plane"
-            operator = "Exists"
+            key = "node.niovial.io/pool"
+            operator = "Equal"
+            value = "system"
+          }]
+          topologySpreadConstraints = [{
+            topologyKey       = "topology.kubernetes.io/zone"
+            maxSkew           = 1
+            minDomains = 2
+            whenUnsatisfiable = "DoNotSchedule"
+            labelSelector = {
+              matchLabels = {
+                "app.kubernetes.io/instance" = "kube-reloader"
+              }
+            }
+            matchLabelKeys = ["pod-template-hash"]
           }]
         }
       }

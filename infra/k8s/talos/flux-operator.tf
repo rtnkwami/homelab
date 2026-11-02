@@ -10,11 +10,12 @@ resource "helm_release" "flux_operator" {
   values = [
     yamlencode({
       nodeSelector = {
-        "node-role.kubernetes.io/control-plane" = ""
+        "node.niovial.io/pool" = "system"
       }
       tolerations = [{
-        key = "node-role.kubernetes.io/control-plane"
-        operator = "Exists"
+        key = "node.niovial.io/pool"
+        operator = "Equal"
+        value = "system"
       }]
     })
   ]
