@@ -67,15 +67,14 @@ spec:
             profiles:
               - name: default
                 plugins:
-                  # balance:
-                  #   enabled:
-                  #     - LowNodeUtilization
+                  balance:
+                    enabled:
+                      - RemovePodsViolatingTopologySpreadConstraint
                   deschedule:
                     enabled:
                       - RemovePodsViolatingNodeTaints
                       - RemovePodsViolatingNodeAffinity
                       - RemovePodsViolatingInterPodAntiAffinity
-                      - RemovePodsViolatingTopologySpreadConstraint
                 pluginConfig:
                   - name: DefaultEvictor
                     args:
