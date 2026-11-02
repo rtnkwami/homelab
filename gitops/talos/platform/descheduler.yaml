@@ -46,11 +46,11 @@ spec:
             - key: node.niovial.io/pool
               operator: Equal
               value: system
-          replicas: 3
+          replicas: 2
           topologySpreadConstraints:
             - topologyKey: "topology.kubernetes.io/zone"
               maxSkew: 1
-              minDomains: 3
+              minDomains: 2
               whenUnsatisfiable: DoNotSchedule
               labelSelector:
                 matchLabels:
