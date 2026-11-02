@@ -36,6 +36,7 @@ locals {
           taints = config.taints
           min = config.min
           max = config.max
+          machine_config_overrides = try(config.machine_config_overrides, [])
         }
       ]
     ]
