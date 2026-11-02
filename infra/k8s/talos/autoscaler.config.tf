@@ -74,10 +74,7 @@ data "helm_template" "cluster_autoscaler" {
           # NOTE: if the node group matches the one that the tailscale routers belong to
           # ensure that cluster autoscaler does not destroy them, to allow for a min of 2
           # system nodes in the cluster at all times.
-          minSize = contains(
-            [local.ts_router_0_name, local.ts_router_1_name],
-            pool.name
-          ) ? 1 : 0
+          minSize = pool.min
           maxSize = pool.max
         }
       ]
