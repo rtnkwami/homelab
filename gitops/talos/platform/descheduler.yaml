@@ -106,4 +106,5 @@ spec:
                     args:
                       constraints:
                         - DoNotSchedule
+                        - ScheduleAnyway
 
