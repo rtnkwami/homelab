@@ -62,13 +62,13 @@ resource "hcloud_placement_group" "controlplane" {
   type = "spread"
 }
 
-resource "hcloud_server" "controlplane" {
-  for_each = toset(local.hcloud_zones)
+resource "hcloud_server" "controlplane_0" {
 
-  name = "controlplane-${each.value}"
+  name = "controlplane-0"
   server_type = "cx33"
-  location = each.value
+  location = "nbg1"
   image = imager_image.talos_tailscale.image_id
+  user_data = data.talos_machine_configuration.bootstrap.machine_configuration
   ssh_keys = [hcloud_ssh_key.this.id]
   placement_group_id = hcloud_placement_group.controlplane.id
 
@@ -81,14 +81,88 @@ resource "hcloud_server" "controlplane" {
   }
 
   lifecycle {
-    ignore_changes = [image]
+    ignore_changes = [
+      image,
+      user_data,
+      location,
+      server_type,
+      ssh_keys
+    ]
   }
 }
 
-resource "hcloud_server_network" "controlplane" {
-  for_each = hcloud_server.controlplane
+resource "hcloud_server_network" "controlplane_0" {
+  server_id = hcloud_server.controlplane_0.id
+  subnet_id = hcloud_network_subnet.controlplane.id
+}
 
-  server_id = hcloud_server.controlplane[each.key].id
+resource "hcloud_server" "controlplane_1" {
+  depends_on = [hcloud_server.controlplane_0]
+
+  name = "controlplane-1"
+  server_type = "cx33"
+  location = "fsn1"
+  image = imager_image.talos_tailscale.image_id
+  user_data = data.talos_machine_configuration.bootstrap.machine_configuration
+  ssh_keys = [hcloud_ssh_key.this.id]
+  placement_group_id = hcloud_placement_group.controlplane.id
+
+  public_net {
+    ipv4_enabled = true
+  }
+
+  labels = {
+    "node.niovial.io/pool" = "controlplane"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      image,
+      user_data,
+      location,
+      server_type,
+      ssh_keys
+    ]
+  }
+}
+
+resource "hcloud_server_network" "controlplane_1" {
+  server_id = hcloud_server.controlplane_1.id
+  subnet_id = hcloud_network_subnet.controlplane.id
+}
+
+resource "hcloud_server" "controlplane_2" {
+  depends_on = [hcloud_server.controlplane_1]
+
+  name = "controlplane-2"
+  server_type = "cx33"
+  location = "hel1"
+  image = imager_image.talos_tailscale.image_id
+  user_data = data.talos_machine_configuration.bootstrap.machine_configuration
+  ssh_keys = [hcloud_ssh_key.this.id]
+  placement_group_id = hcloud_placement_group.controlplane.id
+
+  public_net {
+    ipv4_enabled = true
+  }
+
+  labels = {
+    "node.niovial.io/pool" = "controlplane"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      image,
+      user_data,
+      location,
+      server_type,
+      ssh_keys
+    ]
+  }
+}
+
+resource "hcloud_server_network" "controlplane_2" {
+  server_id = hcloud_server.controlplane_2.id
   subnet_id = hcloud_network_subnet.controlplane.id
 }
 # -----------
