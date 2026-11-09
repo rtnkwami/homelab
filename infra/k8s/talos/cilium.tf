@@ -13,6 +13,7 @@ data "helm_template" "cilium" {
         mode = "kubernetes"
       }
       kubeProxyReplacement = true
+      rollOutCiliumPods = true
       securityContext = {
         capabilities = {
           ciliumAgent = [

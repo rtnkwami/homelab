@@ -28,6 +28,7 @@ resource "hcloud_firewall" "workers" {
   rule {
     direction = "in"
     protocol = "tcp"
+    port = "any"
     source_ips = [
       local.network_cidrs.infra,
       local.network_cidrs.controlplane,
