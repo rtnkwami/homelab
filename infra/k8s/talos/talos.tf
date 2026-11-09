@@ -111,7 +111,6 @@ resource "local_sensitive_file" "kubeconfig" {
   file_permission = "0600"
 }
 
-
 # NOTE: This resource causes "talosctl upgrade-k8s" to be run against the cluster when
 # talos inline manifests are changed. If this command is not run against the cluster,
 # talos will never update the live manifests, regardless of how many applies you do.
@@ -120,7 +119,7 @@ resource "local_sensitive_file" "kubeconfig" {
 # will never reconcile unless you are doing an actual upgrade of k8s.
 # As such this script is needed to run it manually.
 resource "terraform_data" "reconcile_inline_manifests" {
-  depends_on = [talos_cluster_kubeconfig.this]
+  depends_on = [local_sensitive_file.talos_config]
   triggers_replace = [sha256(jsonencode(local.talos_inline_manifests))]
 
   provisioner "local-exec" {
@@ -128,5 +127,32 @@ resource "terraform_data" "reconcile_inline_manifests" {
       TALOSCONFIG = var.talosconfig_path
     }
     command = "talosctl upgrade-k8s -n ${hcloud_load_balancer_network.this.ip} --to ${local.versions.k8s}"
+  }
+}
+
+# NOTE:
+resource "terraform_data" "drain_outdated_k8s_nodes" {
+  depends_on = [talos_cluster_kubeconfig.this]
+  triggers_replace = [local.versions.k8s]
+
+  provisioner "local-exec" {
+    environment = {
+      KUBECONFIG = var.kubeconfig_path
+      KUBE_VERSION = local.versions.k8s
+    }
+    command = "go run ./.bin/drain_nodes.go"
+  }
+}
+
+resource "terraform_data" "drain_outdated_talos_nodes" {
+  depends_on = [talos_cluster_kubeconfig.this]
+  triggers_replace = [local.versions.talos]
+
+  provisioner "local-exec" {
+    environment = {
+      KUBECONFIG = var.kubeconfig_path
+      TALOS_VERSION = local.versions.talos
+    }
+    command = "go run ./.bin/drain_nodes.go"
   }
 }
