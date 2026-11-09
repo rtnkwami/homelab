@@ -51,6 +51,8 @@ spec:
                   name: cloudnative-pg
                 interval: 15m
             values:
+              commonAnnotations:
+                scheduling.niovial.io
               replicaCount: 2
               nodeSelector:
                 node.niovial.io/pool: system
@@ -67,10 +69,20 @@ spec:
                     matchLabels:
                       app.kubernetes.io/instance: cnpg-operator
                   matchLabelKeys: ["pod-template-hash"]
-    
+
+        - apiVersion: policy/v1
+          kind: PodDisruptionBudget
+          metadata:
+            name: plugin-barman-cloud
+          spec:
+            minAvailable: 1
+            selector:
+              matchLabels:
+                app.kubernetes.io/instance: cnpg-operator
+
     - name: barman
       resources:
-      -   apiVersion: helm.toolkit.fluxcd.io/v2
+        - apiVersion: helm.toolkit.fluxcd.io/v2
           kind: HelmRelease
           metadata:
             name: barman-cloud-plugin
@@ -105,3 +117,13 @@ spec:
                     matchLabels:
                       app.kubernetes.io/instance: barman-cloud-plugin
                   matchLabelKeys: ["pod-template-hash"]
+                        
+        - apiVersion: policy/v1
+          kind: PodDisruptionBudget
+          metadata:
+            name: plugin-barman-cloud
+          spec:
+            minAvailable: 1
+            selector:
+              matchLabels:
+                app.kubernetes.io/instance: barman-cloud-plugin
