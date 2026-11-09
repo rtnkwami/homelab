@@ -73,7 +73,7 @@ spec:
         - apiVersion: policy/v1
           kind: PodDisruptionBudget
           metadata:
-            name: plugin-barman-cloud
+            name: cnpg-operator
           spec:
             minAvailable: 1
             selector:
