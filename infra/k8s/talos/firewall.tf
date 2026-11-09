@@ -15,6 +15,17 @@ resource "hcloud_firewall" "controlplane" {
     source_ips = [hcloud_load_balancer_network.this.ip]
   }
 
+  rule {
+    direction = "in"
+    protocol = "tcp"
+    port = "any"
+    source_ips = [
+      local.network_cidrs.controlplane,
+      local.network_cidrs.app,
+      local.network_cidrs.db
+    ]
+  }
+
   apply_to {
     label_selector = "node.niovial.io/pool=controlplane"
   }
