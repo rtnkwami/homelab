@@ -74,6 +74,7 @@ spec:
           kind: PodDisruptionBudget
           metadata:
             name: cnpg-operator
+            namespace: cnpg-system
           spec:
             minAvailable: 1
             selector:
@@ -122,6 +123,7 @@ spec:
           kind: PodDisruptionBudget
           metadata:
             name: plugin-barman-cloud
+            namespace: cnpg-system
           spec:
             minAvailable: 1
             selector:
