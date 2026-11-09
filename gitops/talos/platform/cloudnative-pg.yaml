@@ -51,8 +51,6 @@ spec:
                   name: cloudnative-pg
                 interval: 15m
             values:
-              commonAnnotations:
-                scheduling.niovial.io
               replicaCount: 2
               nodeSelector:
                 node.niovial.io/pool: system
