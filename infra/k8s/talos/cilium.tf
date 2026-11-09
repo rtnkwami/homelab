@@ -68,6 +68,55 @@ data "helm_template" "cilium" {
           enabled = true
         }
       }
+      hubble = {
+        tls = {
+          auto = {
+            method = "cronJob"
+          }
+        }
+        ui = {
+          enabled = true
+          rollOutPods = true
+          replicas = 3
+          podDisruptionBudget = {
+            enabled = true
+          }
+          nodeSelector = {
+            "node-role.kubernetes.io/control-plane" = ""
+          }
+          tolerations = [{
+            key = "node-role.kubernetes.io/control-plane"
+            operator = "Exists"
+          }]
+          topologySpreadConstraints = [{
+            topologyKey       = "topology.kubernetes.io/zone"
+            maxSkew           = 1
+            minDomains        = 3
+            whenUnsatisfiable = "DoNotSchedule"
+          }]
+        }
+        relay = {
+          enabled = true
+          rollOutPods = true
+          replicas = 3
+          podDisruptionBudget = {
+            enabled = true
+          }
+          nodeSelector = {
+            "node-role.kubernetes.io/control-plane" = ""
+          }
+          tolerations = [{
+            key = "node-role.kubernetes.io/control-plane"
+            operator = "Exists"
+          }]
+          topologySpreadConstraints = [{
+            topologyKey       = "topology.kubernetes.io/zone"
+            maxSkew           = 1
+            minDomains        = 3
+            whenUnsatisfiable = "DoNotSchedule"
+          }]
+        }
+      }
     })
   ]
 }
