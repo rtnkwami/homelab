@@ -81,6 +81,11 @@ func main() {
 	for _, label := range nodeLabels {
 		wg.Go(func(){
 			nodes := getNodesForLabel(label)
+			
+			if len(nodes) == 0 {
+				log.Print("No nodes need to be drained")
+				os.Exit(0)
+			}
 			osVersionRegex := regexp.MustCompile(`(v\d+.\d+.\d+)`)
 
 			for _, node := range nodes {
