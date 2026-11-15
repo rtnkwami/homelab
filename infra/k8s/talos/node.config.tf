@@ -1,9 +1,9 @@
 data "talos_machine_configuration" "bootstrap" {
-  cluster_name = local.cluster_name
-  machine_type = "controlplane"
-  machine_secrets = talos_machine_secrets.this.machine_secrets
-  cluster_endpoint = "https://${hcloud_load_balancer_network.this.ip}:6443"
-  talos_version = local.versions.talos
+  cluster_name       = local.cluster_name
+  machine_type       = "controlplane"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  cluster_endpoint   = "https://${hcloud_load_balancer_network.this.ip}:6443"
+  talos_version      = local.versions.talos
   kubernetes_version = local.versions.k8s
   config_patches = [
     yamlencode({
@@ -24,6 +24,14 @@ data "talos_machine_configuration" "bootstrap" {
           "controlplane-1.${local.tailnet_dns}",
           "controlplane-2.${local.tailnet_dns}"
         ]
+      }
+      cluster = {
+        externalCloudProvider = {
+          enabled = true
+        }
+        etcd = {
+          advertisedSubnets = [local.network_cidrs.controlplane]
+        }
       }
     })
   ]
@@ -56,17 +64,17 @@ locals {
     {
       # Spegel requires this configuration to work properly
       apiVersion = "v1alpha1"
-      kind =  "CRICustomizationConfig"
-      name = "prevent-image-layer-discarding"
-      content = <<-EOF
+      kind       = "CRICustomizationConfig"
+      name       = "prevent-image-layer-discarding"
+      content    = <<-EOF
         [plugins."io.containerd.cri.v1.images"]
         discard_unpacked_layers = false
       EOF
     },
     {
-      apiVersion = "v1alpha1"
-      kind =  "KubeNetworkConfig"
-      podSubnets = [local.network_cidrs.k8s_pods]
+      apiVersion     = "v1alpha1"
+      kind           = "KubeNetworkConfig"
+      podSubnets     = [local.network_cidrs.k8s_pods]
       serviceSubnets = [local.network_cidrs.k8s_services]
       # NOTE:
       # The maximum node count in the node subnets would cause ip exhaustion if the
@@ -76,24 +84,24 @@ locals {
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeFlannelCNIConfig"
-      "$patch" = "delete"
+      kind       = "KubeFlannelCNIConfig"
+      "$patch"   = "delete"
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeProxyConfig"
-      enabled = false
+      kind       = "KubeProxyConfig"
+      enabled    = false
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeNodeConfig"
+      kind       = "KubeNodeConfig"
       nodeIP = {
         validSubnets = [local.network_cidrs.controlplane]
       }
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeletConfig"
+      kind       = "KubeletConfig"
       config = {
         # NOTE: this setting replaces --rotate-server-certificates
         # It requires RotateKubeletServerCertificate to be set to true (which is its default)
@@ -107,16 +115,16 @@ locals {
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeControllerManagerConfig"
+      kind       = "KubeControllerManagerConfig"
       extraArgs = {
         cloud-provider = "external"
       }
     },
     {
       apiVersion = "v1alpha1"
-      kind =  "KubeServiceAccountConfig"
+      kind       = "KubeServiceAccountConfig"
       issuer = {
-        issuerURL = "https://${local._irsa_oidc_issuer}"
+        issuerURL  = "https://${local._irsa_oidc_issuer}"
         privateKey = tls_private_key.service_account_signing_key.private_key_pem
       }
       accepted = {
@@ -124,9 +132,9 @@ locals {
       }
     },
     {
-      apiVersion = "v1alpha1"
-      kind =  "KubeTalosAPIAccessConfig"
-      allowedRoles = ["os:reader"]
+      apiVersion                  = "v1alpha1"
+      kind                        = "KubeTalosAPIAccessConfig"
+      allowedRoles                = ["os:reader"]
       allowedKubernetesNamespaces = ["kube-system"]
     },
     {
@@ -151,11 +159,11 @@ locals {
 }
 
 data "talos_machine_configuration" "controlplane" {
-  cluster_name = local.cluster_name
-  machine_type = "controlplane"
-  machine_secrets = talos_machine_secrets.this.machine_secrets
-  cluster_endpoint = "https://${hcloud_load_balancer_network.this.ip}:6443"
-  talos_version = local.versions.talos
+  cluster_name       = local.cluster_name
+  machine_type       = "controlplane"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  cluster_endpoint   = "https://${hcloud_load_balancer_network.this.ip}:6443"
+  talos_version      = local.versions.talos
   kubernetes_version = local.versions.k8s
   config_patches = concat(
     [for document in local.controlplane_configuration : yamlencode(document)],
@@ -168,16 +176,16 @@ locals {
     for pool in local._autoscaler_nodepools : pool.name => [
       {
         apiVersion = "v1alpha1"
-        kind =  "CRICustomizationConfig"
-        name = "prevent-image-layer-discarding"
-        content = <<-EOF
+        kind       = "CRICustomizationConfig"
+        name       = "prevent-image-layer-discarding"
+        content    = <<-EOF
           [plugins."io.containerd.cri.v1.images"]
           discard_unpacked_layers = false
         EOF
       },
       {
         apiVersion = "v1alpha1"
-        kind =  "KubeletConfig"
+        kind       = "KubeletConfig"
         config = {
           # NOTE: this setting replaces --rotate-server-certificates
           # It requires RotateKubeletServerCertificate to be set to true (which is its default)
@@ -196,8 +204,8 @@ locals {
       },
       {
         apiVersion = "v1alpha1"
-        kind =  "KubeNodeConfig"
-        labels = pool.labels
+        kind       = "KubeNodeConfig"
+        labels     = pool.labels
       }
     ]
   }
@@ -205,12 +213,12 @@ locals {
 
 data "talos_machine_configuration" "worker" {
   for_each = { for pool in local._autoscaler_nodepools : pool.name => pool }
-  
-  cluster_name = local.cluster_name
-  machine_type = "worker"
-  machine_secrets = talos_machine_secrets.this.machine_secrets
-  cluster_endpoint = "https://${hcloud_load_balancer_network.this.ip}:6443"
-  talos_version = local.versions.talos
+
+  cluster_name       = local.cluster_name
+  machine_type       = "worker"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  cluster_endpoint   = "https://${hcloud_load_balancer_network.this.ip}:6443"
+  talos_version      = local.versions.talos
   kubernetes_version = local.versions.k8s
-  config_patches = [for config in local.worker_configuration[each.key] : yamlencode(config)]
+  config_patches     = [for config in local.worker_configuration[each.key] : yamlencode(config)]
 }
