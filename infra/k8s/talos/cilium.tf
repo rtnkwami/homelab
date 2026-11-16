@@ -1,9 +1,9 @@
 data "helm_template" "cilium" {
-  name = "cilium"
-  chart = "cilium"
-  repository = "oci://quay.io/cilium/charts"
-  namespace = "kube-system"
-  version = local.versions.cilium
+  name         = "cilium"
+  chart        = "cilium"
+  repository   = "oci://quay.io/cilium/charts"
+  namespace    = "kube-system"
+  version      = local.versions.cilium
   kube_version = local.versions.k8s
 
   values = [
@@ -13,7 +13,7 @@ data "helm_template" "cilium" {
         mode = "kubernetes"
       }
       kubeProxyReplacement = true
-      rollOutCiliumPods = true
+      rollOutCiliumPods    = true
       securityContext = {
         capabilities = {
           ciliumAgent = [
@@ -47,13 +47,13 @@ data "helm_template" "cilium" {
       k8s = {
         requireIPv4PodCIDR = true
       }
-      routingMode = "native"
+      routingMode           = "native"
       ipv4NativeRoutingCIDR = local.network_cidrs.k8s_pods
       cni = {
         exclusive = false
       }
       socketLB = {
-        enabled = true
+        enabled           = true
         hostNamespaceOnly = true
       }
       envoy = {
@@ -75,9 +75,9 @@ data "helm_template" "cilium" {
           }
         }
         ui = {
-          enabled = true
+          enabled     = true
           rollOutPods = true
-          replicas = 3
+          replicas    = 3
           podDisruptionBudget = {
             enabled = true
           }
@@ -85,7 +85,7 @@ data "helm_template" "cilium" {
             "node-role.kubernetes.io/control-plane" = ""
           }
           tolerations = [{
-            key = "node-role.kubernetes.io/control-plane"
+            key      = "node-role.kubernetes.io/control-plane"
             operator = "Exists"
           }]
           topologySpreadConstraints = [{
@@ -96,9 +96,9 @@ data "helm_template" "cilium" {
           }]
         }
         relay = {
-          enabled = true
+          enabled     = true
           rollOutPods = true
-          replicas = 3
+          replicas    = 3
           podDisruptionBudget = {
             enabled = true
           }
@@ -106,7 +106,7 @@ data "helm_template" "cilium" {
             "node-role.kubernetes.io/control-plane" = ""
           }
           tolerations = [{
-            key = "node-role.kubernetes.io/control-plane"
+            key      = "node-role.kubernetes.io/control-plane"
             operator = "Exists"
           }]
           topologySpreadConstraints = [{
@@ -117,6 +117,15 @@ data "helm_template" "cilium" {
           }]
         }
       }
+      certgen = {
+        nodeSelector = {
+          "node-role.kubernetes.io/control-plane" = ""
+        }
+        tolerations = [{
+          key      = "node-role.kubernetes.io/control-plane"
+          operator = "Exists"
+        }]
+      }
     })
   ]
 }
@@ -124,8 +133,8 @@ data "helm_template" "cilium" {
 locals {
   cilium_manifest = {
     apiVersion = "v1alpha1"
-    kind =  "KubeInlineManifestConfig"
-    name = "cilium"
-    manifest = data.helm_template.cilium.manifest
+    kind       = "KubeInlineManifestConfig"
+    name       = "cilium"
+    manifest   = data.helm_template.cilium.manifest
   }
 }
