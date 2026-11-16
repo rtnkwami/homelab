@@ -1,10 +1,12 @@
 resource "helm_release" "kube_reloader" {
+  depends_on = [data.talos_cluster_health.this]
+
   provider = helm.deploy
-  
-  name = "kube-reloader"
-  chart = "reloader"
-  repository = "https://stakater.github.io/stakater-charts"
-  namespace = "kube-reloader"
+
+  name             = "kube-reloader"
+  chart            = "reloader"
+  repository       = "https://stakater.github.io/stakater-charts"
+  namespace        = "kube-reloader"
   create_namespace = true
 
   values = [
@@ -17,13 +19,13 @@ resource "helm_release" "kube_reloader" {
             "node-role.kubernetes.io/control-plane" = ""
           }
           tolerations = [{
-            key = "node-role.kubernetes.io/control-plane"
+            key      = "node-role.kubernetes.io/control-plane"
             operator = "Exists"
           }]
           topologySpreadConstraints = [{
             topologyKey       = "topology.kubernetes.io/zone"
             maxSkew           = 1
-            minDomains = 2
+            minDomains        = 2
             whenUnsatisfiable = "DoNotSchedule"
             labelSelector = {
               matchLabels = {
@@ -36,7 +38,7 @@ resource "helm_release" "kube_reloader" {
       }
     })
   ]
-  
+
   lifecycle {
     ignore_changes = all
   }
