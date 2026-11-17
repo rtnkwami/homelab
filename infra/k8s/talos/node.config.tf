@@ -1,42 +1,3 @@
-data "talos_machine_configuration" "bootstrap" {
-  cluster_name       = local.cluster_name
-  machine_type       = "controlplane"
-  machine_secrets    = talos_machine_secrets.this.machine_secrets
-  cluster_endpoint   = "https://${hcloud_load_balancer_network.this.ip}:6443"
-  talos_version      = local.versions.talos
-  kubernetes_version = local.versions.k8s
-  config_patches = [
-    yamlencode({
-      apiVersion = "v1alpha1"
-      kind       = "ExtensionServiceConfig"
-      name       = "tailscale"
-      environment = [
-        "TS_AUTHKEY=${var.tailscale_authkey}",
-        "TS_HOSTNAME=controlplane",
-        "TS_ROUTES=${local.network_cidrs.infra}",
-      ]
-    }),
-    yamlencode({
-      machine = {
-        certSANs = [
-          hcloud_load_balancer_network.this.ip,
-          "controlplane.${local.tailnet_dns}",
-          "controlplane-1.${local.tailnet_dns}",
-          "controlplane-2.${local.tailnet_dns}"
-        ]
-      }
-      cluster = {
-        externalCloudProvider = {
-          enabled = true
-        }
-        etcd = {
-          advertisedSubnets = [local.network_cidrs.controlplane]
-        }
-      }
-    })
-  ]
-}
-
 locals {
   talos_inline_manifests = [
     local.hcloud_secret_manifest,
@@ -156,6 +117,17 @@ locals {
       }
     }
   ]
+}
+
+# NOTE:: 
+data "talos_machine_configuration" "bootstrap" {
+  cluster_name       = local.cluster_name
+  machine_type       = "controlplane"
+  machine_secrets    = talos_machine_secrets.this.machine_secrets
+  cluster_endpoint   = "https://${hcloud_load_balancer_network.this.ip}:6443"
+  talos_version      = local.versions.talos
+  kubernetes_version = local.versions.k8s
+  config_patches     = [for document in local.controlplane_configuration : yamlencode(document)]
 }
 
 data "talos_machine_configuration" "controlplane" {
