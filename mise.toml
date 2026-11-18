@@ -1,10 +1,7 @@
 monorepo_root = true
 
 [monorepo]
-config_roots = [
-  "apps/*",
-  "packages/*"
-]
+config_roots = ["apps/*", "packages/*"]
 
 [settings]
 task.source_freshness_hash_contents = true
@@ -15,7 +12,7 @@ experimental = true
 [tools]
 node = "26"
 "npm:pnpm" = "11.24.0"
-opentofu = "1.12"
+opentofu = "1.13"
 helm = "4.2.4"
 kubectl = "1.36.1"
 
