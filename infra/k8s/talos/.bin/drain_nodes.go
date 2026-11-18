@@ -11,7 +11,7 @@ import (
 )
 
 type NodeSearchResults struct {
-  Items []NodeData `json:"items"`
+	Items []NodeData `json:"items"`
 }
 
 type NodeData struct {
@@ -26,7 +26,7 @@ type NodeData struct {
 	} `json:"status"`
 }
 
-func getNodesForLabel(label string) (nodes []NodeData)  {
+func getNodesForLabel(label string) (nodes []NodeData) {
 	listNodesCommand := exec.Command(
 		"kubectl", "get", "nodes",
 		"-l", label,
@@ -49,7 +49,7 @@ func drainOutdatedNode(node NodeData) {
 		"kubectl", "drain", node.Metadata.Name,
 		"--ignore-daemonsets",
 		"--delete-emptydir-data",
-		"--timeout=10m",
+		"--timeout=20m",
 	)
 	drainNodeCommand.Stdout = os.Stdout
 	drainNodeCommand.Stderr = os.Stderr
@@ -71,7 +71,7 @@ func main() {
 		log.Fatal("ConfigError: Either TALOS_VERSION or KUBE_VERSION must be set")
 	}
 
-	nodeLabels := [3]string {
+	nodeLabels := [3]string{
 		"node.niovial.io/pool=system",
 		"node.niovial.io/pool=general",
 		"node.niovial.io/pool=database",
@@ -79,19 +79,15 @@ func main() {
 
 	var wg sync.WaitGroup
 	for _, label := range nodeLabels {
-		wg.Go(func(){
+		wg.Go(func() {
 			nodes := getNodesForLabel(label)
-			
-			if len(nodes) == 0 {
-				log.Print("No nodes need to be drained")
-				os.Exit(0)
-			}
+
 			osVersionRegex := regexp.MustCompile(`(v\d+.\d+.\d+)`)
 
 			for _, node := range nodes {
 				matches := osVersionRegex.FindStringSubmatch(node.Status.NodeInfo.OsImage)
 				currentOs := matches[1]
-				
+
 				if (currentOs != desiredTalosVersion) && desiredTalosVersion != "" {
 					drainOutdatedNode(node)
 				} else if (node.Status.NodeInfo.KubeletVersion != desiredK8sVersion) && desiredK8sVersion != "" {
@@ -103,3 +99,4 @@ func main() {
 	}
 	wg.Wait()
 }
+
