@@ -1,7 +1,7 @@
 monorepo_root = true
 
 [monorepo]
-config_roots = ["apps/*", "packages/*"]
+config_roots = ["projects/*", "packages/*"]
 
 [settings]
 task.source_freshness_hash_contents = true
