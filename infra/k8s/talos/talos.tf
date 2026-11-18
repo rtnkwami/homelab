@@ -65,6 +65,10 @@ resource "talos_cluster" "this" {
 
   node     = hcloud_server_network.controlplane_0.ip
   endpoint = hcloud_load_balancer_network.this.ip
+
+  timeouts = {
+    create = "10m"
+  }
 }
 
 data "talos_cluster_health" "this" {
@@ -136,7 +140,10 @@ resource "terraform_data" "reconcile_inline_manifests" {
 
 # NOTE:
 resource "terraform_data" "drain_outdated_k8s_nodes" {
-  depends_on       = [talos_cluster_kubeconfig.this]
+  depends_on = [
+    talos_cluster_kubeconfig.this,
+    terraform_data.reconcile_inline_manifests
+  ]
   triggers_replace = [local.versions.k8s]
 
   provisioner "local-exec" {
@@ -149,7 +156,10 @@ resource "terraform_data" "drain_outdated_k8s_nodes" {
 }
 
 resource "terraform_data" "drain_outdated_talos_nodes" {
-  depends_on       = [talos_cluster_kubeconfig.this]
+  depends_on = [
+    talos_cluster_kubeconfig.this,
+    terraform_data.reconcile_inline_manifests
+  ]
   triggers_replace = [local.versions.talos]
 
   provisioner "local-exec" {
