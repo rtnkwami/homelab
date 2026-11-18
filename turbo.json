@@ -1,11 +1,14 @@
 {
   "$schema": "node_modules/turbo/schema.json",
   "tasks": {
+    "dev": {},
     "lint": {},
     "build": {
-      "outputs": ["dist/**"]
+      "outputs": [
+        "dist/**"
+      ]
     },
     "test": {},
-    "format": {}
+    "format": {},
   }
 }
