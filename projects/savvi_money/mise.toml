@@ -1,0 +1,5 @@
+[tools]
+protoc-gen-go = "latest"
+protoc-gen-go-grpc = "latest"
+protoc = "latest"
+sqlc = "latest"
