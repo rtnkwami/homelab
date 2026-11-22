@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 
 Resources:
   HomelabStateBucket:
@@ -10,4 +10,3 @@ Resources:
       Tags:
         - Key: project
           Value: homelab
-    

@@ -22,7 +22,7 @@ data "helm_template" "cluster_autoscaler" {
         "node-role.kubernetes.io/control-plane" = ""
       }
       tolerations = [{
-        key = "node-role.kubernetes.io/control-plane"
+        key      = "node-role.kubernetes.io/control-plane"
         operator = "Exists"
       }]
       replicaCount = 3
@@ -34,7 +34,7 @@ data "helm_template" "cluster_autoscaler" {
       topologySpreadConstraints = [{
         topologyKey       = "topology.kubernetes.io/zone"
         maxSkew           = 1
-        minDomains = 3
+        minDomains        = 3
         whenUnsatisfiable = "DoNotSchedule"
         labelSelector = {
           matchLabels = {
@@ -49,13 +49,13 @@ data "helm_template" "cluster_autoscaler" {
         # nodes where available.
         expander = "priority,least-nodes"
         # increase reactivity of cluster autoscaler
-        scale-down-unneeded-time = "1m"
-        scale-down-delay-after-add = "1m"
-        scale-down-delay-after-failure = "1m"
-        scale-down-delay-type-local = "true"
+        scale-down-unneeded-time         = "1m"
+        scale-down-delay-after-add       = "1m"
+        scale-down-delay-after-failure   = "1m"
+        scale-down-delay-type-local      = "true"
         unremovable-node-recheck-timeout = "30s"
-        ignore-daemonsets-utilization = "true"
-        max-drain-parallelism = 10
+        ignore-daemonsets-utilization    = "true"
+        max-drain-parallelism            = 10
       }
       # Configure node groups based on cost and capacity.
       # Prefer cheaper nodes where possible
@@ -68,9 +68,9 @@ data "helm_template" "cluster_autoscaler" {
       }
       autoscalingGroups = [
         for pool in local._autoscaler_nodepools : {
-          name = pool.name
+          name         = pool.name
           instanceType = pool.instance_type
-          region = pool.location
+          region       = pool.location
           # NOTE: if the node group matches the one that the tailscale routers belong to
           # ensure that cluster autoscaler does not destroy them, to allow for a min of 2
           # system nodes in the cluster at all times.
@@ -93,8 +93,8 @@ data "helm_template" "cluster_autoscaler" {
         }
       }
       extraEnv = {
-        HCLOUD_SSH_KEY = tostring(hcloud_ssh_key.this.id)
-        HCLOUD_NETWORK = tostring(hcloud_network.this.id)
+        HCLOUD_SSH_KEY             = tostring(hcloud_ssh_key.this.id)
+        HCLOUD_NETWORK             = tostring(hcloud_network.this.id)
         HCLOUD_CLUSTER_CONFIG_FILE = "/asg/config"
       }
     })
@@ -104,15 +104,15 @@ data "helm_template" "cluster_autoscaler" {
 locals {
   cluster_autoscaler_manifest = {
     apiVersion = "v1alpha1"
-    kind =  "KubeInlineManifestConfig"
-    name     = "cluster-autoscaler"
-    manifest = data.helm_template.cluster_autoscaler.manifest
+    kind       = "KubeInlineManifestConfig"
+    name       = "cluster-autoscaler"
+    manifest   = data.helm_template.cluster_autoscaler.manifest
   }
 
   asg_config_manifest = {
     apiVersion = "v1alpha1"
-    kind =  "KubeInlineManifestConfig"
-    name     = "cluster-autoscaler-config"
+    kind       = "KubeInlineManifestConfig"
+    name       = "cluster-autoscaler-config"
     manifest = yamlencode({
       apiVersion = "v1"
       kind       = "Secret"
@@ -129,7 +129,7 @@ locals {
             }
             nodeConfigs = {
               for pool in local._autoscaler_nodepools : pool.name => {
-                cloudInit = data.talos_machine_configuration.worker[pool.name].machine_configuration
+                cloudInit     = data.talos_machine_configuration.worker[pool.name].machine_configuration
                 subnetIPRange = pool.subnet
                 labels = merge(
                   # NOTE: Although this label is added by default via the k8s control plane, cluster autoscaler
@@ -137,7 +137,7 @@ locals {
                   # this is needed to prevent issues where workloads with this default node selector
                   # fail to schedule.
                   {
-                    "kubernetes.io/os" = "linux",
+                    "kubernetes.io/os"            = "linux",
                     "topology.kubernetes.io/zone" = local._autoscaler_zones[pool.location]
                   },
                   pool.labels

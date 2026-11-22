@@ -1,6 +1,6 @@
 locals {
   vpc_cidr = "10.128.0.0/16"
-  
+
   node_cidrs = {
     public = [
       cidrsubnet(local.vpc_cidr, 4, 0),
@@ -30,21 +30,21 @@ data "aws_availability_zones" "available" {
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "~>6.7"
 
   name = "homelab"
   # NOTE:
   # This is needed if you wish to make eks cluster endpoint private
   enable_dns_hostnames = true
-  enable_dns_support = true
-  azs = slice(data.aws_availability_zones.available.names, 0, 3)
-  
-  cidr = local.vpc_cidr
-  public_subnets = local.node_cidrs.public
-  private_subnets = local.node_cidrs.private
+  enable_dns_support   = true
+  azs                  = slice(data.aws_availability_zones.available.names, 0, 3)
+
+  cidr             = local.vpc_cidr
+  public_subnets   = local.node_cidrs.public
+  private_subnets  = local.node_cidrs.private
   database_subnets = local.node_cidrs.database
-  intra_subnets = local.node_cidrs.intra
+  intra_subnets    = local.node_cidrs.intra
 
   public_subnet_tags = {
     "kubernetes.io/role/elb" = "1"
@@ -60,49 +60,49 @@ module "vpc" {
 }
 
 module "fck-nat" {
-  source = "rajiska/fck-nat/aws"
+  source  = "rajiska/fck-nat/aws"
   version = "~>1.6"
 
-  name = "homelab-fck-nat"
-  vpc_id = module.vpc.vpc_id
-  subnet_id = module.vpc.public_subnets[1]
-  ha_mode = true
+  name                = "homelab-fck-nat"
+  vpc_id              = module.vpc.vpc_id
+  subnet_id           = module.vpc.public_subnets[1]
+  ha_mode             = true
   update_route_tables = true
   route_tables_ids = {
     for key, table_id in module.vpc.private_route_table_ids :
-      "private-${key}" => table_id
+    "private-${key}" => table_id
   }
 }
 
 module "eks" {
-  source = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
   version = "~>21.26"
 
-  name = "homelab"
+  name               = "homelab"
   kubernetes_version = "1.36"
 
-  endpoint_public_access = true
-  endpoint_private_access = true
+  endpoint_public_access                   = true
+  endpoint_private_access                  = true
   enable_cluster_creator_admin_permissions = true
-  create_auto_mode_iam_resources = true
-  
+  create_auto_mode_iam_resources           = true
+
   compute_config = {
-    enabled = true
+    enabled    = true
     node_pools = ["system"]
   }
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
   # Stable name is needed for node classes
-  node_iam_role_name = "AmazonEKSAutoNodeRole"
+  node_iam_role_name            = "AmazonEKSAutoNodeRole"
   node_iam_role_use_name_prefix = false
 }
 
 resource "aws_eks_capability" "ack" {
-  cluster_name = module.eks.cluster_name
-  capability_name = "ack"
-  type = "ACK"
-  role_arn = module.ack_capability_role.arn
+  cluster_name              = module.eks.cluster_name
+  capability_name           = "ack"
+  type                      = "ACK"
+  role_arn                  = module.ack_capability_role.arn
   delete_propagation_policy = "RETAIN"
 }
