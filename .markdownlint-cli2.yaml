@@ -1,0 +1,7 @@
+config:
+  line-length:
+    line_length: 500
+  no-inline-html:
+    allowed_elements:
+      - details
+      - summary
