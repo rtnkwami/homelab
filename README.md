@@ -82,7 +82,7 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 
 ## Post-mortems
 
-- [Cilium Proxy Protocol Breaks Tailscale Gateway](/docs/post-mortems/01_cilium_proxy_protocol_issues.md)
+- [Cilium Proxy Protocol Breaks Tailscale Gateway](/docs/post-mortems/cilium_proxy_protocol_issues.md)
 
 - [Victoria Metrics Stuck on Delete](/docs/post-mortems/victoria_metrics_stuck_on_delete.md)
 
