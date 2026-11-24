@@ -1,12 +1,12 @@
 # Victoria Metrics Stuck on Delete
 
-## Summary
+## Details (Date: 8th July, 2026)
 
-**Date:** 8th July, 2026
+### Description
 
-**Description:** During clean-up after a dev session in my homelab, I ran a delete of the tools deployed via GitOps in my cluster (when I was running ArgoCD and not FluxCD), by deleting the app-of-apps. Upon delete, the operation hung forever and never progressed.
+During clean-up after a dev session in my homelab, I ran a delete of the tools deployed via GitOps in my cluster (when I was running ArgoCD and not FluxCD), by deleting the app-of-apps. Upon delete, the operation hung forever and never progressed.
 
-**Investigation:**
+### Investigation
 
 - During my investigation I checked:
 
@@ -20,7 +20,7 @@
 
 - However, during deletion, it is possible for the operator to be deleted before the resources it manages, thereby leaving ArgoCD no method for the removal of these resources, unless you manually remove the finalizers.
 
-**Resolution:**
+### Resolution
 
 To resolve this issue, I deployed the Victoria Metrics Operator and the `victoria-metrics-k8s-stack` helm chart separately, and disabled the operator in the k8s-stack helm chart. This makes it possible to control the deletion order of the chart and the operator.
 

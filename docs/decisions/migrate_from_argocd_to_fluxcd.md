@@ -1,10 +1,8 @@
 # Migrate from ArgoCD to Flux Operator & FluxCD
 
-## Summary
+## Details (Date: 12th October, 2026)
 
-**Date:** 12th October, 2026
-
-**Rationale:**
+### Rationale
 
 As the title says, I decided to migrate from ArgoCD to FluxCD for the reasons stated below:
 
@@ -18,6 +16,6 @@ Flux Operator along with FluxCD resolved this issue for me with `ResourceSets`. 
 
 In addition, I found the FluxCD CRDs from the Source, Helm, and Kustomize controllers to be much easier to reason about than ArgoCD Applications and ApplicationSets.
 
-**Trade-offs:**
+### Trade-offs
 
 - I no longer have access to the ArgoCD UI to see what has been deployed. However, this is offset by the Flux Operator UI, as well as TUI applications such as [sofka](https://sofka.rs/).
