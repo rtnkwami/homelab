@@ -15,15 +15,10 @@ A table of contents has been prepared below to give you a faster way to find wha
 ## Table of Contents
 
 - [Kubernetes](#kubernetes)
-
-- [Core Components](#core-components)
-
+  - [Core Components](#core-components)
   - [Network Architecture](#network-architecture)
-
 - [Post-mortems](#post-mortems)
-
 - [Architectural Decisions](#architectural-decisions)
-
 - [Applications](#applications)
 
 ---
@@ -37,15 +32,12 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 - **Networking & Ingress:**
 
   - [Cilium](https://github.com/cilium/cilium) provides eBPF networking for pods in the cluster.
-
   - [Istio](https://istio.io) provides GatewayAPI functionality for L7 through the `app-gateway` Gateway, mTLS for application workloads, and waypoints for services working with gRPC.
-
   - [Tailscale](https://tailscale.com/) provides private networking for services within the clusters, and for the cluster deployed using Talos, it also provides a way to prevent traffic over the public internet to control plane nodes (more on this architecture later).
 
 - **Security & Secrets:**
 
   - [cert-manager](https://cert-manager.io) automates SSL/TLS certificate management.
-
   - [External Secrets Operator](https://external-secrets.io/latest/) is used with [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) for secrets.
 
   - [Amazon EKS Pod Identity Webhook](https://github.com/aws/amazon-eks-pod-identity-webhook) provides access to AWS services through [AWS IAM Roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html).
@@ -61,11 +53,8 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 - **Automation & CI/CD:**
 
   - GitHub Actions is used for CI.
-
   - [Flux Operator](https://fluxoperator.dev/) is used to manage FluxCD, which is used for GitOps.
-
   - OpenTofu handles cluster upgrades.
-
   - [Kube-descheduler](https://github.com/kubernetes-sigs/descheduler) ensures scheduled pods in the cluster honor their scheduling rules even after cluster drift.
 
 - **Observability:**
@@ -83,7 +72,6 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 ## Post-mortems
 
 - [Cilium Proxy Protocol Breaks Tailscale Gateway](/docs/post-mortems/cilium_proxy_protocol_issues.md)
-
 - [Victoria Metrics Stuck on Delete](/docs/post-mortems/victoria_metrics_stuck_on_delete.md)
 
 ---
