@@ -63,7 +63,7 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 ### Network Architecture
 
 <details>
-  <summary>Click here to see a network diagram of my Talos cluster</summary>
+  <summary>Network diagram will be created soon (Date this was written: 25/11/2026)</summary>
 </details>
 
 ---
