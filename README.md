@@ -78,6 +78,7 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 ## Architectural Decisions
 
 - [Migrate from ArgoCD to FluxCD](/docs/decisions/migrate_from_argocd_to_fluxcd.md)
+- [Secure Kubernetes and Talos API Access via Private Tailscale Networking](/docs/decisions/secure_k8s_api_access_over_tailscale.md)
 
 ---
 
