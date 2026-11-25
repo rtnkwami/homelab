@@ -39,7 +39,6 @@ I have 2 Kubernetes clusters currently configured in this mono-repository. One o
 
   - [cert-manager](https://cert-manager.io) automates SSL/TLS certificate management.
   - [External Secrets Operator](https://external-secrets.io/latest/) is used with [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) for secrets.
-
   - [Amazon EKS Pod Identity Webhook](https://github.com/aws/amazon-eks-pod-identity-webhook) provides access to AWS services through [AWS IAM Roles for Service Accounts](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html).
 
 - **Storage:**
