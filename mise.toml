@@ -15,20 +15,21 @@ node = "26"
 opentofu = "1.13"
 helm = "4.2.4"
 kubectl = "1.36.1"
+go = "1.27.4"
 
-[tasks."tofu:cache"]
+[tasks."cache:tofu"]
 run = "mkdir -p .tofu/cache"
 
 [env]
 TF_PLUGIN_CACHE_DIR = "{{ config_root }}/.tofu/cache"
 
 [tasks."eks:init"]
-depends = "tofu:cache"
+depends = "cache:tofu"
 dir = "infra/k8s/eks"
 run = "tofu init -upgrade"
 
 [tasks."talos:init"]
-depends = "tofu:cache"
+depends = "cache:tofu"
 dir = "infra/k8s/talos"
 run = "tofu init -upgrade"
 
