@@ -83,7 +83,7 @@ spec:
                             matchLabels:
                               app: helm-controller
                           matchLabelKeys: ["pod-template-hash"]    
-    
+
     - name: bootstrap
       resources:
         - apiVersion: source.toolkit.fluxcd.io/v1
@@ -110,4 +110,3 @@ spec:
               namespace: flux-system
             path: gitops/talos
             prune: true
-                
